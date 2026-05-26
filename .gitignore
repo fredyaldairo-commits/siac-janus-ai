@@ -1,0 +1,17 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+uploads/*
+!uploads/.gitkeep
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+build/
+dist/
+*.spec

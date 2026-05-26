@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SIAC · JANUS AI — Advanced Financial System</title>
+<meta name="description" content="SIAC / JANUS AI · Plataforma de scoring crediticio con IA: Logit, Probit, Random Forest, XGBoost y Redes Neuronales."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   JNUS · ADVANCED FINANCIAL SYSTEM
+   Tema: midnight + gold, banca premium con tecnología
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg-0:#070b14;
+  --bg-1:#0b1220;
+  --bg-2:#11192b;
+  --bg-3:#172238;
+  --line:#1f2d49;
+  --line-soft:rgba(196,156,82,.18);
+  --gold:#c89b3c;
+  --gold-2:#e8c275;
+  --gold-soft:rgba(200,155,60,.12);
+  --blue:#5a8cff;
+  --blue-2:#9bb6ff;
+  --teal:#3dd6c1;
+  --crimson:#e7507a;
+  --warn:#f0a045;
+  --green:#3dd68a;
+  --text:#eef2fb;
+  --text-soft:#b6c2dc;
+  --muted:#6c7a99;
+  --font-display:'Cormorant Garamond', serif;
+  --font-body:'Inter', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --radius:14px;
+  --radius-sm:8px;
+  --shadow-sm:0 4px 14px rgba(0,0,0,.35);
+  --shadow-md:0 12px 40px rgba(0,0,0,.45);
+  --shadow-gold:0 0 40px rgba(200,155,60,.18);
+  --grad-gold:linear-gradient(135deg,#c89b3c 0%,#e8c275 50%,#a87f2a 100%);
+  --grad-blue:linear-gradient(135deg,#1f3a8a,#5a8cff);
+  --grad-panel:linear-gradient(180deg,#11192b 0%,#0b1220 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg-0);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:13.5px;
+  line-height:1.6;
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Ambient backdrop */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1100px 700px at 80% -10%, rgba(200,155,60,.06), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(90,140,255,.05), transparent 60%),
+    linear-gradient(180deg, rgba(7,11,20,0) 0, rgba(7,11,20,.6) 100%);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+  background-image:
+    linear-gradient(rgba(200,155,60,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,155,60,.025) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(circle at 50% 30%, #000 30%, transparent 75%);
+}
+
+/* ═══ LAYOUT: SIDEBAR + MAIN ════════════════════════════════════════════ */
+.app{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  min-height:100vh;
+  position:relative;
+  z-index:1;
+}
+
+/* SIDEBAR */
+.sidebar{
+  background:linear-gradient(180deg,#0a0f1c 0%, #070b14 100%);
+  border-right:1px solid var(--line);
+  padding:28px 18px;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.brand{
+  display:flex;align-items:center;gap:12px;padding:0 6px 24px;
+  border-bottom:1px solid var(--line);margin-bottom:24px;
+}
+.brand-logo{
+  width:46px;height:46px;border-radius:10px;
+  background:var(--grad-gold);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:24px;color:#0a0f1c;
+  box-shadow:0 6px 22px rgba(200,155,60,.45), inset 0 0 0 1px rgba(255,255,255,.15);
+  position:relative;
+}
+.brand-logo::after{
+  content:'';position:absolute;inset:3px;border-radius:8px;
+  border:1px solid rgba(10,15,28,.4);pointer-events:none;
+}
+.brand-text{display:flex;flex-direction:column;line-height:1}
+.brand-name{font-family:var(--font-display);font-size:24px;font-weight:700;letter-spacing:3px;color:var(--gold-2)}
+.brand-sub{font-size:9px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-top:5px}
+
+.nav-section-label{
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+  padding:14px 12px 8px;font-weight:600;
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 12px;border-radius:10px;cursor:pointer;
+  color:var(--text-soft);font-size:13px;font-weight:500;
+  transition:all .2s ease;margin-bottom:2px;
+  border:1px solid transparent;
+}
+.nav-item:hover{background:var(--bg-2);color:var(--text)}
+.nav-item.active{
+  background:linear-gradient(90deg, rgba(200,155,60,.14), rgba(200,155,60,.04));
+  color:var(--gold-2);
+  border-color:var(--line-soft);
+  box-shadow:inset 0 0 0 1px rgba(200,155,60,.12);
+}
+.nav-item.active .nav-step{background:var(--grad-gold);color:#0a0f1c}
+.nav-step{
+  width:24px;height:24px;border-radius:6px;background:var(--bg-3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--muted);
+  flex-shrink:0;transition:all .2s;
+}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-label{flex:1}
+.nav-badge{
+  font-size:9px;padding:2px 7px;border-radius:10px;
+  background:var(--bg-3);color:var(--muted);letter-spacing:.5px;
+}
+
+.sidebar-footer{
+  position:absolute;bottom:20px;left:18px;right:18px;
+  padding-top:16px;border-top:1px solid var(--line);
+  font-size:10px;color:var(--muted);text-align:center;letter-spacing:1px;
+}
+.sidebar-footer .status{
+  display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;
+}
+.status-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 10px var(--green);animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ═══ MAIN ══════════════════════════════════════════════════════════════ */
+.main{padding:0;overflow:auto;min-width:0}
+
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 36px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(11,18,32,.85), rgba(11,18,32,0));
+  backdrop-filter:blur(10px);
+  position:sticky;top:0;z-index:50;
+}
+.topbar-title{display:flex;flex-direction:column;line-height:1.2}
+.topbar-title h1{
+  font-family:var(--font-display);font-size:28px;font-weight:600;
+  letter-spacing:.5px;color:var(--text);
+}
+.topbar-title h1 span{color:var(--gold-2);font-style:italic}
+.topbar-title .crumb{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.kbd-hint{
+  font-family:var(--font-mono);font-size:10px;
+  color:var(--muted);padding:5px 10px;border:1px solid var(--line);border-radius:6px;
+}
+
+.content{padding:32px 36px 80px;max-width:1500px}
+
+/* ═══ SECTIONS ══════════════════════════════════════════════════════════ */
+.section{display:none;animation:slideIn .35s ease}
+.section.active{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ═══ CARDS ═════════════════════════════════════════════════════════════ */
+.card{
+  background:var(--grad-panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:26px;margin-bottom:22px;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity:.4;
+}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line);
+}
+.card-title{
+  font-family:var(--font-display);font-size:20px;font-weight:600;
+  color:var(--text);display:flex;align-items:center;gap:12px;letter-spacing:.3px;
+}
+.card-title .icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--gold-soft);color:var(--gold-2);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  border:1px solid var(--line-soft);
+}
+.card-subtitle{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;
+  background:var(--gold-soft);color:var(--gold-2);border:1px solid var(--line-soft);
+}
+
+/* ═══ UPLOAD ZONE ═══════════════════════════════════════════════════════ */
+.upload-zone{
+  border:1.5px dashed rgba(200,155,60,.28);
+  border-radius:var(--radius);
+  padding:56px 24px;text-align:center;cursor:pointer;
+  transition:all .3s ease;
+  background:radial-gradient(ellipse at center, rgba(200,155,60,.04), transparent 70%);
+}
+.upload-zone:hover, .upload-zone.drag{
+  border-color:var(--gold);
+  background:radial-gradient(ellipse at center, rgba(200,155,60,.1), transparent 70%);
+  box-shadow:inset 0 0 0 1px rgba(200,155,60,.15);
+}
+.upload-icon{
+  width:64px;height:64px;border-radius:50%;margin:0 auto 16px;
+  background:var(--gold-soft);border:1px solid var(--line-soft);
+  display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--gold-2);
+}
+.upload-title{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text);margin-bottom:6px}
+.upload-sub{color:var(--muted);font-size:12px}
+.upload-formats{
+  margin-top:14px;display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center;
+}
+.fmt-pill{
+  font-family:var(--font-mono);font-size:10px;padding:3px 9px;
+  background:var(--bg-3);border:1px solid var(--line);border-radius:4px;color:var(--text-soft);
+}
+#file-input{display:none}
+
+/* ═══ BUTTONS ═══════════════════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 22px;border-radius:8px;border:none;cursor:pointer;
+  font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.3px;
+  transition:all .2s ease;
+}
+.btn-gold{
+  background:var(--grad-gold);color:#0a0f1c;
+  box-shadow:0 4px 16px rgba(200,155,60,.25);
+}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(200,155,60,.4)}
+.btn-ghost{
+  background:transparent;border:1px solid var(--line);color:var(--text-soft);
+}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-2)}
+.btn-blue{
+  background:linear-gradient(135deg, #2a4ecc, #5a8cff);color:#fff;
+  box-shadow:0 4px 14px rgba(90,140,255,.3);
+}
+.btn-blue:hover{transform:translateY(-1px)}
+.btn-sm{padding:7px 14px;font-size:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+
+/* ═══ INPUTS ════════════════════════════════════════════════════════════ */
+.field{margin-bottom:14px}
+.field label{
+  display:block;font-size:11px;letter-spacing:1.5px;
+  color:var(--muted);text-transform:uppercase;margin-bottom:8px;font-weight:600;
+}
+select, input[type=text], input[type=number]{
+  width:100%;background:var(--bg-3);border:1px solid var(--line);
+  color:var(--text);padding:11px 14px;border-radius:8px;
+  font-family:var(--font-body);font-size:13px;
+  transition:border-color .2s;
+}
+select:focus, input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,155,60,.1)}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:6px;background:var(--bg-3);
+  border-radius:3px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;background:var(--grad-gold);
+  border-radius:50%;cursor:pointer;box-shadow:0 0 0 4px rgba(200,155,60,.15);
+}
+
+/* ═══ TABLE ═════════════════════════════════════════════════════════════ */
+.table-wrap{
+  overflow-x:auto;border-radius:var(--radius-sm);
+  border:1px solid var(--line);background:var(--bg-1);
+}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{
+  background:var(--bg-3);padding:12px 14px;text-align:left;
+  color:var(--gold-2);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  border-bottom:1px solid var(--line);font-weight:600;
+}
+tbody td{padding:10px 14px;border-bottom:1px solid rgba(31,45,73,.4);color:var(--text-soft)}
+tbody tr:hover td{background:rgba(200,155,60,.04);color:var(--text)}
+
+/* ═══ METRICS GRID ══════════════════════════════════════════════════════ */
+.metrics-grid{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(160px,1fr));gap:14px;
+}
+.metric{
+  background:var(--bg-1);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:18px 20px;
+  position:relative;overflow:hidden;
+}
+.metric::before{
+  content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:var(--grad-gold);
+}
+.metric-label{
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:8px;
+}
+.metric-value{
+  font-family:var(--font-display);font-size:30px;font-weight:600;
+  color:var(--text);line-height:1;letter-spacing:.5px;
+}
+.metric-value.gold{color:var(--gold-2)}
+.metric-value.blue{color:var(--blue-2)}
+.metric-value.green{color:var(--green)}
+.metric-value.warn{color:var(--warn)}
+.metric-sub{font-size:10px;color:var(--muted);margin-top:6px}
+
+/* ═══ STEPS LOG ═════════════════════════════════════════════════════════ */
+.log-list{list-style:none;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;padding-right:6px}
+.log-list::-webkit-scrollbar{width:6px}
+.log-list::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.log-item{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--bg-1);padding:10px 14px;border-radius:8px;
+  border-left:2px solid var(--gold);font-size:12px;color:var(--text-soft);
+  font-family:var(--font-mono);
+}
+.log-item .ts{color:var(--muted);font-size:10px;flex-shrink:0;margin-top:2px}
+.log-item .msg{flex:1;line-height:1.5}
+
+/* ═══ FORMULA ═══════════════════════════════════════════════════════════ */
+.formula{
+  background:#04070e;border:1px solid var(--line-soft);
+  border-radius:var(--radius-sm);padding:18px 22px;
+  font-family:var(--font-mono);font-size:12.5px;line-height:2;
+  color:var(--gold-2);margin:14px 0;overflow-x:auto;
+}
+.formula .cm{color:var(--muted);font-style:italic}
+.formula strong{color:var(--text);font-weight:600}
+
+/* ═══ MODEL CHOOSER ═════════════════════════════════════════════════════ */
+.model-grid{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:14px;margin-bottom:20px;
+}
+.model-card{
+  background:var(--bg-1);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:18px;cursor:pointer;
+  transition:all .25s ease;position:relative;
+}
+.model-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.model-card.active{
+  border-color:var(--gold);
+  background:linear-gradient(180deg, rgba(200,155,60,.08), var(--bg-1));
+  box-shadow:0 0 0 1px var(--gold), 0 8px 24px rgba(200,155,60,.15);
+}
+.model-card .ic{
+  width:38px;height:38px;border-radius:8px;
+  background:var(--bg-3);display:flex;align-items:center;justify-content:center;
+  font-size:18px;margin-bottom:10px;
+}
+.model-card.active .ic{background:var(--grad-gold)}
+.model-card .nm{font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--text);margin-bottom:3px}
+.model-card .tp{font-size:11px;color:var(--muted)}
+
+.model-desc{
+  background:var(--bg-1);border:1px solid var(--line-soft);
+  border-radius:var(--radius-sm);padding:16px 20px;font-size:12.5px;
+  color:var(--text-soft);line-height:1.7;
+}
+
+/* ═══ PROGRESS ══════════════════════════════════════════════════════════ */
+.progress{
+  height:6px;background:var(--bg-3);border-radius:3px;overflow:hidden;margin-top:14px;
+}
+.progress-bar{
+  height:100%;background:var(--grad-gold);border-radius:3px;
+  transition:width .5s ease;width:0%;
+}
+
+/* ═══ JUAN CARD ═════════════════════════════════════════════════════════ */
+.juan{
+  display:grid;grid-template-columns:auto 1fr 1.6fr;gap:24px;align-items:center;
+  background:linear-gradient(135deg, rgba(200,155,60,.08), rgba(90,140,255,.04));
+  border:1px solid var(--line-soft);border-radius:var(--radius);padding:24px;
+}
+.juan-avatar{
+  width:72px;height:72px;border-radius:50%;
+  background:var(--grad-gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;color:#0a0f1c;
+  box-shadow:0 0 0 4px rgba(200,155,60,.15), 0 8px 24px rgba(200,155,60,.3);
+}
+.juan-info .nm{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text)}
+.juan-info .dt{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.5px}
+.juan-info .tag{
+  display:inline-block;margin-top:8px;padding:3px 10px;
+  background:var(--bg-3);border:1px solid var(--line);border-radius:4px;
+  font-size:10px;color:var(--text-soft);letter-spacing:1px;
+}
+.juan-prob{}
+.prob-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase}
+.prob-pct{font-family:var(--font-display);font-size:28px;color:var(--gold-2);font-weight:700}
+.prob-track{height:10px;background:var(--bg-3);border-radius:5px;overflow:hidden}
+.prob-fill{height:100%;background:var(--grad-gold);transition:width 1s cubic-bezier(.16,1,.3,1)}
+.prob-verdict{margin-top:10px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px}
+@media(max-width:900px){.juan{grid-template-columns:1fr}}
+
+/* ═══ CONFUSION MATRIX ══════════════════════════════════════════════════ */
+.cm-wrap{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+.cm-grid{
+  display:grid;grid-template-columns:repeat(2, 90px);grid-template-rows:repeat(2, 70px);
+  gap:6px;
+}
+.cm-cell{
+  border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:26px;font-weight:700;
+  position:relative;
+}
+.cm-cell .lbl{font-family:var(--font-body);font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-top:4px;font-weight:500}
+.cm-cell.ok{background:rgba(61,214,138,.12);color:var(--green);border:1px solid rgba(61,214,138,.3)}
+.cm-cell.bad{background:rgba(231,80,122,.1);color:var(--crimson);border:1px solid rgba(231,80,122,.3)}
+.cm-legend{font-size:11px;color:var(--text-soft);line-height:2}
+.cm-legend .dt{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:8px;vertical-align:middle}
+
+/* ═══ FEATURE IMPORTANCE ════════════════════════════════════════════════ */
+.fi-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.fi-name{
+  width:130px;font-size:11px;color:var(--text-soft);font-family:var(--font-mono);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.fi-bar{flex:1;height:8px;background:var(--bg-3);border-radius:4px;overflow:hidden;position:relative}
+.fi-fill{height:100%;background:var(--grad-gold);border-radius:4px;transition:width .8s ease}
+.fi-val{font-family:var(--font-mono);font-size:11px;color:var(--gold-2);width:52px;text-align:right}
+
+/* ═══ GRID HELPERS ══════════════════════════════════════════════════════ */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+@media(max-width:1100px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* ═══ TAGS ══════════════════════════════════════════════════════════════ */
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 11px;border-radius:6px;font-size:11px;
+  font-family:var(--font-mono);font-weight:500;
+}
+.tag.num{background:rgba(90,140,255,.1);color:var(--blue-2);border:1px solid rgba(90,140,255,.2)}
+.tag.cat{background:rgba(61,214,193,.1);color:var(--teal);border:1px solid rgba(61,214,193,.2)}
+.tag.tgt{background:var(--gold-soft);color:var(--gold-2);border:1px solid var(--line-soft)}
+
+/* ═══ TOAST ═════════════════════════════════════════════════════════════ */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:8px;padding:14px 20px;font-size:13px;color:var(--text);
+  max-width:380px;transform:translateY(80px);opacity:0;transition:all .35s ease;
+  box-shadow:var(--shadow-md);display:flex;align-items:center;gap:10px;
+}
+#toast.show{transform:none;opacity:1}
+#toast.error{border-left-color:var(--crimson);color:var(--crimson)}
+#toast.ok{border-left-color:var(--green);color:var(--green)}
+#toast .ic{font-size:16px}
+
+/* ═══ SPINNER ═══════════════════════════════════════════════════════════ */
+.spin{
+  display:inline-block;width:14px;height:14px;
+  border:2px solid rgba(200,155,60,.25);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══ EMPTY STATE ═══════════════════════════════════════════════════════ */
+.empty{text-align:center;padding:80px 30px;color:var(--muted)}
+.empty .ic{
+  width:80px;height:80px;border-radius:50%;background:var(--bg-2);
+  border:1px solid var(--line);margin:0 auto 18px;
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+}
+.empty h3{font-family:var(--font-display);font-size:22px;color:var(--text-soft);margin-bottom:8px}
+.empty p{font-size:13px}
+
+/* ═══ CODE BLOCK ════════════════════════════════════════════════════════ */
+.code-block{
+  background:#04070e;border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:18px;font-family:var(--font-mono);font-size:11.5px;color:#c5d2ed;
+  overflow-x:auto;line-height:1.9;
+}
+.code-block .kw{color:#ff79c6}
+.code-block .fn{color:var(--teal)}
+.code-block .str{color:var(--gold-2)}
+.code-block .cm{color:var(--muted);font-style:italic}
+.code-block .num{color:var(--blue-2)}
+
+/* ═══ FLOW DIAGRAM ══════════════════════════════════════════════════════ */
+.flow{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:24px;background:var(--bg-1);border:1px solid var(--line);
+  border-radius:var(--radius);overflow-x:auto;
+}
+.flow-node{
+  flex-shrink:0;padding:14px 18px;background:var(--bg-3);
+  border:1px solid var(--line);border-radius:10px;
+  text-align:center;min-width:120px;
+}
+.flow-node .ic{font-size:22px;margin-bottom:6px}
+.flow-node .lb{font-size:10px;color:var(--text-soft);letter-spacing:1px;text-transform:uppercase}
+.flow-arrow{color:var(--gold);font-size:18px}
+
+/* ═══ MOBILE ════════════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  .content{padding:20px}
+  .topbar{padding:16px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">J</div>
+      <div class="brand-text">
+        <span class="brand-name">JANUS</span>
+        <span class="brand-sub">SIAC · Credit AI</span>
+      </div>
+    </div>
+
+    <div class="nav-section-label">Pipeline</div>
+    <div class="nav-item active" data-section="upload">
+      <div class="nav-step">01</div>
+      <span class="nav-icon">📁</span>
+      <span class="nav-label">Cargar Datos</span>
+    </div>
+    <div class="nav-item" data-section="preprocess">
+      <div class="nav-step">02</div>
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Preprocesar</span>
+    </div>
+    <div class="nav-item" data-section="train">
+      <div class="nav-step">03</div>
+      <span class="nav-icon">🤖</span>
+      <span class="nav-label">Entrenar</span>
+    </div>
+    <div class="nav-item" data-section="results">
+      <div class="nav-step">04</div>
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Resultados</span>
+    </div>
+    <div class="nav-item" data-section="predict">
+      <div class="nav-step">05</div>
+      <span class="nav-icon">⚡</span>
+      <span class="nav-label">Predicción en Vivo</span>
+    </div>
+
+    <div class="nav-section-label">Knowledge</div>
+    <div class="nav-item" data-section="explain">
+      <div class="nav-step">06</div>
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Explicación</span>
+    </div>
+    <div class="nav-item" data-section="how">
+      <div class="nav-step">07</div>
+      <span class="nav-icon">🏗️</span>
+      <span class="nav-label">Arquitectura</span>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status">
+        <span class="status-dot"></span>
+        <span id="srv-status">Inicializando…</span>
+      </div>
+      <div>v2.0 · Premium Banking AI</div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1>SIAC · <span>JANUS AI</span> · Advanced Financial System</h1>
+        <span class="crumb" id="crumb">Etapa 01 · Cargar Datos</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="resetAll()">↺ Reiniciar</button>
+        <span class="kbd-hint">ES · MX</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══════════ SECTION 1: UPLOAD ═══════════ -->
+      <section id="sec-upload" class="section active">
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="icon">📁</span> Cargar Base de Datos</div>
+              <div class="card-subtitle" style="margin-top:4px">Sube tu archivo CSV o Excel con datos de clientes</div>
+            </div>
+            <span class="badge">Step 01</span>
+          </div>
+
+          <div class="upload-zone" id="drop-zone"
+               onclick="document.getElementById('file-input').click()"
+               ondragover="dragHandler(event,'add')"
+               ondragleave="dragHandler(event,'remove')"
+               ondrop="dropHandler(event)">
+            <div class="upload-icon">⬆</div>
+            <div class="upload-title">Arrastra tu archivo aquí</div>
+            <div class="upload-sub">o haz clic para seleccionar</div>
+            <div class="upload-formats">
+              <span class="fmt-pill">.CSV</span>
+              <span class="fmt-pill">.XLSX</span>
+              <span class="fmt-pill">.XLS</span>
+              <span class="fmt-pill">Máx 64 MB</span>
+            </div>
+          </div>
+          <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="uploadFile(this.files[0])"/>
+
+          <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-ghost btn-sm" onclick="loadDemoData()">🎲 Datos demo (500 clientes)</button>
+            <span style="color:var(--muted);font-size:11px">Úsalo si no tienes un dataset propio</span>
+          </div>
+        </div>
+
+        <div id="upload-result" style="display:none">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="icon">📈</span> Resumen del Dataset</div>
+              <span class="badge" id="dataset-name">—</span>
+            </div>
+            <div class="metrics-grid" id="dataset-metrics"></div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="icon">🔍</span> Variables Detectadas</div>
+              </div>
+              <div id="col-tags" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="icon">📜</span> Log del Sistema</div>
+              </div>
+              <ul class="log-list" id="upload-log"></ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="icon">👁️</span> Vista Previa</div>
+              <span class="card-subtitle">Primeras 8 filas</span>
+            </div>
+            <div class="table-wrap">
+              <table id="preview-table"></table>
+            </div>
+          </div>
+
+          <div style="text-align:right;margin-top:8px">
+            <button class="btn btn-gold" onclick="goto('preprocess')">Continuar a Preprocesar →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ SECTION 2: PREPROCESS ═══════════ -->
+      <section id="sec-preprocess" class="section">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="icon">🎯</span> Configurar Preprocesamiento</div>
+              <div class="card-subtitle" style="margin-top:4px">Selecciona la variable objetivo y los parámetros</div>
+            </div>
+            <span class="badge">Step 02</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label>Variable Objetivo (Y)</label>
+              <select id="target-select">
+                <option value="">— Selecciona la columna que indica pago/no-pago —</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Proporción Test · <span id="ts-val" style="color:var(--gold-2)">20%</span></label>
+              <input type="range" id="test-size" min="10" max="40" value="20"
+                     oninput="document.getElementById('ts-val').textContent=this.value+'%'"/>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="runPreprocess()" id="btn-preprocess">
+              ⚙ Procesar Datos
+            </button>
+            <button class="btn btn-ghost" onclick="goto('upload')">← Volver</button>
+          </div>
+        </div>
+
+        <div id="preprocess-result" style="display:none">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="icon">📜</span> Pasos de Limpieza y Transformación</div>
+            </div>
+            <ul class="log-list" id="step-log"></ul>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="icon">⚖</span> Distribución de Clases</div>
+              </div>
+              <div style="max-width:340px;margin:0 auto"><canvas id="class-chart" height="200"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="icon">📐</span> Codificación de Variables</div>
+              </div>
+              <div class="formula">
+<span class="cm"># Variables binarias</span>
+Sí / Yes / True  →  <strong>1</strong>
+No / False / 0   →  <strong>0</strong>
+
+<span class="cm"># One-Hot (drop_first)</span>
+ciudad ∈ {Quito, GYE, Cuenca}
+  →  ciudad_GYE, ciudad_Cuenca
+  <span class="cm"># Quito = referencia</span>
+
+<span class="cm"># Escalado</span>
+X' = (X − μ) / σ
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:right;margin-top:8px">
+            <button class="btn btn-gold" onclick="goto('train')">Continuar a Entrenamiento →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ SECTION 3: TRAIN ═══════════ -->
+      <section id="sec-train" class="section">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="icon">🤖</span> Seleccionar Modelo</div>
+              <div class="card-subtitle" style="margin-top:4px">Elige el algoritmo a entrenar</div>
+            </div>
+            <span class="badge">Step 03</span>
+          </div>
+
+          <div class="model-grid" id="model-grid">
+            <div class="model-card active" data-model="logit" onclick="selectModel('logit', this)">
+              <div class="ic">📈</div>
+              <div class="nm">Logit</div>
+              <div class="tp">Regresión Logística</div>
+            </div>
+            <div class="model-card" data-model="probit" onclick="selectModel('probit', this)">
+              <div class="ic">📉</div>
+              <div class="nm">Probit</div>
+              <div class="tp">Normal acumulada</div>
+            </div>
+            <div class="model-card" data-model="random_forest" onclick="selectModel('random_forest', this)">
+              <div class="ic">🌲</div>
+              <div class="nm">Random Forest</div>
+              <div class="tp">Ensemble Trees</div>
+            </div>
+            <div class="model-card" data-model="xgboost" onclick="selectModel('xgboost', this)">
+              <div class="ic">⚡</div>
+              <div class="nm">XGBoost</div>
+              <div class="tp">Gradient Boosting</div>
+            </div>
+            <div class="model-card" data-model="neural_net" onclick="selectModel('neural_net', this)">
+              <div class="ic">🧠</div>
+              <div class="nm">Red Neuronal</div>
+              <div class="tp">MLP 64→32→1</div>
+            </div>
+          </div>
+
+          <div class="model-desc" id="model-desc"></div>
+
+          <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="runTrain()" id="btn-train">🚀 Entrenar Modelo</button>
+            <button class="btn btn-ghost" onclick="goto('preprocess')">← Volver</button>
+          </div>
+          <div class="progress"><div class="progress-bar" id="train-progress"></div></div>
+        </div>
+      </section>
+
+      <!-- ═══════════ SECTION 4: RESULTS ═══════════ -->
+      <section id="sec-results" class="section">
+        <div id="results-empty" class="card">
+          <div class="empty">
+            <div class="ic">📊</div>
+            <h3>Sin resultados todavía</h3>
+            <p>Entrena un modelo para visualizar las métricas, predicciones y gráficos.</p>
+          </div>
+        </div>
+
+        <div id="results-content" style="display:none">
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="icon">📊</span> Métricas del Modelo</div>
+              <span class="badge" id="model-tag">—</span>
+            </div>
+            <div class="metrics-grid" id="metrics-grid"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="icon">👤</span> Cliente de Prueba — Juan García</div>
+              <span class="card-subtitle">Perfil promedio del dataset</span>
+            </div>
+            <div class="juan">
+              <div class="juan-avatar">👤</div>
+              <div class="juan-info">
+                <div class="nm">Juan García</div>
+                <div class="dt">Cliente sintético basado en la mediana del dataset</div>
+                <div class="tag">PERFIL PROMEDIO</div>
+              </div>
+              <div class="juan-prob">
+                <div class="prob-row"><span>Probabilidad de Pago</span><span class="prob-pct" id="juan-pct">—</span></div>
+                <div class="prob-track"><div class="prob-fill" id="juan-bar" style="width:0%"></div></div>
+                <div class="prob-verdict" id="juan-verdict"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="icon">🎯</span> Matriz de Confusión</div>
+              </div>
+              <div class="cm-wrap">
+                <div>
+                  <div style="font-size:9px;color:var(--muted);margin-bottom:8px;letter-spacing:1.5px">PREDICHO → REAL ↓</div>
+                  <div class="cm-grid" id="cm-grid"></div>
+                </div>
+                <div class="cm-legend">
+                  <div><span class="dt" style="background:var(--green)"></span><strong style="color:var(--green)">VP</strong> · Pagó y predijo pagar</div>
+                  <div><span class="dt" style="background:var(--green)"></span><strong style="color:var(--green)">VN</strong> · No pagó y predijo no pagar</div>
+                  <div><span class="dt" style="background:var(--crimson)"></span><strong style="color:var(--crimson)">FP</strong> · Predijo pagar pero no pagó</div>
+                  <div><span class="dt" style="background:var(--crimson)"></span><strong style="color:var(--crimson)">FN</strong> · Predijo no pagar pero sí pagó</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="icon">⚖</span> Importancia de Variables</div>
+              </div>
+              <div id="fi-bars"></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="icon">📈</span> Distribución de Probabilidades</div>
+              </div>
+              <canvas id="hist-chart" height="220"></canvas>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title" id="viz-title"><span class="icon">🧠</span> Visualización</div>
+              </div>
+              <canvas id="viz-canvas" height="240"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="icon">📈</span> Curva ROC</div>
+              <span class="card-subtitle">Sensibilidad vs 1 − Especificidad</span>
+            </div>
+            <canvas id="roc-chart" height="220"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ SECTION 4.5: LIVE PREDICTION ═══════════ -->
+      <section id="sec-predict" class="section">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title"><span class="icon">⚡</span> Análisis Financiero en Tiempo Real</div>
+              <div class="card-subtitle" style="margin-top:4px">Completa los datos del cliente y JANUS analiza al instante</div>
+            </div>
+            <span class="badge">Live AI</span>
+          </div>
+
+          <div id="predict-empty" class="empty">
+            <div class="ic">⚡</div>
+            <h3>Entrena un modelo primero</h3>
+            <p>Ejecuta los pasos 01 → 03 para activar el motor de predicción en vivo.</p>
+          </div>
+
+          <div id="predict-body" style="display:none">
+            <div class="grid-2">
+              <div>
+                <h3 style="font-family:var(--font-display);color:var(--gold-2);font-size:18px;margin-bottom:14px">📝 Formulario del Cliente</h3>
+                <div id="predict-form" style="display:flex;flex-direction:column;gap:12px;max-height:520px;overflow-y:auto;padding-right:8px"></div>
+                <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+                  <button class="btn btn-gold" onclick="runPredict()">⚡ Analizar Cliente</button>
+                  <button class="btn btn-ghost btn-sm" onclick="loadMedianValues()">↺ Valores promedio</button>
+                  <button class="btn btn-ghost btn-sm" onclick="loadRandomValues()">🎲 Aleatorio</button>
+                </div>
+              </div>
+              <div>
+                <h3 style="font-family:var(--font-display);color:var(--gold-2);font-size:18px;margin-bottom:14px">🎯 Decisión del Sistema</h3>
+                <div id="predict-result" class="card" style="margin:0;background:var(--bg-1);min-height:200px">
+                  <div class="empty" style="padding:40px 10px">
+                    <p>Esperando datos del cliente…</p>
+                  </div>
+                </div>
+                <div style="margin-top:14px">
+                  <h4 style="color:var(--text-soft);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">Contribuciones por Variable</h4>
+                  <div id="predict-contribs" style="font-size:11px;color:var(--muted)">Aún sin datos.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="model-deep-viz" style="display:none">
+          <div class="card-head">
+            <div class="card-title"><span class="icon">🧬</span> Visualización Interna del Modelo</div>
+            <span class="card-subtitle" id="deep-viz-sub">—</span>
+          </div>
+          <div id="deep-viz-host" style="min-height:340px;background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px;position:relative;overflow:hidden">
+            <svg id="deep-svg" width="100%" height="380" style="display:block"></svg>
+          </div>
+          <p style="color:var(--muted);font-size:11px;margin-top:10px" id="deep-explain">
+            Las visualizaciones se generan en vivo desde la estructura real del modelo entrenado.
+          </p>
+        </div>
+      </section>
+
+      <!-- ═══════════ SECTION 5: EXPLAIN ═══════════ -->
+      <section id="sec-explain" class="section">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="icon">📖</span> Pipeline Paso a Paso</div>
+            <span class="badge">Knowledge</span>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <h3 style="font-family:var(--font-display);color:var(--gold-2);font-size:18px;margin-bottom:8px">① Limpieza de Datos</h3>
+              <p style="color:var(--text-soft);font-size:12.5px;line-height:1.8">Se eliminan filas con valores nulos en la variable objetivo. Los valores faltantes en columnas numéricas se reemplazan por la <strong>mediana</strong> (robusta a outliers) y en categóricas por la <strong>moda</strong>.</p>
+              <div class="formula">mediana(X) = valor central ordenado
+NaN<sub>num</sub> → mediana(columna)
+NaN<sub>cat</sub> → moda(columna)</div>
+            </div>
+            <div>
+              <h3 style="font-family:var(--font-display);color:var(--gold-2);font-size:18px;margin-bottom:8px">② Codificación</h3>
+              <p style="color:var(--text-soft);font-size:12.5px;line-height:1.8">Cualitativas → numéricas. Binarias se mapean a 0/1, categorías múltiples a <strong>One-Hot</strong> con <em>drop_first</em> para evitar multicolinealidad.</p>
+              <div class="formula">f("Sí")=1 | f("No")=0
+get_dummies(ciudad, drop_first=True)</div>
+            </div>
+            <div>
+              <h3 style="font-family:var(--font-display);color:var(--blue-2);font-size:18px;margin-bottom:8px">③ Entrenamiento</h3>
+              <p style="color:var(--text-soft);font-size:12.5px;line-height:1.8">División <strong>80/20</strong> con estratificación. Datos escalados con StandardScaler. Modelo ajustado por gradiente o ensemble.</p>
+              <div class="formula">min J(θ) = −1/N Σ[y·log(ŷ) + (1−y)·log(1−ŷ)]</div>
+            </div>
+            <div>
+              <h3 style="font-family:var(--font-display);color:var(--blue-2);font-size:18px;margin-bottom:8px">④ Predicción</h3>
+              <p style="color:var(--text-soft);font-size:12.5px;line-height:1.8">Sobre el 20% no visto se calcula <strong>P(pago)</strong>. Umbral 0.5 separa clases (ajustable).</p>
+              <div class="formula">ŷ = P(Y=1|X) → ŷ ≥ 0.5: paga</div>
+            </div>
+            <div>
+              <h3 style="font-family:var(--font-display);color:var(--green);font-size:18px;margin-bottom:8px">⑤ Evaluación</h3>
+              <p style="color:var(--text-soft);font-size:12.5px;line-height:1.8">Accuracy, AUC-ROC, Gini, Precisión, Recall, F1.</p>
+              <div class="formula">Accuracy = (VP+VN)/N
+Gini = 2·AUC − 1</div>
+            </div>
+            <div>
+              <h3 style="font-family:var(--font-display);color:var(--green);font-size:18px;margin-bottom:8px">⑥ Juan</h3>
+              <p style="color:var(--text-soft);font-size:12.5px;line-height:1.8">Cliente sintético = mediana de cada feature → vector → modelo → P(pago).</p>
+              <div class="formula">Juan = [med(x₁), med(x₂), …]
+→ scaler → modelo → P</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="icon">🧮</span> Fórmulas Matemáticas</div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <h4 style="color:var(--gold-2);font-size:13px;margin-bottom:8px;letter-spacing:1px">REGRESIÓN LOGÍSTICA</h4>
+              <div class="formula">P(Y=1) = 1 / (1 + e<sup>−(β₀ + β₁X₁ + … + βₙXₙ)</sup>)
+<span class="cm"># σ(z) = sigmoide</span></div>
+            </div>
+            <div>
+              <h4 style="color:var(--gold-2);font-size:13px;margin-bottom:8px;letter-spacing:1px">PROBIT</h4>
+              <div class="formula">P(Y=1) = Φ(β₀ + β₁X₁ + …)
+<span class="cm"># Φ = CDF Normal</span></div>
+            </div>
+            <div>
+              <h4 style="color:var(--blue-2);font-size:13px;margin-bottom:8px;letter-spacing:1px">RANDOM FOREST</h4>
+              <div class="formula">ŷ = (1/B) Σᵦ Tᵦ(x)
+Impureza Gini = 1 − Σpᵢ²</div>
+            </div>
+            <div>
+              <h4 style="color:var(--blue-2);font-size:13px;margin-bottom:8px;letter-spacing:1px">XGBOOST</h4>
+              <div class="formula">F(x) = Σ fₜ(x)
+Obj = Σ l(yᵢ,ŷᵢ) + Ω(fₜ)</div>
+            </div>
+            <div>
+              <h4 style="color:var(--green);font-size:13px;margin-bottom:8px;letter-spacing:1px">RED NEURONAL</h4>
+              <div class="formula">a⁽ˡ⁾ = σ(W⁽ˡ⁾·a⁽ˡ⁻¹⁾ + b⁽ˡ⁾)
+Backprop: ∂J/∂W</div>
+            </div>
+            <div>
+              <h4 style="color:var(--green);font-size:13px;margin-bottom:8px;letter-spacing:1px">MÉTRICAS</h4>
+              <div class="formula">AUC = P(score(+) > score(−))
+Gini = 2·AUC − 1
+F1 = 2·P·R/(P+R)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ SECTION 6: ARCHITECTURE ═══════════ -->
+      <section id="sec-how" class="section">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="icon">🏗</span> Arquitectura del Sistema</div>
+            <span class="badge">Stack</span>
+          </div>
+
+          <p style="color:var(--text-soft);font-size:13px;line-height:1.8;margin-bottom:24px">
+            JNUS Credit AI Lab utiliza arquitectura <strong style="color:var(--gold-2)">cliente-servidor</strong>: navegador (HTML/CSS/JS + Chart.js) ↔ API REST (Flask + Python) ↔ pipeline ML (pandas + scikit-learn + XGBoost + statsmodels).
+          </p>
+
+          <h3 style="font-family:var(--font-display);color:var(--gold-2);font-size:18px;margin-bottom:12px">Flujo de Datos</h3>
+          <div class="flow">
+            <div class="flow-node"><div class="ic">📁</div><div class="lb">Usuario<br/>sube CSV</div></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node"><div class="ic">🌐</div><div class="lb">JS<br/>FormData POST</div></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node"><div class="ic">🐍</div><div class="lb">Flask<br/>parsea</div></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node"><div class="ic">🧪</div><div class="lb">Pandas<br/>limpia</div></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node"><div class="ic">🤖</div><div class="lb">Sklearn<br/>entrena</div></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node"><div class="ic">📊</div><div class="lb">JSON<br/>respuesta</div></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node"><div class="ic">📈</div><div class="lb">Chart.js<br/>renderiza</div></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><div class="card-title"><span class="icon">🐍</span> Backend</div></div>
+            <div class="code-block">
+<span class="kw">from</span> flask <span class="kw">import</span> Flask, jsonify, request
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+
+app = Flask(__name__)
+
+<span class="kw">@app.route</span>(<span class="str">'/api/train'</span>, methods=[<span class="str">'POST'</span>])
+<span class="kw">def</span> <span class="fn">train</span>():
+    data = request.json
+    model = <span class="fn">build_model</span>(data[<span class="str">'model'</span>])
+    model.fit(X_train, y_train)
+    <span class="kw">return</span> <span class="fn">jsonify</span>(evaluate(model))
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title"><span class="icon">⚡</span> Frontend</div></div>
+            <div class="code-block">
+<span class="cm">// Upload del archivo</span>
+<span class="kw">async function</span> <span class="fn">uploadFile</span>(file) {
+  <span class="kw">const</span> fd = <span class="kw">new</span> FormData();
+  fd.append(<span class="str">'file'</span>, file);
+  <span class="kw">const</span> r = <span class="kw">await</span> fetch(<span class="str">'/api/upload'</span>, {
+    method: <span class="str">'POST'</span>, body: fd
+  });
+  renderUpload(<span class="kw">await</span> r.json());
+}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span class="icon">📦</span> Stack Tecnológico</div></div>
+          <div class="grid-3">
+            <div class="metric"><div class="metric-label">Frontend</div><div class="metric-value gold" style="font-size:18px">HTML + CSS + JS</div><div class="metric-sub">Chart.js · Sin frameworks</div></div>
+            <div class="metric"><div class="metric-label">Backend</div><div class="metric-value blue" style="font-size:18px">Flask · Python</div><div class="metric-sub">REST API · 64MB upload</div></div>
+            <div class="metric"><div class="metric-label">ML Pipeline</div><div class="metric-value green" style="font-size:18px">scikit-learn</div><div class="metric-sub">+ XGBoost + statsmodels</div></div>
+            <div class="metric"><div class="metric-label">Data</div><div class="metric-value gold" style="font-size:18px">pandas + numpy</div><div class="metric-sub">CSV / Excel · auto-detect</div></div>
+            <div class="metric"><div class="metric-label">Modelos</div><div class="metric-value blue" style="font-size:18px">5 algoritmos</div><div class="metric-sub">Logit · Probit · RF · XGB · MLP</div></div>
+            <div class="metric"><div class="metric-label">Visualización</div><div class="metric-value green" style="font-size:18px">Canvas + Chart.js</div><div class="metric-sub">ROC · Confusion · Trees</div></div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /.content -->
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// JNUS Credit AI Lab · Frontend Logic
+// ═══════════════════════════════════════════════════════════════════════
+const API = '';
+let selectedModel = 'logit';
+let charts = { hist: null, classDist: null, roc: null };
+const SECTION_NAMES = {
+  upload: '01 · Cargar Datos',
+  preprocess: '02 · Preprocesar',
+  train: '03 · Entrenar Modelo',
+  results: '04 · Resultados',
+  predict: '05 · Predicción en Vivo',
+  explain: '06 · Explicación',
+  how: '07 · Arquitectura'
+};
+
+// ─── NAV ─────────────────────────────────────────────────────────────
+function goto(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+  const sec = document.getElementById('sec-' + name);
+  if (sec) sec.classList.add('active');
+  const tab = document.querySelector(`.nav-item[data-section="${name}"]`);
+  if (tab) tab.classList.add('active');
+  document.getElementById('crumb').textContent = 'Etapa ' + (SECTION_NAMES[name] || name);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => goto(el.dataset.section));
+});
+
+// ─── TOAST ───────────────────────────────────────────────────────────
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  const icon = type === 'error' ? '⚠' : type === 'ok' ? '✓' : 'ℹ';
+  t.innerHTML = `<span class="ic">${icon}</span><span>${msg}</span>`;
+  t.className = 'show ' + type;
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => t.className = '', 4000);
+}
+
+// ─── SERVER CHECK ────────────────────────────────────────────────────
+async function checkServer() {
+  try {
+    const r = await fetch(API + '/api/health');
+    const d = await r.json();
+    document.getElementById('srv-status').textContent =
+      `Servidor activo · XGB ${d.xgboost?'✓':'✗'}`;
+  } catch {
+    document.getElementById('srv-status').textContent = 'Sin conexión backend';
+    document.getElementById('srv-status').style.color = 'var(--crimson)';
+  }
+}
+
+// ─── DRAG & DROP ─────────────────────────────────────────────────────
+function dragHandler(e, mode) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList[mode]('drag');
+}
+function dropHandler(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+}
+
+// ─── UPLOAD ──────────────────────────────────────────────────────────
+async function uploadFile(file) {
+  if (!file) return;
+  const validExts = ['csv', 'xlsx', 'xls'];
+  const ext = file.name.toLowerCase().split('.').pop();
+  if (!validExts.includes(ext)) {
+    toast(`Formato no soportado: .${ext}. Usa CSV o Excel.`, 'error');
+    return;
+  }
+  toast(`Cargando ${file.name}…`);
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch(API + '/api/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      toast(data.error || 'Error al cargar archivo', 'error');
+      return;
+    }
+    renderUpload(data);
+    toast(`Cargado: ${data.rows.toLocaleString()} filas × ${data.shape[1]} columnas`, 'ok');
+  } catch (e) {
+    toast('Error de red: ' + e.message, 'error');
+  }
+}
+
+function renderUpload(data) {
+  document.getElementById('dataset-name').textContent = data.filename || 'demo.csv';
+  document.getElementById('dataset-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">Filas</div><div class="metric-value gold">${data.rows.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-label">Columnas</div><div class="metric-value blue">${data.shape[1]}</div></div>
+    <div class="metric"><div class="metric-label">Numéricas</div><div class="metric-value green">${data.numeric.length}</div></div>
+    <div class="metric"><div class="metric-label">Categóricas</div><div class="metric-value gold">${data.categorical.length}</div></div>
+    <div class="metric"><div class="metric-label">Nulos</div><div class="metric-value ${(data.missing_total||0)>0?'warn':'green'}">${(data.missing_total||0).toLocaleString()}</div></div>
+  `;
+
+  const tags = document.getElementById('col-tags');
+  tags.innerHTML = '';
+  data.numeric.forEach(c => tags.innerHTML += `<span class="tag num">📊 ${c}</span>`);
+  data.categorical.forEach(c => tags.innerHTML += `<span class="tag cat">🔤 ${c}</span>`);
+
+  if (data.preview && data.preview.length) {
+    const cols = Object.keys(data.preview[0]);
+    const th = cols.map(c => `<th>${escapeHtml(c)}</th>`).join('');
+    const rows = data.preview.map(r =>
+      '<tr>' + cols.map(c => `<td>${escapeHtml(r[c] ?? '')}</td>`).join('') + '</tr>'
+    ).join('');
+    document.getElementById('preview-table').innerHTML =
+      `<thead><tr>${th}</tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  const sel = document.getElementById('target-select');
+  sel.innerHTML = '<option value="">— Selecciona la variable objetivo —</option>';
+  data.columns.forEach(c => {
+    const sug = data.suggested_target === c ? ' (sugerida)' : '';
+    sel.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}${sug}</option>`;
+  });
+  if (data.suggested_target) sel.value = data.suggested_target;
+
+  renderLog('upload-log', data.log || []);
+  document.getElementById('upload-result').style.display = 'block';
+}
+
+function escapeHtml(v) {
+  return String(v).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+function renderLog(id, log) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = (log || []).map(l =>
+    `<li class="log-item"><span class="ts">${l.t || ''}</span><span class="msg">${escapeHtml(l.msg || l)}</span></li>`
+  ).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+// ─── PREPROCESS ──────────────────────────────────────────────────────
+async function runPreprocess() {
+  const target = document.getElementById('target-select').value;
+  if (!target) { toast('Selecciona la variable objetivo', 'error'); return; }
+  const ts = document.getElementById('test-size').value / 100;
+  const btn = document.getElementById('btn-preprocess');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Procesando…';
+
+  try {
+    const res = await fetch(API + '/api/preprocess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target, test_size: ts })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) { toast(data.error || 'Error', 'error'); return; }
+
+    renderLog('step-log', (data.steps || []).map((s,i) => ({t:'#'+(i+1), msg:s})));
+
+    const ctx = document.getElementById('class-chart').getContext('2d');
+    if (charts.classDist) charts.classDist.destroy();
+    charts.classDist = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['No pagó (0)', 'Pagó (1)'],
+        datasets: [{
+          data: [data.class_dist['0'], data.class_dist['1']],
+          backgroundColor: ['rgba(231,80,122,.7)', 'rgba(61,214,138,.7)'],
+          borderColor: ['#e7507a', '#3dd68a'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        plugins: { legend: { labels: { color: '#b6c2dc', font: { family:'Inter', size:11 }}}},
+        cutout: '65%'
+      }
+    });
+
+    document.getElementById('preprocess-result').style.display = 'block';
+    toast(`Procesado: ${data.n_features} variables · ${data.train_size}+${data.test_size}`, 'ok');
+  } catch (e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '⚙ Procesar Datos';
+  }
+}
+
+// ─── MODEL SELECTION ─────────────────────────────────────────────────
+const MODEL_DESC = {
+  logit: `<strong style="color:var(--gold-2)">Regresión Logística (Logit)</strong> — Modelo econométrico clásico que estima la probabilidad usando la función sigmoide. Sus coeficientes son interpretables como log-odds. <em>Ideal para</em>: scoring crediticio regulatorio, modelos interpretables.`,
+  probit: `<strong style="color:var(--gold-2)">Probit</strong> — Similar al Logit pero usando la CDF normal estándar (Φ). Ajustado vía máxima verosimilitud con statsmodels. <em>Ideal para</em>: análisis econométrico formal donde se asume normalidad del error.`,
+  random_forest: `<strong style="color:var(--blue-2)">Random Forest</strong> — Ensemble de 200 árboles entrenados con bootstrap. Captura interacciones no lineales y es muy robusto al ruido y overfitting. <em>Ideal para</em>: datasets heterogéneos.`,
+  xgboost: `<strong style="color:var(--blue-2)">XGBoost</strong> — Gradient Boosting optimizado donde cada árbol corrige los errores residuales del anterior. Suele dominar en datos tabulares. <em>Ideal para</em>: máximo rendimiento predictivo.`,
+  neural_net: `<strong style="color:var(--green)">Red Neuronal (MLP)</strong> — Arquitectura 64→32→1 con ReLU + sigmoide final. Aprende representaciones no lineales mediante backpropagation. <em>Ideal para</em>: relaciones complejas, grandes volúmenes.`
+};
+
+function selectModel(name, el) {
+  selectedModel = name;
+  document.querySelectorAll('.model-card').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('model-desc').innerHTML = MODEL_DESC[name];
+}
+document.getElementById('model-desc').innerHTML = MODEL_DESC.logit;
+
+// ─── TRAIN ───────────────────────────────────────────────────────────
+async function runTrain() {
+  const btn = document.getElementById('btn-train');
+  const prog = document.getElementById('train-progress');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Entrenando…';
+
+  let p = 0;
+  const iv = setInterval(() => {
+    p = Math.min(p + Math.random() * 12, 90);
+    prog.style.width = p + '%';
+  }, 250);
+
+  try {
+    const res = await fetch(API + '/api/train', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: selectedModel })
+    });
+    const data = await res.json();
+    clearInterval(iv);
+    prog.style.width = '100%';
+    if (!res.ok || data.error) { toast(data.error || 'Error en entrenamiento', 'error'); return; }
+    renderResults(data);
+    _lastTrainedModel = data.model;
+    loadFeatureForm();
+    goto('results');
+    toast(`✓ Modelo entrenado · Accuracy ${(data.accuracy*100).toFixed(1)}% · AUC ${data.auc.toFixed(3)}`, 'ok');
+    setTimeout(() => prog.style.width = '0%', 1200);
+  } catch (e) {
+    clearInterval(iv);
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Entrenar Modelo';
+  }
+}
+
+// ─── RENDER RESULTS ──────────────────────────────────────────────────
+function renderResults(d) {
+  document.getElementById('results-empty').style.display = 'none';
+  document.getElementById('results-content').style.display = 'block';
+  document.getElementById('model-tag').textContent = d.model.toUpperCase().replace('_', ' ');
+
+  const giniCls = d.gini > 0.4 ? 'green' : d.gini > 0.2 ? 'gold' : 'warn';
+  document.getElementById('metrics-grid').innerHTML = `
+    <div class="metric"><div class="metric-label">Accuracy</div><div class="metric-value gold">${(d.accuracy*100).toFixed(1)}%</div></div>
+    <div class="metric"><div class="metric-label">AUC-ROC</div><div class="metric-value blue">${d.auc.toFixed(3)}</div></div>
+    <div class="metric"><div class="metric-label">Gini</div><div class="metric-value ${giniCls}">${d.gini.toFixed(3)}</div></div>
+    <div class="metric"><div class="metric-label">Precisión</div><div class="metric-value green">${(d.precision*100).toFixed(1)}%</div></div>
+    <div class="metric"><div class="metric-label">Recall</div><div class="metric-value green">${(d.recall*100).toFixed(1)}%</div></div>
+    <div class="metric"><div class="metric-label">F1-Score</div><div class="metric-value gold">${(d.f1*100).toFixed(1)}%</div></div>
+    <div class="metric"><div class="metric-label">Train</div><div class="metric-value" style="font-size:22px;color:var(--text-soft)">${d.train_size.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-label">Test</div><div class="metric-value" style="font-size:22px;color:var(--text-soft)">${d.test_size.toLocaleString()}</div></div>
+  `;
+
+  // Juan
+  const jp = d.juan_probability;
+  document.getElementById('juan-pct').textContent = jp.toFixed(1) + '%';
+  document.getElementById('juan-bar').style.width = jp + '%';
+  const verdictColor = jp > 65 ? 'var(--green)' : jp > 40 ? 'var(--gold-2)' : 'var(--crimson)';
+  const verdictText = jp > 65 ? '✓ Buen perfil crediticio · Aprobar' :
+                      jp > 40 ? '⚠ Perfil moderado · Solicitar garantías' :
+                                '✗ Alto riesgo · No aprobar';
+  document.getElementById('juan-verdict').innerHTML = `<span style="color:${verdictColor};font-weight:600">${verdictText}</span>`;
+  document.getElementById('juan-bar').style.background =
+    jp > 65 ? 'linear-gradient(90deg, #3dd68a, #c89b3c)' :
+    jp > 40 ? 'var(--grad-gold)' :
+    'linear-gradient(90deg, #e7507a, #f0a045)';
+
+  // Confusion matrix
+  if (d.confusion_matrix && d.confusion_matrix.length === 2) {
+    const [[tn, fp], [fn, tp]] = d.confusion_matrix;
+    document.getElementById('cm-grid').innerHTML = `
+      <div class="cm-cell ok">${tn}<span class="lbl">VN</span></div>
+      <div class="cm-cell bad">${fp}<span class="lbl">FP</span></div>
+      <div class="cm-cell bad">${fn}<span class="lbl">FN</span></div>
+      <div class="cm-cell ok">${tp}<span class="lbl">VP</span></div>
+    `;
+  }
+
+  // Feature importance
+  const fi = d.feature_importance || [];
+  const bars = document.getElementById('fi-bars');
+  if (fi.length) {
+    const max = fi[0].value || 1;
+    bars.innerHTML = fi.slice(0, 10).map(f => `
+      <div class="fi-row">
+        <div class="fi-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+        <div class="fi-bar"><div class="fi-fill" style="width:${(f.value/max*100).toFixed(1)}%"></div></div>
+        <div class="fi-val">${f.value.toFixed(3)}</div>
+      </div>
+    `).join('');
+  } else {
+    bars.innerHTML = '<p style="color:var(--muted);font-size:12px">Importancia no disponible para este modelo.</p>';
+  }
+
+  // Probability histogram
+  drawHistogram(d);
+  drawROC(d);
+  drawModelViz(d);
+}
+
+function drawHistogram(d) {
+  const ctx = document.getElementById('hist-chart').getContext('2d');
+  if (charts.hist) charts.hist.destroy();
+  const probs = d.y_prob_sample || [];
+  const labs = d.y_test_sample || [];
+  const pos = probs.filter((_, i) => labs[i] === 1);
+  const neg = probs.filter((_, i) => labs[i] === 0);
+  const bins = 20;
+  const hist = arr => {
+    const c = new Array(bins).fill(0);
+    arr.forEach(v => c[Math.min(Math.floor(v * bins), bins - 1)]++);
+    return c;
+  };
+  charts.hist = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Array.from({ length: bins }, (_, i) => (i / bins).toFixed(2)),
+      datasets: [
+        { label: 'No pagó (0)', data: hist(neg), backgroundColor: 'rgba(231,80,122,.55)', borderColor: '#e7507a', borderWidth: 1 },
+        { label: 'Pagó (1)',  data: hist(pos), backgroundColor: 'rgba(61,214,138,.55)', borderColor: '#3dd68a', borderWidth: 1 }
+      ]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#b6c2dc', font: { family:'Inter', size:11 }}}},
+      scales: {
+        x: { ticks: { color: '#6c7a99', font: { size: 9 }}, grid: { color: 'rgba(31,45,73,.4)' }},
+        y: { ticks: { color: '#6c7a99', font: { size: 9 }}, grid: { color: 'rgba(31,45,73,.4)' }}
+      }
+    }
+  });
+}
+
+function drawROC(d) {
+  const ctx = document.getElementById('roc-chart').getContext('2d');
+  if (charts.roc) charts.roc.destroy();
+  const pts = d.roc_points || [];
+  charts.roc = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: `ROC (AUC = ${d.auc.toFixed(3)})`,
+          data: pts.map(p => ({x: p.fpr, y: p.tpr})),
+          borderColor: '#c89b3c',
+          backgroundColor: 'rgba(200,155,60,.15)',
+          borderWidth: 2.5,
+          fill: true,
+          pointRadius: 0,
+          tension: 0.2
+        },
+        {
+          label: 'Aleatorio',
+          data: [{x:0,y:0},{x:1,y:1}],
+          borderColor: 'rgba(108,122,153,.5)',
+          borderWidth: 1.5,
+          borderDash: [6,4],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#b6c2dc', font: { size: 11 }}}},
+      scales: {
+        x: { type:'linear', min:0, max:1, title:{display:true,text:'False Positive Rate',color:'#6c7a99',font:{size:10}}, ticks:{color:'#6c7a99'}, grid:{color:'rgba(31,45,73,.4)'}},
+        y: { min:0, max:1, title:{display:true,text:'True Positive Rate',color:'#6c7a99',font:{size:10}}, ticks:{color:'#6c7a99'}, grid:{color:'rgba(31,45,73,.4)'}}
+      }
+    }
+  });
+}
+
+function drawModelViz(d) {
+  const canvas = document.getElementById('viz-canvas');
+  const title = document.getElementById('viz-title');
+  if (d.model === 'neural_net') {
+    title.innerHTML = '<span class="icon">🧠</span> Arquitectura de la Red';
+    drawNeuralNet(canvas, d.layers || [5, 64, 32, 1]);
+    animateNeuralFlow(canvas, d.layers || [5, 64, 32, 1]);
+  } else if (d.model === 'random_forest' || d.model === 'xgboost') {
+    title.innerHTML = '<span class="icon">🌲</span> Bosque de Decisión (datos reales)';
+    drawRealTreeMini(canvas);
+  } else {
+    title.innerHTML = '<span class="icon">📊</span> Curva Sigmoide';
+    drawSigmoid(canvas);
+  }
+}
+
+// Anima partículas viajando por la red
+function animateNeuralFlow(canvas, layers) {
+  if (canvas._flowStop) canvas._flowStop();
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const display = [Math.min(layers[0], 6), 8, 6, 1];
+  const xs = display.map((_, i) => (i + 1) * W / (display.length + 1));
+  let particles = [];
+  for (let li = 0; li < display.length - 1; li++) {
+    const ys = Array.from({length: display[li]}, (_,ni) => (ni+1)*(H-30)/(display[li]+1)+8);
+    const nys = Array.from({length: display[li+1]}, (_,ni) => (ni+1)*(H-30)/(display[li+1]+1)+8);
+    ys.forEach(y1 => nys.forEach(y2 => {
+      if (Math.random() > 0.85) particles.push({x1: xs[li], y1, x2: xs[li+1], y2, t: Math.random()});
+    }));
+  }
+  let raf;
+  function tick() {
+    drawNeuralNet(canvas, layers);
+    particles.forEach(p => {
+      p.t += 0.015 + Math.random()*0.005;
+      if (p.t > 1) p.t = 0;
+      const x = p.x1 + (p.x2 - p.x1) * p.t;
+      const y = p.y1 + (p.y2 - p.y1) * p.t;
+      ctx.beginPath();
+      ctx.arc(x, y, 1.6, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(232,194,117,.95)';
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(tick);
+  }
+  tick();
+  canvas._flowStop = () => cancelAnimationFrame(raf);
+}
+
+// Mini tree desde un árbol real (lo pide al backend)
+async function drawRealTreeMini(canvas) {
+  try {
+    const r = await fetch(API + '/api/tree_data');
+    const data = await r.json();
+    if (data.error || !data.trees || !data.trees[0]) {
+      drawTree(canvas, 4);
+      return;
+    }
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 240;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawTreeFromData(ctx, canvas.width, canvas.height, data.trees[0], 3);
+  } catch {
+    drawTree(canvas, 4);
+  }
+}
+
+function drawTreeFromData(ctx, W, H, node, maxDepth) {
+  function recurse(n, x, y, w, d) {
+    if (!n || d > maxDepth) return;
+    const col = d === 0 ? '#5a8cff' : n.is_leaf ? (n.proba >= 0.5 ? '#3dd68a' : '#e7507a') : '#c89b3c';
+    const nw = Math.min(w, 110);
+    ctx.beginPath();
+    ctx.roundRect(x - nw/2, y - 16, nw, 30, 6);
+    ctx.fillStyle = col + '22';
+    ctx.fill();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    ctx.fillStyle = col;
+    ctx.font = '10px Inter';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const lbl = n.is_leaf ? `🍃 ${(n.proba*100).toFixed(0)}%` :
+                (n.feature ? `${n.feature.substring(0,10)}≤${n.threshold.toFixed(1)}` : 'split');
+    ctx.fillText(lbl, x, y - 3);
+    ctx.fillStyle = 'rgba(182,194,220,.65)';
+    ctx.font = '8px Inter';
+    ctx.fillText(`n=${n.samples}`, x, y + 9);
+    if (!n.is_leaf && d < maxDepth) {
+      const ny = y + (H - 40) / (maxDepth + 1);
+      const sp = w * 0.9;
+      if (n.left) {
+        const lx = x - sp / 2;
+        ctx.beginPath(); ctx.moveTo(x, y + 14); ctx.lineTo(lx, ny - 16);
+        ctx.strokeStyle = col + '66'; ctx.lineWidth = 1; ctx.stroke();
+        recurse(n.left, lx, ny, sp / 2, d + 1);
+      }
+      if (n.right) {
+        const rx = x + sp / 2;
+        ctx.beginPath(); ctx.moveTo(x, y + 14); ctx.lineTo(rx, ny - 16);
+        ctx.strokeStyle = col + '66'; ctx.lineWidth = 1; ctx.stroke();
+        recurse(n.right, rx, ny, sp / 2, d + 1);
+      }
+    }
+  }
+  recurse(node, W / 2, 30, W * 0.85, 0);
+}
+
+function drawNeuralNet(canvas, layers) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 240;
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const display = [Math.min(layers[0], 6), 8, 6, 1];
+  const labels = ['Input', '64 ReLU', '32 ReLU', 'Output σ'];
+  const xs = display.map((_, i) => (i + 1) * W / (display.length + 1));
+  const R = 11;
+  display.forEach((n, li) => {
+    const x = xs[li];
+    const ys = Array.from({ length: n }, (_, ni) => (ni + 1) * (H - 30) / (n + 1) + 8);
+    if (li < display.length - 1) {
+      const nextN = display[li + 1];
+      const nextYs = Array.from({ length: nextN }, (_, ni) => (ni + 1) * (H - 30) / (nextN + 1) + 8);
+      ys.forEach(y1 => nextYs.forEach(y2 => {
+        ctx.beginPath();
+        ctx.moveTo(x, y1);
+        ctx.lineTo(xs[li + 1], y2);
+        ctx.strokeStyle = 'rgba(200,155,60,.08)';
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+      }));
+    }
+    ys.forEach(y => {
+      const col = li === 0 ? '#5a8cff' : li === display.length - 1 ? '#3dd68a' : '#c89b3c';
+      const g = ctx.createRadialGradient(x, y, 2, x, y, R);
+      g.addColorStop(0, col);
+      g.addColorStop(1, col + '33');
+      ctx.beginPath();
+      ctx.arc(x, y, R, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    });
+    ctx.fillStyle = '#b6c2dc';
+    ctx.font = '10px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(labels[li], x, H - 6);
+  });
+}
+
+function drawTree(canvas, depth) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 240;
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  function node(x, y, w, d) {
+    if (d > depth || w < 6) return;
+    const col = d === 0 ? '#5a8cff' : d === depth ? '#3dd68a' : '#c89b3c';
+    ctx.beginPath();
+    const nw = Math.min(w, 80);
+    ctx.roundRect(x - nw/2, y - 12, nw, 22, 5);
+    ctx.fillStyle = col + '22';
+    ctx.fill();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.fillStyle = col;
+    ctx.font = '9px Inter';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d === depth ? '🍃' : 'split', x, y);
+    if (d < depth) {
+      const ny = y + (H - 30) / (depth + 1);
+      const sp = w * 0.85;
+      [-1, 1].forEach(s => {
+        const nx = x + s * sp / 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y + 11);
+        ctx.lineTo(nx, ny - 12);
+        ctx.strokeStyle = col + '66';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        node(nx, ny, sp / 2, d + 1);
+      });
+    }
+  }
+  node(W / 2, 28, W * 0.85, 0);
+}
+
+function drawSigmoid(canvas) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 240;
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const pad = 38;
+  ctx.strokeStyle = 'rgba(31,45,73,.6)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad + (H - 2 * pad) * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+  }
+  const g = ctx.createLinearGradient(pad, 0, W - pad, 0);
+  g.addColorStop(0, '#5a8cff');
+  g.addColorStop(1, '#c89b3c');
+  ctx.beginPath();
+  ctx.strokeStyle = g;
+  ctx.lineWidth = 2.8;
+  for (let px = pad; px <= W - pad; px++) {
+    const z = (px - W / 2) / (W / 10);
+    const sig = 1 / (1 + Math.exp(-z));
+    const y = H - pad - sig * (H - 2 * pad);
+    if (px === pad) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#b6c2dc';
+  ctx.font = '10px JetBrains Mono';
+  ctx.fillText('P=1.0', 6, pad + 4);
+  ctx.fillText('P=0.5', 6, H / 2 + 4);
+  ctx.fillText('P=0.0', 6, H - pad + 4);
+  ctx.textAlign = 'center';
+  ctx.fillText('σ(z) = 1/(1 + e⁻ᶻ)', W / 2, H - 6);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LIVE PREDICTION · formulario en vivo + visualización profunda
+// ═══════════════════════════════════════════════════════════════════
+let _featForm = null;
+let _lastTrainedModel = null;
+
+async function loadFeatureForm() {
+  try {
+    const r = await fetch(API + '/api/feature_form');
+    const d = await r.json();
+    if (d.error) {
+      document.getElementById('predict-empty').style.display = 'block';
+      document.getElementById('predict-body').style.display = 'none';
+      return;
+    }
+    _featForm = d;
+    renderFeatureForm(d.fields);
+    document.getElementById('predict-empty').style.display = 'none';
+    document.getElementById('predict-body').style.display = 'block';
+
+    if (_lastTrainedModel) {
+      document.getElementById('model-deep-viz').style.display = 'block';
+      renderDeepViz(_lastTrainedModel);
+    }
+  } catch {
+    document.getElementById('predict-empty').style.display = 'block';
+  }
+}
+
+function renderFeatureForm(fields) {
+  const host = document.getElementById('predict-form');
+  host.innerHTML = '';
+  fields.forEach(f => {
+    const row = document.createElement('div');
+    const isBin = f.binary;
+    const range = f.max - f.min || 1;
+    row.innerHTML = `
+      <label style="display:block;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:600">
+        ${escapeHtml(f.name)}
+        <span style="float:right;color:var(--gold-2);font-family:var(--font-mono);text-transform:none;letter-spacing:0">
+          <span class="fv" data-for="${escapeHtml(f.name)}">${f.median.toFixed(2)}</span>
+        </span>
+      </label>
+      ${isBin
+        ? `<select data-feat="${escapeHtml(f.name)}" onchange="updateFv(this)">
+             <option value="0">0 · No</option>
+             <option value="1" ${f.median>=0.5?'selected':''}>1 · Sí</option>
+           </select>`
+        : `<input type="range" data-feat="${escapeHtml(f.name)}" min="${f.min}" max="${f.max}" step="${range/100}" value="${f.median}" oninput="updateFv(this)"/>`
+      }
+    `;
+    host.appendChild(row);
+  });
+}
+
+function updateFv(el) {
+  const name = el.dataset.feat;
+  const v = parseFloat(el.value);
+  const tag = document.querySelector(`.fv[data-for="${CSS.escape(name)}"]`);
+  if (tag) tag.textContent = isFinite(v) ? v.toFixed(2) : el.value;
+}
+
+function loadMedianValues() {
+  if (!_featForm) return;
+  _featForm.fields.forEach(f => {
+    const el = document.querySelector(`[data-feat="${CSS.escape(f.name)}"]`);
+    if (el) { el.value = f.median; updateFv(el); }
+  });
+}
+function loadRandomValues() {
+  if (!_featForm) return;
+  _featForm.fields.forEach(f => {
+    const el = document.querySelector(`[data-feat="${CSS.escape(f.name)}"]`);
+    if (el) {
+      el.value = f.binary ? (Math.random()>0.5?1:0) : (f.min + Math.random()*(f.max-f.min));
+      updateFv(el);
+    }
+  });
+}
+
+async function runPredict() {
+  const values = {};
+  document.querySelectorAll('[data-feat]').forEach(el => {
+    values[el.dataset.feat] = parseFloat(el.value);
+  });
+  document.getElementById('predict-result').innerHTML =
+    '<div style="text-align:center;padding:30px"><span class="spin"></span><div style="color:var(--muted);font-size:11px;margin-top:10px">Analizando…</div></div>';
+
+  try {
+    const r = await fetch(API + '/api/predict', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({values})
+    });
+    const d = await r.json();
+    if (d.error) {
+      document.getElementById('predict-result').innerHTML = `<div style="color:var(--crimson);padding:20px">${escapeHtml(d.error)}</div>`;
+      return;
+    }
+    renderPredictionResult(d);
+    if (_lastTrainedModel === 'neural_net') {
+      animateNNFlowWith(values);
+    }
+  } catch (e) {
+    document.getElementById('predict-result').innerHTML = `<div style="color:var(--crimson);padding:20px">${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function renderPredictionResult(d) {
+  const p = d.probability * 100;
+  const color = p > 65 ? 'var(--green)' : p > 40 ? 'var(--gold-2)' : 'var(--crimson)';
+  const ico = p > 65 ? '✓' : p > 40 ? '⚠' : '✗';
+  const verdictBg = p > 65 ? 'rgba(61,214,138,.1)' : p > 40 ? 'rgba(200,155,60,.1)' : 'rgba(231,80,122,.1)';
+
+  document.getElementById('predict-result').innerHTML = `
+    <div style="text-align:center;padding:10px 4px">
+      <div style="font-family:var(--font-display);font-size:54px;color:${color};font-weight:700;line-height:1">${p.toFixed(1)}%</div>
+      <div style="color:var(--muted);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px">Probabilidad de Pago</div>
+      <div style="display:inline-block;margin-top:14px;padding:8px 22px;border-radius:24px;background:${verdictBg};color:${color};font-weight:700;letter-spacing:2px;border:1px solid ${color}">
+        ${ico} ${d.decision}
+      </div>
+      <div style="margin-top:14px;font-size:12px;color:var(--text-soft);line-height:1.6">${escapeHtml(d.explanation)}</div>
+      <div style="margin-top:10px;font-size:10px;color:var(--muted)">Modelo: <strong style="color:var(--gold-2)">${d.model.toUpperCase()}</strong> · umbral ${d.threshold}</div>
+    </div>
+  `;
+
+  const contribs = d.contributions || [];
+  const maxAbs = Math.max(...contribs.map(c => Math.abs(c.contribution)), 1e-9);
+  const html = contribs.slice(0,10).map(c => {
+    const pct = (Math.abs(c.contribution)/maxAbs*100).toFixed(1);
+    const positive = c.contribution >= 0;
+    const col = positive ? 'var(--green)' : 'var(--crimson)';
+    return `
+      <div style="margin-bottom:9px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-soft);margin-bottom:3px">
+          <span style="font-family:var(--font-mono)">${escapeHtml(c.name)}</span>
+          <span style="color:${col};font-weight:600">${positive?'+':''}${c.contribution.toFixed(3)}</span>
+        </div>
+        <div style="height:6px;background:var(--bg-3);border-radius:3px;overflow:hidden;position:relative">
+          <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)"></div>
+          <div style="height:100%;width:${pct/2}%;background:${col};${positive?'margin-left:50%':'margin-left:'+(50-pct/2)+'%'};border-radius:3px"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('predict-contribs').innerHTML = html || '<p style="color:var(--muted)">Sin contribuciones disponibles.</p>';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DEEP VIZ (SVG) · árboles del bosque o red neuronal completa
+// ═══════════════════════════════════════════════════════════════════
+async function renderDeepViz(modelName) {
+  const svg = document.getElementById('deep-svg');
+  const sub = document.getElementById('deep-viz-sub');
+  svg.innerHTML = '';
+  if (modelName === 'random_forest' || modelName === 'xgboost') {
+    sub.textContent = 'Random Forest · 6 árboles del ensemble · click para ver detalles';
+    try {
+      const r = await fetch(API + '/api/tree_data');
+      const d = await r.json();
+      if (d.error || !d.trees) {
+        svg.innerHTML = `<text x="20" y="40" fill="#e7507a" font-size="12">${d.error||'Sin árboles'}</text>`;
+        return;
+      }
+      drawForestSVG(svg, d.trees);
+      document.getElementById('deep-explain').innerHTML =
+        `🌲 <strong style="color:var(--gold-2)">${d.n_estimators}</strong> árboles entrenados independientemente. Cada uno vota; el bosque promedia. Mostrando los primeros 6.`;
+    } catch (e) {
+      svg.innerHTML = `<text x="20" y="40" fill="#e7507a" font-size="12">Error: ${e.message}</text>`;
+    }
+  } else if (modelName === 'neural_net') {
+    sub.textContent = 'Red Neuronal MLP · activaciones reales por capa';
+    try {
+      const r = await fetch(API + '/api/nn_activations', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+      const d = await r.json();
+      if (d.error) {
+        svg.innerHTML = `<text x="20" y="40" fill="#e7507a" font-size="12">${d.error}</text>`;
+        return;
+      }
+      drawNeuralSVG(svg, d.layers);
+      document.getElementById('deep-explain').innerHTML =
+        `🧠 Forward-pass real con valores promedio. Cada neurona se ilumina según su <strong style="color:var(--gold-2)">activación</strong>. Pesos: ${d.weights_shapes.map(s=>s.join('×')).join(' → ')}`;
+    } catch (e) {
+      svg.innerHTML = `<text x="20" y="40" fill="#e7507a" font-size="12">Error: ${e.message}</text>`;
+    }
+  } else {
+    sub.textContent = 'Modelo lineal · pesos por feature';
+    drawLinearSVG(svg);
+    document.getElementById('deep-explain').innerHTML =
+      `📈 Modelo lineal: P(Y=1) = σ(β₀ + Σβᵢxᵢ). Los pesos β determinan cuánto suma o resta cada variable.`;
+  }
+}
+
+function drawForestSVG(svg, trees) {
+  svg.setAttribute('viewBox', '0 0 1200 380');
+  const cols = 3, rows = 2;
+  const cellW = 1200 / cols, cellH = 380 / rows;
+  trees.slice(0,6).forEach((t, i) => {
+    const cx = (i % cols) * cellW + cellW/2;
+    const cy = Math.floor(i/cols) * cellH + 30;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', `translate(${cx-cellW/2+10}, ${cy})`);
+    g.appendChild(svgText(cellW/2-10, 12, `Árbol #${i+1}`, '#c89b3c', 11, 'middle', 600));
+    renderTreeSVG(g, t, cellW-20, cellH-40, 3);
+    svg.appendChild(g);
+  });
+}
+
+function renderTreeSVG(parent, node, W, H, maxDepth) {
+  function recurse(n, x, y, w, d) {
+    if (!n || d > maxDepth) return;
+    const col = d === 0 ? '#5a8cff' : n.is_leaf ? (n.proba >= 0.5 ? '#3dd68a' : '#e7507a') : '#c89b3c';
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    const nw = Math.min(w, 95);
+    r.setAttribute('x', x - nw/2); r.setAttribute('y', y - 11);
+    r.setAttribute('width', nw); r.setAttribute('height', 22);
+    r.setAttribute('rx', 4); r.setAttribute('fill', col+'22');
+    r.setAttribute('stroke', col); r.setAttribute('stroke-width', '1');
+    parent.appendChild(r);
+    const lbl = n.is_leaf
+      ? `🍃 ${(n.proba*100).toFixed(0)}%`
+      : (n.feature ? `${n.feature.substring(0,8)}≤${n.threshold.toFixed(1)}` : 'split');
+    parent.appendChild(svgText(x, y+3, lbl, col, 9, 'middle', 500));
+    if (!n.is_leaf && d < maxDepth) {
+      const ny = y + (H - 30) / (maxDepth + 1);
+      const sp = w * 0.88;
+      ['left','right'].forEach((side, idx) => {
+        const child = n[side];
+        if (!child) return;
+        const nx = x + (idx === 0 ? -sp/2 : sp/2);
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x); line.setAttribute('y1', y+11);
+        line.setAttribute('x2', nx); line.setAttribute('y2', ny-11);
+        line.setAttribute('stroke', col+'66'); line.setAttribute('stroke-width', '1');
+        parent.appendChild(line);
+        recurse(child, nx, ny, sp/2, d+1);
+      });
+    }
+  }
+  recurse(node, W/2, 25, W*0.9, 0);
+}
+
+function drawNeuralSVG(svg, layers) {
+  const W = 1200, H = 380;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  // Comprimir capas anchas para visualización
+  const disp = layers.map((l, i) => {
+    const n = l.activations.length;
+    const visible = Math.min(n, i === 0 ? 8 : i === layers.length - 1 ? 1 : 10);
+    const acts = [];
+    for (let k = 0; k < visible; k++) {
+      const idx = Math.floor(k * n / visible);
+      acts.push(l.activations[idx]);
+    }
+    return {name: l.name, visible, acts, total: n};
+  });
+  const xs = disp.map((_,i) => (i+1)*W/(disp.length+1));
+
+  // Conexiones
+  for (let li = 0; li < disp.length - 1; li++) {
+    const ys = disp[li].acts.map((_,k) => (k+1)*(H-50)/(disp[li].visible+1)+20);
+    const nys = disp[li+1].acts.map((_,k) => (k+1)*(H-50)/(disp[li+1].visible+1)+20);
+    ys.forEach((y1,i) => nys.forEach((y2,j) => {
+      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      const intensity = Math.min(1, Math.abs(disp[li].acts[i]) * Math.abs(disp[li+1].acts[j]) + 0.05);
+      ln.setAttribute('x1', xs[li]); ln.setAttribute('y1', y1);
+      ln.setAttribute('x2', xs[li+1]); ln.setAttribute('y2', y2);
+      ln.setAttribute('stroke', `rgba(200,155,60,${0.04 + intensity*0.25})`);
+      ln.setAttribute('stroke-width', 0.8 + intensity*1.2);
+      svg.appendChild(ln);
+    }));
+  }
+  // Nodos
+  disp.forEach((l, li) => {
+    const x = xs[li];
+    const maxA = Math.max(...l.acts.map(Math.abs), 1e-9);
+    l.acts.forEach((a, k) => {
+      const y = (k+1)*(H-50)/(l.visible+1)+20;
+      const intensity = Math.min(1, Math.abs(a)/maxA);
+      const col = li === 0 ? '#5a8cff' : li === disp.length-1 ? '#3dd68a' : '#c89b3c';
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', x); c.setAttribute('cy', y);
+      c.setAttribute('r', 8 + intensity*8);
+      c.setAttribute('fill', col); c.setAttribute('fill-opacity', 0.15 + intensity*0.8);
+      c.setAttribute('stroke', col); c.setAttribute('stroke-width', '1.5');
+      svg.appendChild(c);
+      if (li === disp.length-1 || li === 0 || k < 3) {
+        svg.appendChild(svgText(x, y+3, a.toFixed(2), '#eef2fb', 9, 'middle', 600));
+      }
+    });
+    svg.appendChild(svgText(x, H-12, l.name + (l.total > l.visible ? ` (${l.total})` : ''),
+                            '#b6c2dc', 11, 'middle', 600));
+  });
+}
+
+function drawLinearSVG(svg) {
+  const W = 1200, H = 380;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const pad = 60;
+  // Eje
+  ['x','y'].forEach(()=>{});
+  const axisY = H/2;
+  const ax = document.createElementNS('http://www.w3.org/2000/svg','line');
+  ax.setAttribute('x1', pad); ax.setAttribute('y1', axisY);
+  ax.setAttribute('x2', W-pad); ax.setAttribute('y2', axisY);
+  ax.setAttribute('stroke','#1f2d49'); ax.setAttribute('stroke-width', '1');
+  svg.appendChild(ax);
+  // Curva sigmoide
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  let dStr = '';
+  for (let px = pad; px <= W - pad; px++) {
+    const z = (px - W/2) / (W/12);
+    const sig = 1 / (1 + Math.exp(-z));
+    const y = H - pad - sig * (H - 2*pad);
+    dStr += (px === pad ? 'M ' : ' L ') + px + ' ' + y;
+  }
+  path.setAttribute('d', dStr);
+  path.setAttribute('stroke', '#c89b3c'); path.setAttribute('stroke-width', '3');
+  path.setAttribute('fill', 'none');
+  svg.appendChild(path);
+  svg.appendChild(svgText(W/2, H-20, 'σ(z) = 1 / (1 + e⁻ᶻ)', '#c89b3c', 14, 'middle', 600));
+}
+
+function svgText(x, y, txt, fill, size, anchor, weight) {
+  const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  t.setAttribute('x', x); t.setAttribute('y', y);
+  t.setAttribute('fill', fill); t.setAttribute('font-size', size);
+  t.setAttribute('text-anchor', anchor || 'start');
+  t.setAttribute('font-family', 'Inter');
+  if (weight) t.setAttribute('font-weight', weight);
+  t.textContent = txt;
+  return t;
+}
+
+async function animateNNFlowWith(values) {
+  try {
+    const r = await fetch(API + '/api/nn_activations', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({values})
+    });
+    const d = await r.json();
+    if (d.error) return;
+    const svg = document.getElementById('deep-svg');
+    if (svg) {
+      svg.innerHTML = '';
+      drawNeuralSVG(svg, d.layers);
+    }
+  } catch {}
+}
+
+// ─── DEMO MODE ───────────────────────────────────────────────────────
+function loadDemoData() {
+  const cols = ['edad','ingresos','tiene_trabajo','historial_credito','monto_prestamo','plazo_meses','pago'];
+  const preview = [
+    {edad:35,ingresos:2500,tiene_trabajo:'Sí',historial_credito:'Bueno',monto_prestamo:10000,plazo_meses:24,pago:1},
+    {edad:28,ingresos:1200,tiene_trabajo:'No',historial_credito:'Regular',monto_prestamo:5000,plazo_meses:12,pago:0},
+    {edad:45,ingresos:4000,tiene_trabajo:'Sí',historial_credito:'Excelente',monto_prestamo:20000,plazo_meses:36,pago:1},
+    {edad:22,ingresos:800,tiene_trabajo:'No',historial_credito:'Malo',monto_prestamo:3000,plazo_meses:6,pago:0},
+    {edad:50,ingresos:3500,tiene_trabajo:'Sí',historial_credito:'Bueno',monto_prestamo:15000,plazo_meses:24,pago:1},
+    {edad:31,ingresos:2200,tiene_trabajo:'Sí',historial_credito:'Bueno',monto_prestamo:8000,plazo_meses:18,pago:1},
+    {edad:60,ingresos:1500,tiene_trabajo:'No',historial_credito:'Regular',monto_prestamo:4000,plazo_meses:12,pago:0},
+    {edad:39,ingresos:5500,tiene_trabajo:'Sí',historial_credito:'Excelente',monto_prestamo:25000,plazo_meses:36,pago:1}
+  ];
+  // Generar CSV ficticio y enviarlo al backend
+  generateAndUploadDemo();
+}
+
+async function generateAndUploadDemo() {
+  toast('Generando 500 clientes demo…');
+  // Construir CSV en cliente
+  const rows = ['edad,ingresos,tiene_trabajo,historial_credito,monto_prestamo,plazo_meses,pago'];
+  const hist = ['Malo','Regular','Bueno','Excelente'];
+  const rand = (a,b) => a + Math.random()*(b-a);
+  for (let i=0;i<500;i++) {
+    const edad = Math.round(rand(20,65));
+    const ingresos = Math.round(rand(500,7000));
+    const tt = Math.random() > 0.3 ? 'Sí' : 'No';
+    const h = hist[Math.floor(Math.random()*4)];
+    const monto = Math.round(rand(2000,30000));
+    const plazo = [6,12,18,24,36][Math.floor(Math.random()*5)];
+    // Lógica: ingresos altos + trabajo + buen historial → pago
+    const score = ingresos/7000*0.4 + (tt==='Sí'?0.25:0) + (hist.indexOf(h)/3)*0.25 - (monto/30000)*0.15 + 0.1;
+    const pago = Math.random() < score ? 1 : 0;
+    rows.push(`${edad},${ingresos},${tt},${h},${monto},${plazo},${pago}`);
+  }
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const file = new File([blob], 'demo_credito.csv', {type:'text/csv'});
+  await uploadFile(file);
+}
+
+// ─── RESET ───────────────────────────────────────────────────────────
+async function resetAll() {
+  if (!confirm('¿Reiniciar toda la sesión? Se borrarán los datos cargados.')) return;
+  try { await fetch(API + '/api/reset', { method: 'POST' }); } catch {}
+  location.reload();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────
+checkServer();
+
+// Add roundRect polyfill if missing
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
+    this.beginPath();
+    this.moveTo(x+r,y);
+    this.lineTo(x+w-r,y);
+    this.quadraticCurveTo(x+w,y,x+w,y+r);
+    this.lineTo(x+w,y+h-r);
+    this.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    this.lineTo(x+r,y+h);
+    this.quadraticCurveTo(x,y+h,x,y+h-r);
+    this.lineTo(x,y+r);
+    this.quadraticCurveTo(x,y,x+r,y);
+    this.closePath();
+    return this;
+  };
+}
+</script>
+</body>
+</html>
