@@ -8,6 +8,9 @@ __pycache__/
 uploads/*
 !uploads/.gitkeep
 models/*.pkl
+# Excepción: versionar el modelo ya entrenado para que Render arranque instantáneo
+# (sin reentrenar en el boot). Si reentrenas localmente, vuelve a commitearlo.
+!models/janus_bundle.pkl
 node_modules/
 android/
 ios/
@@ -20,3 +23,5 @@ Thumbs.db
 build/
 dist/
 *.spec
+reporte_modelo.html
+data/

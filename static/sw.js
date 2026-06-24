@@ -1,6 +1,6 @@
 /* JNUS AI · Service Worker
    App-shell cache + network-first para la API (mantiene sincronía con el backend). */
-const CACHE = 'janus-ai-v4';
+const CACHE = 'janus-ai-v13';
 const SHELL = [
   '/app',
   '/static/manifest.webmanifest',
@@ -8,7 +8,9 @@ const SHELL = [
   '/static/hero.png',
   '/static/consumo.png',
   '/static/microcredito.png',
-  '/static/inmobiliario.png'
+  '/static/inmobiliario.png',
+  '/static/vendor/three.min.js',
+  '/static/vendor/gsap.min.js'
 ];
 
 self.addEventListener('install', (e) => {
@@ -35,7 +37,23 @@ self.addEventListener('fetch', (e) => {
     );
     return;
   }
-  // App shell → cache-first con actualización en segundo plano
+  // HTML / navegación → network-first: siempre la última UI cuando hay red,
+  // cache como respaldo offline. Evita que se quede pegada una versión vieja.
+  const isHTML = e.request.mode === 'navigate' ||
+    (e.request.headers.get('accept') || '').includes('text/html');
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request).then((res) => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, copy));
+        }
+        return res;
+      }).catch(() => caches.match(e.request).then((c) => c || caches.match('/app')))
+    );
+    return;
+  }
+  // Estáticos (imágenes, vendor JS) → cache-first con actualización en segundo plano
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const network = fetch(e.request).then((res) => {

@@ -18,8 +18,9 @@ echo [+] Instalando dependencias...
 python -m pip install --upgrade pip --quiet
 python -m pip install -r requirements.txt --quiet
 
-REM Lanzar
-echo [+] Servidor en http://127.0.0.1:5000
-start "" http://127.0.0.1:5000
+REM Lanzar (local de escritorio: arranque limpio, sin reloader)
+set "JNUS_LOCAL=1"
+echo [+] Servidor en http://127.0.0.1:5000/app
+start "" http://127.0.0.1:5000/app
 python app.py
 pause

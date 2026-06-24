@@ -16,7 +16,9 @@ Modelos soportados: logit, probit, random_forest, xgboost, neural_net
 """
 from __future__ import annotations
 
+import datetime as _dt
 import io
+import json
 import os
 import time
 import traceback
@@ -30,7 +32,7 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 import pandas as pd
 from flask import (Flask, jsonify, redirect, render_template, request,
-                   send_from_directory, url_for)
+                   send_file, send_from_directory, url_for)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # SCIENCE STACK (importes tolerantes — si falla xgboost o tensorflow, seguimos)
@@ -62,7 +64,11 @@ except Exception:
     HAS_XGBOOST = False
 
 # Motor de inferencia del producto consumidor (capa nueva, no toca el pipeline)
-from engine import ENGINE, BUNDLE_PATH, retrain_from_dataframe, REQUIRED_COLUMNS
+from engine import ENGINE, BUNDLE_PATH, retrain_from_dataframe, REQUIRED_COLUMNS, PIPELINE_STEPS
+
+# Capa de base de datos (SQLite) — persiste encuestas y resultados para que el
+# modelo aprenda con más datos. No toca los modelos ni el pipeline existente.
+import db as jdb
 
 from functools import wraps
 from flask import session
@@ -74,10 +80,32 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024  # 64MB
-# Clave de sesión y credenciales admin (configurables por entorno en producción)
-app.secret_key = os.environ.get("JNUS_SECRET_KEY", "jnus-dev-secret-change-in-prod")
+
+# ── Sesión y credenciales (fail-closed en producción · cyber-neo CN-001/CN-005) ──
+# "Producción" = despliegue real en la nube. El launcher de escritorio pone
+# JNUS_LOCAL=1 → NO es producción (corre sobre HTTP local, sin secretos externos).
+IS_LOCAL = os.environ.get("JNUS_LOCAL") == "1"
+IS_PROD = (os.environ.get("FLASK_ENV") == "production") and not IS_LOCAL
+app.secret_key = os.environ.get("JNUS_SECRET_KEY")
 ADMIN_USER = os.environ.get("JNUS_ADMIN_USER", "admin")
-ADMIN_PASSWORD = os.environ.get("JNUS_ADMIN_PASSWORD", "jnus2026")
+ADMIN_PASSWORD = os.environ.get("JNUS_ADMIN_PASSWORD")
+if IS_PROD and (not app.secret_key or not ADMIN_PASSWORD):
+    raise RuntimeError(
+        "Faltan JNUS_SECRET_KEY / JNUS_ADMIN_PASSWORD en producción. "
+        "Configúralos en el panel del host (ver .env.example).")
+# En desarrollo: secreto aleatorio efímero (no uno quemado) y credenciales por defecto.
+app.secret_key = app.secret_key or os.urandom(32)
+ADMIN_PASSWORD = ADMIN_PASSWORD or "jnus2026"
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=IS_PROD,
+    PERMANENT_SESSION_LIFETIME=_dt.timedelta(days=30),  # "mantener sesión"
+    # Recargar plantillas al cambiarlas aunque debug esté off (dev/local/preview).
+    TEMPLATES_AUTO_RELOAD=True,
+)
+app.jinja_env.auto_reload = True
 
 
 def admin_required(fn):
@@ -233,6 +261,38 @@ def legacy_lab():
     return redirect(url_for("consumer_app"))
 
 
+@app.route("/metodologia")
+def metodologia():
+    """Página PÚBLICA e interactiva que explica la estructura matemática y los
+    algoritmos (logit → XGBoost → RF → red GELU+Sigmoide) para que un economista
+    o el tutor entiendan el funcionamiento. No requiere login."""
+    return render_template("metodologia.html")
+
+
+@app.route("/api/methodology")
+def api_methodology():
+    """Artefactos NO sensibles del modelo activo para la página de metodología
+    (público): métricas, curvas de pérdida, pesos/signos del logit, importancia,
+    arquitectura de la red y prueba de neuronas muertas."""
+    try:
+        if not ENGINE.ready():
+            ENGINE.bootstrap()
+        b = ENGINE.bundle or {}
+        return jsonify({
+            "ok": True,
+            "learning": b.get("learning") or {},
+            "metrics": b.get("metrics", {}),
+            "dataset_size": b.get("dataset_size"),
+            "version": b.get("version"),
+            "approval_rate": round(b.get("approval_rate", 0) * 100, 1),
+            "class_distribution": b.get("class_distribution"),
+            "n_features": b.get("n_features"),
+        })
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ADMIN · plataforma privada de administración (login + entreno + versiones)
 # ══════════════════════════════════════════════════════════════════════════════
@@ -347,6 +407,107 @@ def api_admin_retrain():
         return jsonify({"error": f"Error al reentrenar: {e}"}), 500
 
 
+@app.route("/api/admin/retrain_sse", methods=["POST"])
+@admin_required
+def api_admin_retrain_sse():
+    """Igual que /api/admin/retrain pero responde SSE con progreso paso a paso."""
+    from flask import Response, stream_with_context
+    import queue, threading
+
+    if "file" not in request.files:
+        return jsonify({"error": "No se envio ningun archivo."}), 400
+    f = request.files["file"]
+    if not f.filename:
+        return jsonify({"error": "Archivo sin nombre."}), 400
+    ext = f.filename.lower().rsplit(".", 1)[-1]
+    raw = f.read()
+    filename = f.filename
+
+    # Parse the dataframe up front (before SSE stream starts)
+    try:
+        if ext == "csv":
+            df = None
+            for sep in [",", ";", "\t", "|"]:
+                for enc in ["utf-8", "latin-1", "utf-8-sig"]:
+                    try:
+                        cand = pd.read_csv(io.BytesIO(raw), sep=sep, encoding=enc, engine="python")
+                        if cand.shape[1] > 1:
+                            df = cand
+                            break
+                    except Exception:
+                        continue
+                if df is not None:
+                    break
+            if df is None:
+                df = pd.read_csv(io.BytesIO(raw))
+        elif ext in ("xlsx", "xls"):
+            df = pd.read_excel(io.BytesIO(raw))
+        elif ext == "sav":
+            import pyreadstat, tempfile
+            with tempfile.NamedTemporaryFile(suffix=".sav", delete=False) as tmp:
+                tmp.write(raw); tmp_path = tmp.name
+            df, _ = pyreadstat.read_sav(tmp_path)
+            try: os.unlink(tmp_path)
+            except Exception: pass
+        else:
+            return jsonify({"error": f"Formato no soportado: .{ext}"}), 400
+    except Exception as e:
+        return jsonify({"error": f"Error al leer archivo: {e}"}), 500
+
+    df.columns = [str(c).strip() for c in df.columns]
+    missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
+    if missing:
+        return jsonify({"error": "Faltan columnas: " + ", ".join(missing),
+                        "required": REQUIRED_COLUMNS, "received": list(df.columns)}), 400
+
+    q = queue.Queue()
+
+    def progress_cb(step_id, step_idx, total, detail):
+        q.put({"step": step_id, "idx": step_idx, "total": total, "detail": detail})
+
+    def train_worker():
+        try:
+            from engine import train_and_persist
+            bundle = train_and_persist(df=df, source=filename, on_progress=progress_cb)
+            ENGINE.bundle = bundle
+            q.put({"done": True, "bundle": {
+                "version": bundle.get("version"),
+                "dataset_size": bundle.get("dataset_size"),
+                "metrics": bundle.get("metrics", {}),
+                "approval_rate": bundle.get("approval_rate"),
+                "class_distribution": bundle.get("class_distribution"),
+                "n_features": bundle.get("n_features"),
+            }})
+        except Exception as e:
+            q.put({"error": str(e)})
+
+    t = threading.Thread(target=train_worker, daemon=True)
+    t.start()
+
+    def generate():
+        import json as _json
+        while True:
+            try:
+                msg = q.get(timeout=120)
+            except Exception:
+                yield "data: " + _json.dumps({"error": "Timeout"}) + "\n\n"
+                break
+            yield "data: " + _json.dumps(msg, default=str) + "\n\n"
+            if "done" in msg or "error" in msg:
+                break
+
+    return Response(stream_with_context(generate()),
+                    mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.route("/api/admin/pipeline_steps")
+@admin_required
+def api_pipeline_steps():
+    """Devuelve los pasos del pipeline para la UI de progreso."""
+    return jsonify({"steps": PIPELINE_STEPS})
+
+
 @app.route("/api/admin/retrain_seed", methods=["POST"])
 @admin_required
 def api_admin_retrain_seed():
@@ -372,11 +533,221 @@ def api_options():
 def api_score():
     try:
         payload = request.get_json(silent=True) or {}
+        # El frontend puede adjuntar quién evalúa (opcional). Lo separamos del
+        # payload para no pasárselo al motor de inferencia.
+        guest = payload.pop("_user", None) if isinstance(payload, dict) else None
+        # Prioridad: usuario autenticado en sesión > nombre de invitado del cliente.
+        uid = session.get("uid")
+        user = jdb.get_user(uid) if uid else guest
         result = ENGINE.score(payload)
+        # Persistir la encuesta + resultado (nunca rompe el scoring).
+        try:
+            eval_id = jdb.save_evaluation(payload, result, user)
+            if eval_id:
+                result["eval_id"] = eval_id
+        except Exception:
+            pass
         return jsonify(result)
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": f"No se pudo evaluar el perfil: {e}"}), 500
+
+
+# ─── REGISTRO SENCILLO DE USUARIOS (nombre / apodo) ─────────────────────────────
+# Solo guarda el nombre que la persona elige en la app. NO es autenticación real
+# ni toca los modelos: es un registro ligero para que el admin vea quién usa la app.
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+USERS_FILE = os.path.join(DATA_DIR, "usuarios.json")
+
+
+def _load_users() -> List[dict]:
+    try:
+        with open(USERS_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def _save_users(users: List[dict]) -> None:
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, ensure_ascii=False, indent=2)
+
+
+@app.route("/api/register", methods=["POST"])
+def api_register():
+    """Registra (o reconoce) a un usuario por su nombre/apodo. Público (SQL)."""
+    data = request.get_json(silent=True) or {}
+    name = str(data.get("name", "")).strip()[:40]
+    if not name:
+        return jsonify({"error": "Escribe un nombre o apodo."}), 400
+    res = jdb.register_user(name)
+    return jsonify({"ok": True, "id": res["id"], "name": res["name"],
+                    "returning": res["returning"]})
+
+
+# ─── CUENTAS REALES (email + contraseña + foto) ─────────────────────────────────
+def _login_session(user: dict, remember: bool = True) -> None:
+    """Inicia sesión del usuario en la cookie firmada de Flask."""
+    session["uid"] = user["id"]
+    session.permanent = bool(remember)   # mantener sesión ~30 días
+
+
+@app.route("/api/signup", methods=["POST"])
+def api_signup():
+    """Crea una cuenta real e inicia sesión."""
+    d = request.get_json(silent=True) or {}
+    res = jdb.create_account(d.get("name", ""), d.get("email", ""), d.get("password", ""))
+    if not res["ok"]:
+        return jsonify({"error": res["error"]}), 400
+    user = res["user"]
+    # Foto opcional al registrarse
+    avatar = d.get("avatar")
+    if avatar:
+        up = jdb.update_profile(user["id"], avatar=avatar)
+        if up["ok"]:
+            user = up["user"]
+    _login_session(user, d.get("remember", True))
+    return jsonify({"ok": True, "user": user})
+
+
+@app.route("/api/login", methods=["POST"])
+def api_login():
+    """Inicia sesión con email + contraseña."""
+    d = request.get_json(silent=True) or {}
+    user = jdb.authenticate(d.get("email", ""), d.get("password", ""))
+    if not user:
+        return jsonify({"error": "Email o contraseña incorrectos."}), 401
+    _login_session(user, d.get("remember", True))
+    return jsonify({"ok": True, "user": user})
+
+
+@app.route("/api/logout", methods=["POST"])
+def api_logout():
+    """Cierra la sesión del usuario (no toca la sesión de admin)."""
+    session.pop("uid", None)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/me")
+def api_me():
+    """Devuelve el usuario autenticado (para restaurar sesión al abrir la app)."""
+    uid = session.get("uid")
+    user = jdb.get_user(uid) if uid else None
+    if not user:
+        return jsonify({"ok": True, "user": None})
+    return jsonify({"ok": True, "user": user})
+
+
+@app.route("/api/profile", methods=["POST"])
+def api_profile():
+    """Actualiza nombre / foto / contraseña del usuario en sesión."""
+    uid = session.get("uid")
+    if not uid:
+        return jsonify({"error": "Inicia sesión para editar tu perfil."}), 401
+    d = request.get_json(silent=True) or {}
+    res = jdb.update_profile(
+        uid,
+        name=d.get("name"),
+        avatar=d.get("avatar"),
+        password=d.get("password"),
+    )
+    if not res["ok"]:
+        return jsonify({"error": res["error"]}), 400
+    return jsonify({"ok": True, "user": res["user"]})
+
+
+@app.route("/api/admin/users")
+@admin_required
+def api_admin_users():
+    """Lista de usuarios registrados (solo admin)."""
+    users = jdb.list_users()
+    total_visits = sum(int(u.get("visits", 0)) for u in users)
+    total_evals = sum(int(u.get("evaluations", 0)) for u in users)
+    return jsonify({"ok": True, "count": len(users),
+                    "total_visits": total_visits,
+                    "total_evaluations": total_evals, "users": users})
+
+
+# ─── API ADMIN · BASE DE DATOS (evaluaciones recopiladas) ───────────────────────
+@app.route("/api/admin/db_stats")
+@admin_required
+def api_admin_db_stats():
+    """Resumen de la base de datos de evaluaciones recopiladas."""
+    return jsonify({"ok": True, **jdb.stats()})
+
+
+@app.route("/api/admin/evaluations")
+@admin_required
+def api_admin_evaluations():
+    """Últimas evaluaciones guardadas (encuesta + resultado)."""
+    try:
+        limit = min(int(request.args.get("limit", 100)), 500)
+    except Exception:
+        limit = 100
+    rows = jdb.list_evaluations(limit=limit)
+    return jsonify({"ok": True, "count": len(rows), "evaluations": rows})
+
+
+@app.route("/api/admin/label", methods=["POST"])
+@admin_required
+def api_admin_label():
+    """El admin marca el resultado REAL (0/1) de una evaluación → reentrenamiento
+    con verdad de campo en vez de la predicción del modelo."""
+    data = request.get_json(silent=True) or {}
+    ok = jdb.set_real_label(data.get("id"), data.get("aprobado_real"))
+    return (jsonify({"ok": True}) if ok
+            else (jsonify({"error": "No se pudo etiquetar."}), 400))
+
+
+@app.route("/api/admin/export_dataset")
+@admin_required
+def api_admin_export_dataset():
+    """Descarga las evaluaciones recopiladas como CSV con el esquema exacto del
+    motor (listo para reentrenar)."""
+    try:
+        from flask import Response
+        df = jdb.export_dataframe()
+        if df.empty:
+            return jsonify({"error": "Aún no hay evaluaciones guardadas."}), 400
+        csv = df.to_csv(index=False, encoding="utf-8-sig")
+        fname = _dt.datetime.now().strftime("jnus_dataset_%Y%m%d_%H%M.csv")
+        return Response(csv, mimetype="text/csv",
+                        headers={"Content-Disposition": f"attachment; filename={fname}"})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/retrain_from_db", methods=["POST"])
+@admin_required
+def api_admin_retrain_from_db():
+    """Reentrena el modelo de producción con las evaluaciones recopiladas en la
+    base de datos. Requiere un mínimo de filas y ambas clases presentes."""
+    try:
+        df = jdb.export_dataframe()
+        if len(df) < 50:
+            return jsonify({"error": f"Necesitas al menos 50 evaluaciones para reentrenar "
+                                     f"(tienes {len(df)})."}), 400
+        if df["aprobado"].nunique() < 2:
+            return jsonify({"error": "Los datos recopilados tienen una sola clase. "
+                                     "Se necesitan casos aprobados y rechazados."}), 400
+        bundle = retrain_from_dataframe(df, source="base_de_datos")
+        metrics = bundle.get("metrics", {})
+        best = max(metrics.items(), key=lambda kv: kv[1].get("auc", 0)) if metrics else (None, {})
+        names = {"logit": "Regresión Logística", "random_forest": "Random Forest",
+                 "xgboost": "XGBoost", "neural_net": "Red Neuronal"}
+        return jsonify({
+            "ok": True,
+            "message": f"Modelo reentrenado con {len(df)} evaluaciones recopiladas.",
+            "version": bundle.get("version"),
+            "dataset_size": bundle.get("dataset_size"),
+            "best_algorithm": names.get(best[0], best[0]),
+            "best_auc": round(best[1].get("auc", 0), 3),
+        })
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": f"Error al reentrenar: {e}"}), 500
 
 
 @app.route("/api/model_info")
@@ -414,12 +785,76 @@ def api_model_info():
             "best_auc": round(best_auc, 3),
             "best_accuracy": round(best_acc, 3),
             "source": b.get("source", "seed"),
+            "approval_rate": round(b.get("approval_rate", 0) * 100, 1),
+            "class_distribution": b.get("class_distribution"),
+            "n_features": b.get("n_features", len(b.get("columns", []))),
             "metrics": {names.get(k, k): v for k, v in metrics.items()},
             "bundle_path": os.path.basename(BUNDLE_PATH),
         })
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/learning")
+@admin_required
+def api_admin_learning():
+    """Artefactos de aprendizaje del modelo activo (solo lectura, NO entrena):
+    curva de pérdida de la red, coeficientes/signos del logit, importancia de
+    variables y arquitectura. Para verificar que la red realmente aprende."""
+    try:
+        if not ENGINE.ready():
+            ENGINE.bootstrap()
+        b = ENGINE.bundle or {}
+        learning = b.get("learning") or {}
+        return jsonify({
+            "ok": True,
+            "learning": learning,
+            "metrics": b.get("metrics", {}),
+            "dataset_size": b.get("dataset_size"),
+            "version": b.get("version"),
+            "source": b.get("source"),
+            "has_artifacts": bool(learning.get("nn_loss_curve")),
+        })
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/db_schema")
+@admin_required
+def api_admin_db_schema():
+    """Esquema + conteo de filas de la base SQLite (vista web para verificar)."""
+    try:
+        conn = jdb._connect()
+        tables = []
+        rows = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+        ).fetchall()
+        for r in rows:
+            t = r["name"]
+            cols = [{"name": c["name"], "type": c["type"]}
+                    for c in conn.execute(f"PRAGMA table_info({t})").fetchall()]
+            n = conn.execute(f"SELECT COUNT(*) c FROM {t}").fetchone()["c"]
+            tables.append({"table": t, "rows": n, "columns": cols})
+        conn.close()
+        size = os.path.getsize(jdb.DB_PATH) if os.path.exists(jdb.DB_PATH) else 0
+        return jsonify({"ok": True, "db_path": jdb.DB_PATH,
+                        "size_kb": round(size / 1024, 1), "tables": tables})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/download_db")
+@admin_required
+def api_admin_download_db():
+    """Descarga el archivo SQLite tal cual (para inspeccionar o respaldar)."""
+    if not os.path.exists(jdb.DB_PATH):
+        return jsonify({"error": "Aún no existe la base de datos."}), 404
+    return send_file(jdb.DB_PATH, as_attachment=True,
+                     download_name="janus.db",
+                     mimetype="application/x-sqlite3")
 
 
 @app.route("/manifest.webmanifest")
@@ -1176,17 +1611,53 @@ if os.environ.get("JNUS_NO_WARM", os.environ.get("JANUS_NO_WARM")) != "1":
     except Exception as _e:
         print(f"[JNUS] Aviso: bootstrap diferido ({_e})")
 
+# Migración única: usuarios del JSON antiguo → SQLite (si la tabla está vacía).
+try:
+    if not jdb.list_users():
+        for u in _load_users():
+            try:
+                jdb.register_user(u.get("name", ""))
+            except Exception:
+                pass
+except Exception:
+    pass
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     host = os.environ.get("HOST", "0.0.0.0")
-    debug = os.environ.get("FLASK_ENV", "development") != "production"
+    # Local/escritorio: sin debugger ni reloader (evita doble arranque y doble
+    # apertura del navegador). El reloader era la razón del FLASK_ENV=production.
+    debug = (not IS_LOCAL) and (os.environ.get("FLASK_ENV", "development") != "production")
+    open_admin = os.environ.get("JNUS_OPEN_ADMIN") == "1"
+    admin_url = f"http://127.0.0.1:{port}/admin/login"
+    app_url = f"http://127.0.0.1:{port}/app"
     print("\n" + "=" * 60)
     print("  SIAC · JNUS AI — Credit Intelligence Backend")
     print("=" * 60)
-    print(f"  Local:   http://127.0.0.1:{port}")
-    print(f"  Network: http://{host}:{port}")
+    print(f"  ADMIN:   {admin_url}   (usuario: admin)")
+    print(f"  App:     {app_url}")
     print(f"  XGBoost:     {'OK' if HAS_XGBOOST else 'no instalado (fallback RF)'}")
     print(f"  statsmodels: {'OK' if HAS_STATSMODELS else 'no instalado (fallback Logit)'}")
     print("=" * 60 + "\n")
-    app.run(host=host, port=port, debug=debug)
+
+    # Apertura automática del panel admin (SOLO local, si el launcher lo pide).
+    # Producción/Render usa gunicorn y nunca entra aquí, así que no le afecta.
+    if open_admin:
+        import threading
+        import urllib.request
+        import webbrowser
+
+        def _open_admin_when_ready():
+            health = f"http://127.0.0.1:{port}/api/health"
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(health, timeout=1)
+                    webbrowser.open(admin_url)
+                    return
+                except Exception:
+                    time.sleep(0.7)
+
+        threading.Thread(target=_open_admin_when_ready, daemon=True).start()
+
+    app.run(host=host, port=port, debug=debug, use_reloader=debug)

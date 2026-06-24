@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="/static/vendor/three.min.js"></script>
+<script src="/static/vendor/gsap.min.js"></script>
 <style>
 /* ═══════════════ JNUS AI · Institutional FinTech ═══════════════
    Cooperativas · banca comunal · Machala, Ecuador
@@ -31,6 +33,7 @@
   --nav-h:70px; --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.5;
   -webkit-font-smoothing:antialiased;overflow:hidden}
@@ -42,9 +45,9 @@ svg.ic{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;
   display:flex;align-items:center;gap:11px;padding-left:18px;padding-right:18px;
   background:rgba(244,246,250,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px}
-.brand .logo-box{width:36px;height:36px;border-radius:10px;background:var(--navy);
-  display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(200,162,75,.4)}
-.brand .logo-box img{width:100%;height:100%;object-fit:cover}
+.brand .logo-box{width:38px;height:38px;border-radius:10px;background:#fff;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(200,162,75,.45)}
+.brand .logo-box img{width:100%;height:100%;object-fit:contain;padding:3px}
 .brand .col{font-family:var(--fd);font-weight:800;font-size:19px;letter-spacing:1.5px;color:var(--navy)}
 .brand .col .ai{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:2px;margin-left:5px}
 .appbar .right{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);font-weight:600;
@@ -71,15 +74,27 @@ svg.ic{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;
 .hero{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--shadow-lg);margin-bottom:20px;
   min-height:430px;display:flex;flex-direction:column;justify-content:flex-end}
 .hero .bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hero .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.55) 0%,rgba(15,23,42,.75) 60%,rgba(15,23,42,.92) 100%)}
-.hero .inner{position:relative;z-index:2;padding:28px 24px}
-.hero .logo-hero{width:64px;height:64px;border-radius:16px;overflow:hidden;margin-bottom:18px;
+.hero .ov{position:absolute;inset:0;background:
+  radial-gradient(120% 80% at 80% 0%,rgba(200,162,75,.14),transparent 55%),
+  linear-gradient(180deg,rgba(10,15,30,.45) 0%,rgba(10,15,30,.78) 58%,rgba(10,15,30,.96) 100%)}
+.hero .inner{position:relative;z-index:2;padding:30px 26px 32px}
+.hero .logo-hero{width:60px;height:60px;border-radius:16px;overflow:hidden;margin-bottom:16px;
   box-shadow:0 8px 24px rgba(0,0,0,.4);border:1px solid rgba(200,162,75,.35)}
-.hero .logo-hero img{width:100%;height:100%;object-fit:cover}
-.hero h1{font-family:var(--fd);font-weight:800;font-size:29px;line-height:1.15;letter-spacing:-.5px;color:#fff}
-.hero h1 b{color:var(--gold-2)}
-.hero p{color:#CBD5E1;font-size:14px;margin-top:12px;max-width:310px}
-.hero .cta{margin-top:20px}
+.hero .logo-hero img{width:100%;height:100%;object-fit:contain;padding:5px}
+/* Badge de confianza (estilo agencia btodigital) */
+.hero .hero-badge{display:inline-flex;align-items:center;gap:7px;margin-bottom:14px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(6px);
+  padding:6px 12px;border-radius:30px;font-size:11px;font-weight:700;letter-spacing:.4px;color:#E7ECF5}
+.hero .hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--gold-2);box-shadow:0 0 8px var(--gold-2)}
+.hero h1{font-family:var(--fd);font-weight:800;font-size:33px;line-height:1.12;letter-spacing:-.7px;color:#fff}
+/* Acento orgánico dorado dibujado a mano bajo la palabra clave */
+.hero h1 b{color:var(--gold-2);position:relative;display:inline-block;white-space:nowrap}
+.hero h1 b::after{content:'';position:absolute;left:-1px;right:-3px;bottom:-7px;height:9px;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'><path d='M2 7 C25 2 45 9 62 5 S100 1 118 6' fill='none' stroke='%23D4AF37' stroke-width='3' stroke-linecap='round'/></svg>") no-repeat;
+  background-size:100% 100%;opacity:.95}
+.hero p{color:#CBD5E1;font-size:14.5px;margin-top:18px;max-width:320px;line-height:1.55}
+.hero .cta{margin-top:22px}
+.hero .cta .btn{max-width:280px}
 
 /* ── BUTTONS ── */
 .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:none;cursor:pointer;
@@ -100,6 +115,8 @@ svg.ic{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;
 .step-card .num .ic{width:21px;height:21px;color:var(--gold-2)}
 .step-card .tx .t{font-weight:700;color:var(--navy);font-size:14.5px}
 .step-card .tx .d{font-size:13px;color:var(--muted)}
+.card.step-card{transition:transform .2s,box-shadow .2s}
+.card.step-card:active{transform:scale(.98)}
 
 /* ── WIZARD ── */
 .wizard{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column}
@@ -140,7 +157,8 @@ svg.ic{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;
 .opt.sel .ic-box{background:var(--navy);color:var(--gold-2)}
 .opt.sel::after{content:'';position:absolute;top:10px;right:11px;width:18px;height:18px;border-radius:50%;
   background:var(--gold-2);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-  background-size:12px;background-repeat:no-repeat;background-position:center}
+  background-size:12px;background-repeat:no-repeat;background-position:center;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
 .opt.full{grid-column:1/-1;flex-direction:row;align-items:center}
 
 /* ── FIELDS ── */
@@ -149,9 +167,28 @@ svg.ic{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;
 .field label .lab-l{display:flex;align-items:center;gap:8px}
 .field label .lab-l .ic{width:17px;height:17px;color:var(--muted)}
 .field label .val{color:var(--blue);font-family:var(--fd);font-weight:800;font-size:16px}
-input[type=range]{-webkit-appearance:none;width:100%;height:7px;border-radius:5px;background:var(--line);outline:none}
+/* Slider con relleno dinámico (--p lo actualiza JS) */
+input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:6px;outline:none;
+  background:linear-gradient(90deg,var(--blue) var(--p,50%),var(--line) var(--p,50%));transition:background .08s linear}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;
-  background:#fff;border:3px solid var(--blue);box-shadow:0 4px 10px rgba(37,99,235,.35);cursor:pointer}
+  background:#fff;border:3px solid var(--blue);box-shadow:0 4px 10px rgba(37,99,235,.35);cursor:pointer;
+  transition:transform .12s ease}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18)}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--blue);
+  box-shadow:0 4px 10px rgba(37,99,235,.35);cursor:pointer}
+input[type=range]::-moz-range-progress{background:var(--blue);height:8px;border-radius:6px}
+/* Entrada escalonada de los pasos del wizard */
+@keyframes wiz-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+#wiz-body > *{animation:wiz-in .4s cubic-bezier(.16,1,.3,1) both}
+.cat-list .cat,.opt-grid .opt,.wiz-body .field{animation:wiz-in .46s cubic-bezier(.16,1,.3,1) both}
+.cat-list .cat:nth-child(2),.opt-grid .opt:nth-child(2),.wiz-body .field:nth-child(3){animation-delay:.06s}
+.cat-list .cat:nth-child(3),.opt-grid .opt:nth-child(3),.wiz-body .field:nth-child(4){animation-delay:.12s}
+.cat-list .cat:nth-child(4),.opt-grid .opt:nth-child(4),.wiz-body .field:nth-child(5){animation-delay:.18s}
+.cat-list .cat:nth-child(5),.opt-grid .opt:nth-child(5),.wiz-body .field:nth-child(6){animation-delay:.24s}
+.cat-list .cat:nth-child(6),.opt-grid .opt:nth-child(6),.wiz-body .field:nth-child(7){animation-delay:.30s}
+.opt-grid .opt:nth-child(7),.wiz-body .field:nth-child(8){animation-delay:.36s}
+.opt-grid .opt:nth-child(n+8){animation-delay:.42s}
+@media(prefers-reduced-motion:reduce){ #wiz-body > *,.cat-list .cat,.opt-grid .opt,.wiz-body .field{animation:none}}
 .seg{display:flex;gap:8px;flex-wrap:wrap}
 .seg button{flex:1;min-width:max-content;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);
   background:var(--card);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;transition:.2s;font-family:var(--fb)}
@@ -193,8 +230,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .gauge .center .pct{font-family:var(--fd);font-weight:800;font-size:52px;line-height:1}
 .gauge .center .cap{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#94A3B8;margin-top:4px;font-weight:600}
 .risk-pill{display:inline-flex;align-items:center;gap:8px;padding:9px 22px;border-radius:30px;font-weight:800;
-  font-size:15px;margin-top:8px;font-family:var(--fd)}
-.risk-pill .dot{width:10px;height:10px;border-radius:50%}
+  font-size:15px;margin-top:8px;font-family:var(--fd);animation:fade .5s ease}
+.risk-pill .dot{width:10px;height:10px;border-radius:50%;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 currentColor}50%{box-shadow:0 0 0 6px transparent}}
 .verdict{color:#CBD5E1;font-size:13.5px;margin-top:14px;line-height:1.55}
 
 /* ── FACTORS ── */
@@ -255,6 +293,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .prof-row .ic-box .ic{width:19px;height:19px}
 .prof-row .tx{flex:1;font-weight:600;font-size:14px;color:var(--navy)}
 .prof-row .ar{color:var(--muted-2)}
+.prof-av{overflow:hidden;font-family:var(--fd);font-weight:800;font-size:22px}
+/* Estadísticas del perfil (dinámicas) */
+.prof-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.prof-stats .ps{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:13px 8px;text-align:center;
+  transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s}
+.prof-stats .ps:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}
+.prof-stats .ps-v{font-family:var(--fd);font-weight:800;font-size:21px;color:var(--navy);line-height:1.1}
+.prof-stats .ps-l{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.3px;text-transform:uppercase}
+.prof-spark{display:flex;align-items:flex-end;gap:5px;height:46px;margin-top:16px;padding:0 2px}
+.prof-spark .sb{flex:1;border-radius:5px 5px 2px 2px;min-height:5px;background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  opacity:0;transform:scaleY(.3);transform-origin:bottom;animation:spark-rise .55s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes spark-rise{to{opacity:1;transform:scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.prof-spark .sb{animation:none;opacity:1;transform:none}}
 
 /* ── EMPTY ── */
 .empty{text-align:center;padding:54px 24px;color:var(--muted)}
@@ -291,51 +342,341 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .img-ph.logo{width:100%;height:100%;border-radius:inherit}
 .img-ph.cat{width:100%;height:172px}
 .img-ph.hero{position:absolute;inset:0;width:100%;height:100%}
+/* ── SPLASH CINEMÁTICO (storyboard JNUS: red dorada → cristal → núcleo verde → marca) ── */
+#splash{position:fixed;inset:0;z-index:200;overflow:hidden;
+  background:radial-gradient(135% 105% at 50% 40%,#ffffff 0%,#f7f9fc 46%,#eef2f8 100%);
+  transition:opacity .7s ease,visibility .7s ease}
+#splash.hide{opacity:0;visibility:hidden}
+#splash-cv,#splash-gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+#splash-gl{display:none}
+#splash.gl #splash-gl{display:block}
+#splash.gl #splash-cv{display:none}
+.sp-reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;opacity:0;transition:opacity .9s ease;pointer-events:none;padding:24px}
+.sp-reveal.show{opacity:1}
+.sp-coin{width:112px;height:112px;border-radius:50%;overflow:hidden;margin-bottom:20px;
+  box-shadow:0 14px 44px rgba(15,23,42,.18),0 0 64px rgba(120,205,170,.28);
+  transform:scale(.82);transition:transform 1.05s cubic-bezier(.16,1,.3,1)}
+.sp-reveal.show .sp-coin{transform:scale(1)}
+.sp-coin img{width:100%;height:100%;object-fit:contain;padding:16px}
+.sp-name{font-family:var(--fd);font-weight:800;font-size:36px;letter-spacing:9px;color:var(--gold);
+  margin-bottom:12px;text-indent:9px}
+.sp-tag{font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.45;color:#334155;max-width:300px}
+.sp-foot{position:absolute;bottom:calc(24px + var(--sb));left:0;right:0;text-align:center;
+  color:#94A3B8;font-size:10px;letter-spacing:2px}
+/* keyframe reutilizada por el modal de bienvenida */
+@keyframes sp-pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.sp-coin{transition:none}}
+
+/* ── ENTRADA ESCALONADA DE LA APP (tras cerrar el splash) ── */
+@keyframes app-rise{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+body.app-in #t-home.active > *{animation:app-rise .6s cubic-bezier(.16,1,.3,1) both}
+body.app-in #t-home.active > *:nth-child(1){animation-delay:.05s}
+body.app-in #t-home.active > *:nth-child(2){animation-delay:.14s}
+body.app-in #t-home.active > *:nth-child(3){animation-delay:.23s}
+body.app-in #t-home.active > *:nth-child(4){animation-delay:.32s}
+body.app-in #t-home.active > *:nth-child(5){animation-delay:.40s}
+body.app-in #t-home.active > *:nth-child(n+6){animation-delay:.47s}
+@media(prefers-reduced-motion:reduce){body.app-in #t-home.active > *{animation:none}}
+
+/* ── MARQUESINA TIPOS DE CRÉDITO (slider infinito + blur progresivo) ── */
+.marq-wrap{margin:14px 0 20px}
+.marq-label{font-size:10.5px;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted-2);
+  text-align:center;margin-bottom:10px;font-weight:700}
+.marq{position:relative;overflow:hidden}
+.marq-track{display:flex;gap:10px;width:max-content;animation:marq 22s linear infinite}
+.marq:active .marq-track{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.chip-cr{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+  border-radius:999px;padding:9px 16px;font-size:12.5px;font-weight:700;color:var(--slate);
+  white-space:nowrap;box-shadow:var(--shadow)}
+.chip-cr .ic{width:16px;height:16px;color:var(--gold)}
+.marq-fade{position:absolute;top:0;bottom:0;width:54px;pointer-events:none;z-index:2;
+  backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px)}
+.marq-fade.l{left:0;background:linear-gradient(90deg,var(--bg) 8%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,#000 30%,transparent);mask-image:linear-gradient(90deg,#000 30%,transparent)}
+.marq-fade.r{right:0;background:linear-gradient(270deg,var(--bg) 8%,transparent);
+  -webkit-mask-image:linear-gradient(270deg,#000 30%,transparent);mask-image:linear-gradient(270deg,#000 30%,transparent)}
+@media(prefers-reduced-motion:reduce){.marq-track{animation:none;flex-wrap:wrap;width:100%;justify-content:center}}
+
+/* ── DEPTH & INTERACTIVITY POLISH ── */
+.hero .bgimg{animation:ken 22s ease-in-out infinite alternate}
+@keyframes ken{from{transform:scale(1)}to{transform:scale(1.12)}}
+.card{transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(15,23,42,.10)}
+.cat,.opt{transition:transform .2s cubic-bezier(.16,1,.3,1),box-shadow .25s,border-color .2s}
+.cat:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(15,23,42,.14)}
+.opt:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(15,23,42,.10)}
+.btn-gold{position:relative;overflow:hidden}
+.btn-gold::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-18deg);
+  animation:sheen 3.4s ease-in-out infinite}
+@keyframes sheen{0%{left:-60%}45%,100%{left:140%}}
+.gauge-card{transition:transform .25s}
+.step-card .num{transition:transform .2s}
+.card.step-card:hover .num{transform:scale(1.08) rotate(-3deg)}
+.nav button.on .ic{filter:drop-shadow(0 3px 6px rgba(200,162,75,.35))}
+@media(prefers-reduced-motion:reduce){.hero .bgimg,.btn-gold::after{animation:none}}
+
+/* ── WELCOME / REGISTRO (sign-in animado: box-reveal + glow + check) ── */
+#welcome{position:fixed;inset:0;z-index:150;display:none;justify-content:center;padding:20px;
+  background:rgba(15,23,42,.62);backdrop-filter:blur(8px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#welcome.open{display:flex;align-items:flex-start;animation:fade .35s ease}
+.wc-card{background:var(--card);border-radius:24px;box-shadow:var(--shadow-lg);width:100%;max-width:380px;
+  margin:auto;padding:26px 24px;text-align:center;animation:sp-pop .5s cubic-bezier(.16,1,.3,1)}
+/* Logo centrado del auth (sin órbita) */
+.auth-logo{display:flex;justify-content:center;align-items:center;margin:2px 0 12px}
+.auth-logo img{height:50px;width:auto;max-width:80%;object-fit:contain}
+.wc-logo{width:70px;height:70px;border-radius:20px;overflow:hidden;margin:0 auto 16px;
+  border:1px solid rgba(200,162,75,.4);box-shadow:0 8px 24px rgba(200,162,75,.25)}
+.wc-logo img{width:100%;height:100%;object-fit:cover}
+/* ── Orbita tecnológica (TechOrbitDisplay): logo central + satélites + ripple ── */
+.wc-orbit{position:relative;width:200px;height:150px;margin:0 auto 8px;display:flex;
+  align-items:center;justify-content:center}
+.wc-ripple{position:absolute;left:50%;top:50%;width:0;height:0}
+.wc-ripple span{position:absolute;left:0;top:0;border:1px solid rgba(200,162,75,.30);border-radius:50%;
+  transform:translate(-50%,-50%);animation:wc-rip 3.2s ease-out infinite}
+.wc-ripple span:nth-child(1){width:90px;height:90px;animation-delay:0s}
+.wc-ripple span:nth-child(2){width:140px;height:140px;animation-delay:.5s;border-style:dashed}
+.wc-ripple span:nth-child(3){width:190px;height:190px;animation-delay:1s}
+@keyframes wc-rip{0%{opacity:.55;transform:translate(-50%,-50%) scale(.7)}
+  70%{opacity:.12}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)}}
+.wc-core{width:66px;height:66px;border-radius:50%;overflow:hidden;z-index:3;position:relative;
+  border:1.5px solid rgba(200,162,75,.55);box-shadow:0 8px 26px rgba(200,162,75,.32),0 0 40px rgba(120,205,170,.22)}
+.wc-core img{width:100%;height:100%;object-fit:contain;padding:8px}
+.wc-sat{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px;border-radius:50%;
+  background:var(--card);border:1px solid var(--line);box-shadow:0 4px 12px rgba(15,23,42,.12);
+  display:flex;align-items:center;justify-content:center;color:var(--gold);
+  animation:wc-orbit var(--dur,16s) linear infinite;animation-delay:var(--delay,0s);z-index:2}
+.wc-sat .ic{width:16px;height:16px}
+@keyframes wc-orbit{from{transform:rotate(0) translateX(var(--r,74px)) rotate(0)}
+  to{transform:rotate(360deg) translateX(var(--r,74px)) rotate(-360deg)}}
+@media(prefers-reduced-motion:reduce){
+  .wc-ripple span{animation:none;opacity:.18}
+  .wc-sat{display:none}            /* sin animación se apilarían: mejor ocultar */
+}
+.wc-card h2{font-family:var(--fd);font-weight:800;font-size:22px;color:var(--navy);margin-bottom:6px}
+.wc-card p{color:var(--muted);font-size:13.5px;margin-bottom:20px;line-height:1.55}
+/* Box-reveal: el contenido sube mientras una barra dorada lo "destapa" */
+.wc-rv{position:relative;overflow:hidden}
+#welcome.open .wc-rv>*{animation:wcUp .5s cubic-bezier(.16,1,.3,1) both}
+#welcome.open .wc-rv::after{content:'';position:absolute;inset:2px 0;background:linear-gradient(90deg,var(--gold),var(--gold-2));
+  border-radius:6px;transform:translateX(-101%);animation:wcBox .72s cubic-bezier(.6,0,.3,1) both}
+.wc-rv:nth-of-type(1)>*,.wc-rv:nth-of-type(1)::after{animation-delay:.10s!important}
+.wc-rv:nth-of-type(2)>*,.wc-rv:nth-of-type(2)::after{animation-delay:.20s!important}
+.wc-rv:nth-of-type(3)>*,.wc-rv:nth-of-type(3)::after{animation-delay:.30s!important}
+.wc-rv:nth-of-type(4)>*,.wc-rv:nth-of-type(4)::after{animation-delay:.40s!important}
+.wc-rv:nth-of-type(5)>*,.wc-rv:nth-of-type(5)::after{animation-delay:.50s!important}
+@keyframes wcUp{0%{opacity:0;transform:translateY(16px)}38%{opacity:0}100%{opacity:1;transform:translateY(0)}}
+@keyframes wcBox{0%{transform:translateX(-101%)}45%{transform:translateX(0)}100%{transform:translateX(101%)}}
+/* Input con halo dorado que sigue al puntero (radial-gradient en wrapper) */
+.wc-glow{--mx:50%;--my:50%;position:relative;border-radius:16px;padding:2px;margin-bottom:14px;
+  background:radial-gradient(0px circle at var(--mx) var(--my),rgba(200,162,75,.65),transparent 75%);
+  transition:background .3s}
+.wc-glow:focus-within,.wc-glow:hover{background:radial-gradient(120px circle at var(--mx) var(--my),rgba(200,162,75,.65),transparent 75%)}
+.wc-input{width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;
+  font-family:var(--fb);font-size:16px;color:var(--ink);text-align:center}
+.wc-input:focus{outline:none;border-color:var(--gold);background:#fff}
+/* Botón con línea de gradiente inferior (BottomGradient) */
+.wc-btn{position:relative}
+.wc-btn::after{content:'';position:absolute;left:10%;right:10%;bottom:-1px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,#22d3ee,var(--gold-2),transparent);opacity:0;transition:opacity .4s}
+.wc-btn:hover::after,.wc-btn:active::after{opacity:1}
+.wc-btn[disabled]{opacity:.45;pointer-events:none}
+/* Checkbox animado (trazo SVG que se dibuja) */
+.wc-terms{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:16px;cursor:pointer;user-select:none}
+.wc-terms input{position:absolute;opacity:0;pointer-events:none}
+.wc-cb{width:21px;height:21px;border-radius:6px;background:var(--bg);border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center;transition:background .35s,border-color .35s,transform .15s;flex-shrink:0}
+.wc-terms:active .wc-cb,.auth-remember:active .wc-cb{transform:scale(.92)}
+.wc-cb svg{width:13px;height:13px;stroke:#fff;stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.wc-cb svg path{stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .28s ease .08s}
+.wc-terms input:checked+.wc-cb,.auth-remember input:checked+.wc-cb{background:linear-gradient(135deg,var(--gold),var(--gold-2));border-color:var(--gold)}
+.wc-terms input:checked+.wc-cb svg path,.auth-remember input:checked+.wc-cb svg path{stroke-dashoffset:0}
+.wc-terms .tx{font-size:12.5px;color:var(--muted);text-align:left;line-height:1.4}
+.wc-skip{margin-top:14px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;display:inline-block}
+.wc-skip:active{opacity:.6}
+@media(prefers-reduced-motion:reduce){
+  #welcome.open .wc-rv>*,#welcome.open .wc-rv::after{animation:none}
+  #welcome.open .wc-rv::after{display:none}
+}
+/* El modal cubre la app con blur: pausar animaciones de fondo (rendimiento/batería) */
+body.modal-bg .marq-track,body.modal-bg .hero .bgimg,body.modal-bg .btn-gold::after{animation-play-state:paused}
+
+/* ── AUTH (crear cuenta / iniciar sesión · tarjeta OSCURA del híbrido) ── */
+.auth-card{background:linear-gradient(165deg,#0B1220,#0F172A 55%,#111c33);border:1px solid #25324d;
+  color:#E7ECF5;max-width:400px;box-shadow:0 30px 70px rgba(3,8,20,.55)}
+.auth-card h2{color:#fff;letter-spacing:.2px}
+.auth-card p{color:#9fb0c9}
+.auth-card .wc-sat{background:rgba(20,30,52,.9);border-color:#2a3a59;color:var(--gold-2);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.auth-orbit{width:188px;height:128px;margin-bottom:2px}
+/* Tabs */
+.auth-tabs{position:relative;display:flex;background:rgba(255,255,255,.05);border:1px solid #25324d;
+  border-radius:13px;padding:4px;margin-bottom:18px}
+.auth-tab{flex:1;position:relative;z-index:2;background:none;border:none;cursor:pointer;padding:10px 8px;
+  font-family:var(--fd);font-weight:700;font-size:13.5px;color:#90a2bd;border-radius:9px;transition:color .25s}
+.auth-tab.on{color:#0F172A}
+.auth-ind{position:absolute;z-index:1;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:9px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));box-shadow:0 4px 12px rgba(200,162,75,.4);
+  transition:transform .32s cubic-bezier(.16,1,.3,1)}
+.auth-ind.right{transform:translateX(100%)}
+/* Formularios */
+.auth-form{display:flex;flex-direction:column;gap:11px;text-align:left}
+.auth-field{position:relative;display:flex;align-items:center}
+.auth-field .fi{position:absolute;left:13px;width:18px;height:18px;color:#7f93b3;pointer-events:none}
+.auth-field input{width:100%;background:rgba(255,255,255,.04);border:1.5px solid #2a3a59;border-radius:12px;
+  padding:13px 14px 13px 40px;font-family:var(--fb);font-size:15px;color:#fff;transition:border-color .2s,background .2s}
+.auth-field input::placeholder{color:#7385a3}
+.auth-field input:focus{outline:none;border-color:var(--gold);background:rgba(255,255,255,.07)}
+.auth-field input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 30px #15203a inset}
+/* Selector de foto */
+.avatar-pick{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;margin:2px auto 8px}
+.avatar-prev{width:76px;height:76px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.06);border:2px dashed #38496b;color:#8aa0c2;transition:border-color .25s,transform .15s}
+.avatar-prev img{width:100%;height:100%;object-fit:cover}
+.avatar-prev .ic{width:26px;height:26px}
+.avatar-pick:active .avatar-prev{transform:scale(.95)}
+.avatar-prev.has-img{border-style:solid;border-color:var(--gold)}
+.avatar-lbl{font-size:12px;color:#9fb0c9;font-weight:600}
+/* Mantener sesión */
+.auth-remember{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;margin:2px 0 4px;font-size:13px;color:#9fb0c9}
+.auth-remember input{position:absolute;opacity:0;pointer-events:none}
+.auth-card .wc-skip{color:#8aa0c2}
+@media(prefers-reduced-motion:reduce){.auth-ind{transition:none}}
+/* Foto real en la cabecera del perfil */
+.prof-av img{width:100%;height:100%;object-fit:cover}
+.prof-av.has-img{background:none;border:2px solid var(--gold-2)}
+/* Modal editar perfil (mismo overlay que welcome) */
+#editp{position:fixed;inset:0;z-index:160;display:none;justify-content:center;padding:20px;
+  background:rgba(15,23,42,.62);backdrop-filter:blur(8px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#editp.open{display:flex;align-items:flex-start;animation:fade .3s ease}
+#editp .wc-card{margin:auto;animation:sp-pop .42s cubic-bezier(.16,1,.3,1)}
+/* CTA crear cuenta (invitados) */
+.guest-cta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.guest-cta .gc-tx{flex:1;min-width:150px;display:flex;flex-direction:column;gap:3px}
+.guest-cta .gc-tx b{font-family:var(--fd);font-size:15px;color:var(--navy)}
+.guest-cta .gc-tx span{font-size:12.5px;color:var(--muted);line-height:1.4}
+.guest-cta .btn{flex-shrink:0}
+
+/* ════ LANDING LARGO (estilo btodigital: secciones apiladas hacia abajo) ════ */
+/* CTA principal del hero — grande e intuitivo, con subtítulo */
+.btn-hero{padding:16px 22px;font-size:16.5px;gap:13px;box-shadow:0 14px 30px rgba(200,162,75,.42)}
+.btn-hero .bt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.12;text-align:left}
+.btn-hero .bt small{font-weight:600;font-size:11px;opacity:.78;margin-top:2px}
+.btn-hero .ic{width:22px;height:22px;animation:cta-pulse 2.2s ease-in-out infinite}
+@keyframes cta-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.hero-link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:#E7ECF5;font-size:13px;
+  font-weight:600;cursor:pointer;opacity:.85}
+.hero-link:active{opacity:.5}
+.hero-link .ar{display:inline-block;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+/* Banda de estadísticas (oscura) */
+.stats-band{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:#1c2740;border:1px solid #243149;
+  border-radius:18px;overflow:hidden;margin-bottom:22px}
+.sb-item{background:linear-gradient(160deg,#0F172A,#111c33);padding:18px 14px;text-align:center}
+.sb-n{font-family:var(--fd);font-weight:800;font-size:26px;color:var(--gold-2);line-height:1}
+.sb-l{font-size:11px;color:#9fb0c9;margin-top:6px;letter-spacing:.3px}
+/* Sección "por qué JNUS" — tarjetas de beneficio */
+.benefit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+.benefit{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 15px;box-shadow:var(--shadow)}
+.benefit .bi{width:42px;height:42px;border-radius:12px;background:var(--gold-soft);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;margin-bottom:11px}
+.benefit .bi .ic{width:22px;height:22px}
+.benefit h4{font-family:var(--fd);font-weight:800;font-size:14.5px;color:var(--navy);margin-bottom:4px}
+.benefit p{font-size:12px;color:var(--muted);line-height:1.45}
+/* Banda CTA final (oscura, dramática) */
+.cta-band{position:relative;overflow:hidden;border-radius:22px;padding:30px 24px;text-align:center;margin-bottom:18px;
+  background:radial-gradient(130% 90% at 70% 0%,rgba(200,162,75,.18),transparent 55%),linear-gradient(165deg,#0B1220,#0F172A 60%,#111c33);
+  border:1px solid #243149;box-shadow:var(--shadow-lg)}
+.cta-band h3{font-family:var(--fd);font-weight:800;font-size:21px;color:#fff;line-height:1.2;letter-spacing:-.3px}
+.cta-band p{color:#aebed6;font-size:13.5px;margin:10px 0 18px;line-height:1.5}
+.cta-band .btn{max-width:300px;margin:0 auto}
+.home-foot{text-align:center;color:var(--muted-2);font-size:11px;padding:6px 0 2px}
+/* Marquee clickeable (ya no es "botón muerto") */
+.chip-cr{cursor:pointer;transition:transform .15s,border-color .2s}
+.chip-cr:active{transform:scale(.94);border-color:var(--gold)}
+/* Reveal al hacer scroll (estilo landing) */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}
+  .btn-hero .ic,.hero-link .ar{animation:none}}
+
+/* ── Wizard: campos enriquecidos (menos planos) + stepper ── */
+.wiz-body .field{margin-bottom:13px;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:15px 16px;box-shadow:var(--shadow)}
+.wiz-body .field label{margin-bottom:11px}
+.wiz-body .field label .val{color:var(--navy);font-size:17px}
+.stepper{display:flex;align-items:center;gap:14px;justify-content:space-between;margin-top:4px}
+.stepper button{width:48px;height:48px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);
+  font-size:26px;font-weight:700;color:var(--navy);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;line-height:1;flex-shrink:0;transition:transform .12s,background .2s,border-color .2s}
+.stepper button:active{transform:scale(.9)}
+.stepper button:hover{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
+.st-val{flex:1;text-align:center;display:flex;flex-direction:column;line-height:1}
+.st-val span{font-family:var(--fd);font-weight:800;font-size:34px;color:var(--navy)}
+.st-val small{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.6px}
+.stepper + input[type=range]{margin-top:14px}
 </style>
 </head>
 <body>
 
+<!-- ════ SPLASH CINEMÁTICO (3D WebGL · fallback 2D) ════ -->
+<div id="splash">
+  <canvas id="splash-gl"></canvas>
+  <canvas id="splash-cv"></canvas>
+  <div class="sp-reveal" id="sp-reveal">
+    <div class="sp-coin"><img src="/static/logo-icon.png" alt="JNUS" onerror="this.style.display='none'"/></div>
+    <div class="sp-name">JNUS</div>
+    <div class="sp-tag">Crédito inteligente para cada etapa de tu vida.</div>
+    <div class="sp-foot">SIAC · MACHALA, ECUADOR</div>
+  </div>
+</div>
+
 <!-- ════ ICON SPRITE (Lucide-style line icons) ════ -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <g id="i-home"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></g>
-  <g id="i-chart"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></g>
-  <g id="i-book"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></g>
-  <g id="i-history"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></g>
-  <g id="i-settings"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></g>
-  <g id="i-wallet"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7H6a3 3 0 0 1-3-3z"/><circle cx="17" cy="13.5" r="1.2" fill="currentColor" stroke="none"/></g>
-  <g id="i-store"><path d="M4 4h16l-1 4H5z"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9 20v-6h6v6"/></g>
-  <g id="i-building"><path d="M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16"/><path d="M16 8h3a2 2 0 0 1 2 2v11"/><path d="M3 21h18"/><path d="M9 7h.01M12 7h.01M9 11h.01M12 11h.01M9 15h.01M12 15h.01"/></g>
-  <g id="i-landmark"><path d="M3 21h18"/><path d="M5 21V10M9 21V10M15 21V10M19 21V10"/><path d="M12 3l8 5H4z"/></g>
-  <g id="i-banknote"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/><path d="M6 9.5h.01M18 14.5h.01"/></g>
-  <g id="i-shield"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></g>
-  <g id="i-trending"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></g>
-  <g id="i-trending-down"><path d="M3 7l6 6 4-4 7 7"/><path d="M14 16h6v-6"/></g>
-  <g id="i-user"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></g>
-  <g id="i-briefcase"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></g>
-  <g id="i-cpu"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></g>
-  <g id="i-network"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12l-5 5M12 12l5 5"/></g>
-  <g id="i-arrow-right"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></g>
-  <g id="i-arrow-left"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></g>
-  <g id="i-check"><path d="M20 6 9 17l-5-5"/></g>
-  <g id="i-refresh"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></g>
-  <g id="i-download"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></g>
-  <g id="i-trash"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 14h10l1-14"/></g>
-  <g id="i-lock"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g>
-  <g id="i-calendar"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></g>
-  <g id="i-cake"><path d="M4 20h16v-7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3z"/><path d="M4 15c2 1.5 4 1.5 6 0s4-1.5 6 0 2 1.5 2 1.5"/><path d="M12 7V4M9 5l3-1 3 1"/></g>
-  <g id="i-users"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 21a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.8M22 21a6.5 6.5 0 0 0-5-6.3"/></g>
-  <g id="i-graduation"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 9v5"/></g>
-  <g id="i-heart"><path d="M12 20s-7-4.5-9.5-9A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9z"/></g>
-  <g id="i-car"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13"/><path d="M4 13h16v5H4z"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></g>
-  <g id="i-refresh-debt"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></g>
-  <g id="i-hammer"><path d="M14 7l5 5"/><path d="M9.5 8.5 3 15v4h4l6.5-6.5"/><path d="M13 3l8 8-3 3-8-8z"/></g>
-  <g id="i-expand"><path d="M3 9V3h6M21 15v6h-6M21 9V3h-6M3 15v6h6"/></g>
-  <g id="i-key"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.5 12.5 21 2M17 6l3 3M14 9l2 2"/></g>
-  <g id="i-handshake"><path d="M11 17 8 14a2 2 0 0 1 0-3l4-4 3 3a2 2 0 0 0 3 0"/><path d="M3 11l4-4 3 1M21 13l-4 4-3-1"/></g>
-  <g id="i-piggy"><path d="M19 11a5 5 0 0 0-5-4H9a5 5 0 0 0-5 5 4 4 0 0 0 2 3.5V19h3v-2h2v2h3v-2.5A4 4 0 0 0 19 13h2v-2z"/><circle cx="9" cy="11" r=".6" fill="currentColor" stroke="none"/></g>
-  <g id="i-coins"><circle cx="8" cy="8" r="5"/><path d="M14.5 4.2a5 5 0 0 1 0 15.6"/><path d="M3.5 14a5 5 0 0 0 7 5"/></g>
-  <g id="i-spark"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></g>
-  <g id="i-flask"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/></g>
+  <symbol viewBox="0 0 24 24" id="i-home"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-chart"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-book"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-history"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-settings"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-wallet"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7H6a3 3 0 0 1-3-3z"/><circle cx="17" cy="13.5" r="1.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-store"><path d="M4 4h16l-1 4H5z"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9 20v-6h6v6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-building"><path d="M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16"/><path d="M16 8h3a2 2 0 0 1 2 2v11"/><path d="M3 21h18"/><path d="M9 7h.01M12 7h.01M9 11h.01M12 11h.01M9 15h.01M12 15h.01"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-landmark"><path d="M3 21h18"/><path d="M5 21V10M9 21V10M15 21V10M19 21V10"/><path d="M12 3l8 5H4z"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-banknote"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/><path d="M6 9.5h.01M18 14.5h.01"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-shield"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-trending"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-trending-down"><path d="M3 7l6 6 4-4 7 7"/><path d="M14 16h6v-6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-user"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-briefcase"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-cpu"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-network"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12l-5 5M12 12l5 5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-arrow-right"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-arrow-left"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-check"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-refresh"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-download"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-trash"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 14h10l1-14"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-lock"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-calendar"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-cake"><path d="M4 20h16v-7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3z"/><path d="M4 15c2 1.5 4 1.5 6 0s4-1.5 6 0 2 1.5 2 1.5"/><path d="M12 7V4M9 5l3-1 3 1"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-users"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 21a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.8M22 21a6.5 6.5 0 0 0-5-6.3"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-graduation"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 9v5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-heart"><path d="M12 20s-7-4.5-9.5-9A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9z"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-car"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13"/><path d="M4 13h16v5H4z"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-refresh-debt"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-hammer"><path d="M14 7l5 5"/><path d="M9.5 8.5 3 15v4h4l6.5-6.5"/><path d="M13 3l8 8-3 3-8-8z"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-expand"><path d="M3 9V3h6M21 15v6h-6M21 9V3h-6M3 15v6h6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-key"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.5 12.5 21 2M17 6l3 3M14 9l2 2"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-handshake"><path d="M11 17 8 14a2 2 0 0 1 0-3l4-4 3 3a2 2 0 0 0 3 0"/><path d="M3 11l4-4 3 1M21 13l-4 4-3-1"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-piggy"><path d="M19 11a5 5 0 0 0-5-4H9a5 5 0 0 0-5 5 4 4 0 0 0 2 3.5V19h3v-2h2v2h3v-2.5A4 4 0 0 0 19 13h2v-2z"/><circle cx="9" cy="11" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-coins"><circle cx="8" cy="8" r="5"/><path d="M14.5 4.2a5 5 0 0 1 0 15.6"/><path d="M3.5 14a5 5 0 0 0 7 5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-spark"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-flask"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-camera"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L19 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-mail"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-log-out"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-edit"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
 </defs></svg>
 
 <!-- ════ TOP BAR ════ -->
@@ -356,25 +697,82 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
       <img class="bgimg" src="/static/hero.png" alt="" onerror="imgFail(this,'hero')"/>
       <div class="ov"></div>
       <div class="inner">
-        <div class="logo-hero"><img src="/static/logo.png" alt="JNUS AI" onerror="imgFail(this,'logo')"/></div>
-        <h1>Evaluación <b>crediticia inteligente</b> para tu cooperativa</h1>
+        <div class="logo-hero"><img src="/static/logo-icon-light.png" alt="JNUS AI" onerror="imgFail(this,'logo')"/></div>
+        <span class="hero-badge"><span class="dot"></span> 4 modelos de IA · Machala, Ecuador</span>
+        <h1>Evaluación <b>inteligente</b> de crédito para tu cooperativa</h1>
         <p>Descubre tu probabilidad de aprobación con Inteligencia Artificial. Pensado para cooperativas, cajas y bancos comunales.</p>
-        <div class="cta"><button class="btn btn-gold" onclick="startWizard()"><svg class="ic"><use href="#i-spark"/></svg> Comenzar evaluación</button></div>
+        <div class="cta">
+          <button class="btn btn-gold btn-hero" onclick="startWizard()"><svg class="ic"><use href="#i-spark"/></svg>
+            <span class="bt">Comenzar evaluación<small>Gratis · resultado en ~1 minuto</small></span></button>
+          <span class="hero-link" onclick="scrollToHow()">Ver cómo funciona <span class="ar">↓</span></span>
+        </div>
       </div>
     </div>
 
-    <div class="section-title"><svg class="ic"><use href="#i-network"/></svg> ¿Cómo funciona?</div>
-    <div class="card step-card"><div class="num"><svg class="ic"><use href="#i-user"/></svg></div>
+    <!-- Banda de estadísticas -->
+    <div class="stats-band reveal">
+      <div class="sb-item"><div class="sb-n">4</div><div class="sb-l">Modelos de IA</div></div>
+      <div class="sb-item"><div class="sb-n">10</div><div class="sb-l">Variables analizadas</div></div>
+      <div class="sb-item"><div class="sb-n">~1 min</div><div class="sb-l">Tu resultado</div></div>
+      <div class="sb-item"><div class="sb-n">100%</div><div class="sb-l">Gratis y privado</div></div>
+    </div>
+
+    <!-- Tipos de crédito (clickeable: toca para empezar) -->
+    <div class="marq-wrap reveal">
+      <div class="marq-label">Toca un crédito para evaluarlo</div>
+      <div class="marq">
+        <div class="marq-track">
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-user"/></svg> Familiar</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-home"/></svg> Vivienda</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-wallet"/></svg> Consumo</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-store"/></svg> Negocio</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-banknote"/></svg> Microcrédito</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-landmark"/></svg> Cooperativas</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-user"/></svg> Familiar</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-home"/></svg> Vivienda</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-wallet"/></svg> Consumo</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-store"/></svg> Negocio</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-banknote"/></svg> Microcrédito</span>
+          <span class="chip-cr" onclick="startWizard()"><svg class="ic"><use href="#i-landmark"/></svg> Cooperativas</span>
+        </div>
+        <div class="marq-fade l"></div><div class="marq-fade r"></div>
+      </div>
+    </div>
+
+    <div class="section-title reveal" id="how-anchor"><svg class="ic"><use href="#i-network"/></svg> ¿Cómo funciona?</div>
+    <div class="card step-card reveal"><div class="num"><svg class="ic"><use href="#i-user"/></svg></div>
       <div class="tx"><div class="t">1 · Cuéntanos sobre ti</div><div class="d">Tipo de crédito, empleo e información financiera.</div></div></div>
-    <div class="card step-card"><div class="num"><svg class="ic"><use href="#i-cpu"/></svg></div>
+    <div class="card step-card reveal"><div class="num"><svg class="ic"><use href="#i-cpu"/></svg></div>
       <div class="tx"><div class="t">2 · La IA analiza tu perfil</div><div class="d">Cuatro modelos avanzados evalúan tu solicitud.</div></div></div>
-    <div class="card step-card"><div class="num"><svg class="ic"><use href="#i-chart"/></svg></div>
+    <div class="card step-card reveal"><div class="num"><svg class="ic"><use href="#i-chart"/></svg></div>
       <div class="tx"><div class="t">3 · Recibe tu resultado</div><div class="d">Probabilidad, factores y cómo mejorar tu perfil.</div></div></div>
 
-    <div class="card" style="background:var(--gold-soft);border-color:#EBDFBC;display:flex;gap:13px;align-items:center">
+    <div class="section-title reveal"><svg class="ic"><use href="#i-shield"/></svg> ¿Por qué JNUS?</div>
+    <div class="benefit-grid reveal">
+      <div class="benefit"><div class="bi"><svg class="ic"><use href="#i-lock"/></svg></div>
+        <h4>Privado</h4><p>Tus datos solo se usan para tu evaluación. Nada se comparte.</p></div>
+      <div class="benefit"><div class="bi"><svg class="ic"><use href="#i-chart"/></svg></div>
+        <h4>Explicable</h4><p>No solo un número: ves los factores y cómo mejorarlos.</p></div>
+      <div class="benefit"><div class="bi"><svg class="ic"><use href="#i-spark"/></svg></div>
+        <h4>Gratis y rápido</h4><p>Resultado al instante, sin costo y desde tu teléfono.</p></div>
+      <div class="benefit"><div class="bi"><svg class="ic"><use href="#i-landmark"/></svg></div>
+        <h4>Para cooperativas</h4><p>Pensado para cajas, bancos comunales y la realidad de El Oro.</p></div>
+    </div>
+
+    <div class="card reveal" style="background:var(--gold-soft);border-color:#EBDFBC;display:flex;gap:13px;align-items:center">
       <div style="width:36px;height:36px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0"><svg class="ic"><use href="#i-lock"/></svg></div>
       <div style="font-size:12.5px;color:var(--slate)">Tus datos se procesan de forma segura y solo para estimar tu evaluación. JNUS AI es una herramienta orientativa.</div>
     </div>
+
+    <!-- CTA final -->
+    <div class="cta-band reveal">
+      <h3>¿Listo para conocer tu probabilidad?</h3>
+      <p>Responde unas preguntas sencillas y la IA estima tu aprobación al instante.</p>
+      <button class="btn btn-gold btn-hero" onclick="startWizard()"><svg class="ic"><use href="#i-spark"/></svg>
+        <span class="bt">Comenzar ahora<small>Gratis · ~1 minuto</small></span></button>
+    </div>
+
+    <div class="home-foot">JNUS AI · Crédito inteligente para todos · Machala, Ecuador</div>
   </div>
 
   <!-- ════ TAB RESULTADO ════ -->
@@ -417,7 +815,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
         <div class="h-sub" style="margin-bottom:14px">Cada modelo evaluó tu perfil de forma independiente</div>
         <div class="mchips" id="r-models"></div>
       </div>
-      <button class="btn btn-light" onclick="startWizard()"><svg class="ic"><use href="#i-refresh"/></svg> Nueva evaluación</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-gold" style="flex:1;min-width:160px" onclick="downloadReport()"><svg class="ic"><use href="#i-download"/></svg> Descargar informe PDF</button>
+        <button class="btn btn-light" style="flex:1;min-width:160px" onclick="startWizard()"><svg class="ic"><use href="#i-refresh"/></svg> Nueva evaluación</button>
+      </div>
     </div>
   </div>
 
@@ -456,19 +857,39 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
   <!-- ════ TAB PERFIL ════ -->
   <div class="tab" id="t-profile">
-    <div class="card">
+    <div class="card prof-card">
       <div class="prof-head">
-        <div class="prof-av"><svg class="ic"><use href="#i-user"/></svg></div>
-        <div><div style="font-family:var(--fd);font-weight:800;font-size:18px;color:var(--navy)">Invitado</div>
-        <div style="font-size:13px;color:var(--muted)">Usuario de JNUS AI</div></div>
+        <div class="prof-av" id="prof-av"><svg class="ic"><use href="#i-user"/></svg></div>
+        <div><div id="prof-name" style="font-family:var(--fd);font-weight:800;font-size:18px;color:var(--navy)">Invitado</div>
+        <div id="prof-sub" style="font-size:13px;color:var(--muted)">Usuario de JNUS AI</div></div>
       </div>
+      <div class="prof-stats" id="prof-stats">
+        <div class="ps"><div class="ps-v" id="ps-count">0</div><div class="ps-l">Evaluaciones</div></div>
+        <div class="ps"><div class="ps-v" id="ps-best">—</div><div class="ps-l">Mejor</div></div>
+        <div class="ps"><div class="ps-v" id="ps-last">—</div><div class="ps-l">Última</div></div>
+      </div>
+      <div class="prof-spark" id="prof-spark"></div>
     </div>
     <div class="card">
       <div class="prof-row" id="install-row" style="display:none" onclick="installPWA()">
         <div class="ic-box"><svg class="ic"><use href="#i-download"/></svg></div><div class="tx">Instalar app en mi teléfono</div><div class="ar"><svg class="ic" style="width:18px;height:18px"><use href="#i-arrow-right"/></svg></div>
       </div>
       <div class="prof-row" onclick="go('learn')"><div class="ic-box"><svg class="ic"><use href="#i-book"/></svg></div><div class="tx">Aprende sobre crédito</div><div class="ar"><svg class="ic" style="width:18px;height:18px"><use href="#i-arrow-right"/></svg></div></div>
+      <div class="prof-row" onclick="window.open('/metodologia','_blank')"><div class="ic-box"><svg class="ic"><use href="#i-flask"/></svg></div><div class="tx">Cómo funciona la IA (metodología)</div><div class="ar"><svg class="ic" style="width:18px;height:18px"><use href="#i-arrow-right"/></svg></div></div>
       <div class="prof-row" onclick="clearHistory()"><div class="ic-box"><svg class="ic"><use href="#i-trash"/></svg></div><div class="tx">Borrar mi historial</div><div class="ar"><svg class="ic" style="width:18px;height:18px"><use href="#i-arrow-right"/></svg></div></div>
+    </div>
+
+    <!-- Acciones de cuenta (solo con cuenta real) -->
+    <div class="card" id="account-actions" style="display:none">
+      <div class="prof-row" onclick="openEditProfile()"><div class="ic-box"><svg class="ic"><use href="#i-edit"/></svg></div><div class="tx">Editar mi perfil</div><div class="ar"><svg class="ic" style="width:18px;height:18px"><use href="#i-arrow-right"/></svg></div></div>
+      <div class="prof-row" onclick="logoutUser()"><div class="ic-box" style="color:var(--red)"><svg class="ic"><use href="#i-log-out"/></svg></div><div class="tx" style="color:var(--red)">Cerrar sesión</div><div class="ar"><svg class="ic" style="width:18px;height:18px"><use href="#i-arrow-right"/></svg></div></div>
+    </div>
+
+    <!-- CTA para invitados: crear cuenta -->
+    <div class="card guest-cta" id="guest-cta" style="display:none">
+      <div class="gc-tx"><b>Crea tu cuenta</b><span>Guarda tu historial y foto en todos tus dispositivos.</span></div>
+      <button class="btn btn-gold" onclick="document.getElementById('welcome').classList.add('open');document.body.classList.add('modal-bg');authTab('signup')">
+        <svg class="ic"><use href="#i-user"/></svg> Crear cuenta</button>
     </div>
 
     <!-- ═══ PANEL ADMIN · solo visible con ?admin=1 ═══ -->
@@ -484,7 +905,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     </div>
 
     <div class="card" style="text-align:center;color:var(--muted);font-size:12px">
-      JNUS AI · Advanced Financial System<br/>v3.2 · Powered by SIAC · Machala, Ecuador
+      JNUS AI · Advanced Financial System<br/>v4.0 · Powered by SIAC · Machala, Ecuador
     </div>
   </div>
 
@@ -503,7 +924,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 
 <!-- ════ AI ANALYSIS ════ -->
 <div class="analysis" id="analysis">
-  <div class="logo-an"><img src="/static/logo.png" alt="JNUS AI" onerror="imgFail(this,'logo')"/></div>
+  <div class="logo-an"><img src="/static/logo-icon-light.png" alt="JNUS AI" onerror="imgFail(this,'logo')"/></div>
   <h2>Analizando tu perfil…</h2>
   <div class="sub">Inteligencia Artificial en acción</div>
   <div class="ai-steps">
@@ -511,6 +932,68 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="ai-step" data-i="1"><svg class="ic ico"><use href="#i-network"/></svg><span class="tx">Random Forest</span><span class="spin"></span><svg class="ic chk"><use href="#i-check"/></svg></div>
     <div class="ai-step" data-i="2"><svg class="ic ico"><use href="#i-trending"/></svg><span class="tx">XGBoost</span><span class="spin"></span><svg class="ic chk"><use href="#i-check"/></svg></div>
     <div class="ai-step" data-i="3"><svg class="ic ico"><use href="#i-cpu"/></svg><span class="tx">Red Neuronal</span><span class="spin"></span><svg class="ic chk"><use href="#i-check"/></svg></div>
+  </div>
+</div>
+
+<!-- ════ AUTH · CREAR CUENTA / INICIAR SESIÓN ════ -->
+<div id="welcome">
+  <div class="wc-card auth-card">
+    <div class="auth-logo" aria-hidden="true">
+      <img src="/static/logo-icon-light.png" alt="JNUS AI" onerror="imgFail(this,'logo')"/>
+    </div>
+    <div class="wc-rv"><h2 id="auth-title">Crea tu cuenta</h2></div>
+    <div class="wc-rv"><p id="auth-sub">Guarda tu historial y evalúa tu crédito cuando quieras.</p></div>
+
+    <div class="wc-rv auth-tabs">
+      <button class="auth-tab on" id="tab-signup" onclick="authTab('signup')" type="button">Crear cuenta</button>
+      <button class="auth-tab" id="tab-login" onclick="authTab('login')" type="button">Iniciar sesión</button>
+      <span class="auth-ind" id="auth-ind"></span>
+    </div>
+
+    <!-- CREAR CUENTA -->
+    <form class="auth-form wc-rv" id="form-signup" onsubmit="return doSignup(event)">
+      <label class="avatar-pick" title="Añadir foto de perfil">
+        <input type="file" id="su-avatar" accept="image/*" hidden onchange="pickAvatar(this,'su-prev')"/>
+        <span class="avatar-prev" id="su-prev"><svg class="ic"><use href="#i-camera"/></svg></span>
+        <span class="avatar-lbl">Añadir foto</span>
+      </label>
+      <div class="auth-field"><svg class="ic fi"><use href="#i-user"/></svg><input id="su-name" name="name" type="text" maxlength="40" placeholder="Nombre" autocomplete="name"/></div>
+      <div class="auth-field"><svg class="ic fi"><use href="#i-mail"/></svg><input id="su-email" name="email" type="email" placeholder="Email" autocomplete="username"/></div>
+      <div class="auth-field"><svg class="ic fi"><use href="#i-lock"/></svg><input id="su-pass" name="password" type="password" placeholder="Contraseña (mín. 6)" autocomplete="new-password"/></div>
+      <div class="auth-field"><svg class="ic fi"><use href="#i-lock"/></svg><input id="su-pass2" type="password" placeholder="Repite la contraseña" autocomplete="new-password"/></div>
+      <label class="auth-remember"><input type="checkbox" id="su-remember" checked/><span class="wc-cb"><svg viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span><span>Mantener sesión iniciada</span></label>
+      <button class="btn btn-gold wc-btn" type="submit"><svg class="ic"><use href="#i-arrow-right"/></svg> Crear cuenta</button>
+    </form>
+
+    <!-- INICIAR SESIÓN -->
+    <form class="auth-form wc-rv" id="form-login" style="display:none" onsubmit="return doLogin(event)">
+      <div class="auth-field"><svg class="ic fi"><use href="#i-mail"/></svg><input id="li-email" name="email" type="email" placeholder="Email" autocomplete="username"/></div>
+      <div class="auth-field"><svg class="ic fi"><use href="#i-lock"/></svg><input id="li-pass" name="password" type="password" placeholder="Contraseña" autocomplete="current-password"/></div>
+      <label class="auth-remember"><input type="checkbox" id="li-remember" checked/><span class="wc-cb"><svg viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5"/></svg></span><span>Mantener sesión iniciada</span></label>
+      <button class="btn btn-gold wc-btn" type="submit"><svg class="ic"><use href="#i-arrow-right"/></svg> Entrar</button>
+    </form>
+
+    <span class="wc-skip" onclick="skipName()">Entrar como invitado</span>
+  </div>
+</div>
+
+<!-- ════ EDITAR PERFIL (modal) ════ -->
+<div id="editp">
+  <div class="wc-card auth-card" style="max-width:360px">
+    <div class="wc-rv"><h2>Editar perfil</h2></div>
+    <form class="auth-form" onsubmit="return saveEditProfile(event)">
+      <label class="avatar-pick" title="Cambiar foto">
+        <input type="file" id="ep-avatar" accept="image/*" hidden onchange="pickAvatar(this,'ep-prev','edit')"/>
+        <span class="avatar-prev" id="ep-prev"><svg class="ic"><use href="#i-camera"/></svg></span>
+        <span class="avatar-lbl">Cambiar foto</span>
+      </label>
+      <div class="auth-field"><svg class="ic fi"><use href="#i-user"/></svg><input id="ep-name" type="text" maxlength="40" placeholder="Nombre" autocomplete="name"/></div>
+      <div class="auth-field"><svg class="ic fi"><use href="#i-lock"/></svg><input id="ep-pass" type="password" placeholder="Nueva contraseña (opcional)" autocomplete="new-password"/></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button type="button" class="btn" style="flex:1;background:rgba(255,255,255,.06);color:#cdd8ea;border:1px solid #2a3a59" onclick="closeEditProfile()">Cancelar</button>
+        <button type="submit" class="btn btn-gold" style="flex:1.4"><svg class="ic"><use href="#i-check"/></svg> Guardar</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -596,6 +1079,7 @@ function go(t){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   document.querySelector('.screen').scrollTop=0;
   if(t==='history') renderHistory();
+  if(t==='profile') renderProfile();
 }
 function toast(m,c=''){const t=document.getElementById('toast');t.textContent=m;t.className='show '+c;
   clearTimeout(window._t);window._t=setTimeout(()=>t.className='',3500);}
@@ -619,8 +1103,33 @@ function startWizard(){
   document.getElementById('wizard').classList.add('open');
   renderStep();
 }
+// Relleno de sliders en vivo (delegado: cubre los range recreados en cada paso)
+document.getElementById('wiz-body').addEventListener('input',e=>{
+  if(e.target && e.target.type==='range') paintRange(e.target);
+});
 function closeWizard(){document.getElementById('wizard').classList.remove('open');}
 function wizBack(){ if(step===0){closeWizard();} else {step--;renderStep();} }
+
+// Pinta el relleno de un slider según su valor (gradiente azul → línea)
+function paintRange(el){
+  const min=+el.min||0, max=+el.max||100, v=+el.value;
+  const p=max>min ? ((v-min)/(max-min))*100 : 50;
+  el.style.setProperty('--p', p+'%');
+}
+
+// Campos numéricos del wizard (stepper + slider sincronizados)
+const WZF={edad:['edad',18,75,1,''], ingresos_mensuales:['ing',0,6000,50,'$'],
+  cargas_familiares:['car',0,8,1,''], creditos_activos:['cre',0,8,1,'']};
+function wzSet(key,val){
+  const [sid,mn,mx,st]=WZF[key], unit=WZF[key][4];
+  val=Math.max(mn,Math.min(mx,Math.round(val/st)*st));
+  answers[key]=val;
+  const d=document.getElementById('v-'+sid);
+  if(d) d.textContent = unit==='$' ? '$'+val.toLocaleString() : val;
+  const r=document.getElementById('r-'+sid);
+  if(r){ if(+r.value!==val) r.value=val; paintRange(r); }
+}
+function wzBump(key,dir){ wzSet(key,(+answers[key])+dir*WZF[key][3]); }
 
 function renderStep(){
   document.getElementById('wiz-bar').style.width=((step+1)/STEPS.length*100)+'%';
@@ -658,14 +1167,23 @@ function renderStep(){
   else if(STEPS[step]==='personal'){
     body.innerHTML=`<div class="wiz-q">Tu información financiera</div>
       <div class="wiz-hint">Ajusta los valores a tu realidad</div>
-      <div class="field"><label><span class="lab-l">${icon('i-cake')} Edad</span><span class="val" id="v-edad">${answers.edad} años</span></label>
-        <input type="range" min="18" max="75" value="${answers.edad}" oninput="answers.edad=+this.value;document.getElementById('v-edad').textContent=this.value+' años'"/></div>
-      <div class="field"><label><span class="lab-l">${icon('i-banknote')} Ingresos mensuales</span><span class="val" id="v-ing">$${answers.ingresos_mensuales}</span></label>
-        <input type="range" min="0" max="6000" step="50" value="${answers.ingresos_mensuales}" oninput="answers.ingresos_mensuales=+this.value;document.getElementById('v-ing').textContent='$'+(+this.value).toLocaleString()"/></div>
-      <div class="field"><label><span class="lab-l">${icon('i-users')} Cargas familiares</span><span class="val" id="v-car">${answers.cargas_familiares}</span></label>
-        <input type="range" min="0" max="6" value="${answers.cargas_familiares}" oninput="answers.cargas_familiares=+this.value;document.getElementById('v-car').textContent=this.value"/></div>
-      <div class="field"><label><span class="lab-l">${icon('i-wallet')} Créditos activos</span><span class="val" id="v-cre">${answers.creditos_activos}</span></label>
-        <input type="range" min="0" max="6" value="${answers.creditos_activos}" oninput="answers.creditos_activos=+this.value;document.getElementById('v-cre').textContent=this.value"/></div>
+      <div class="field"><label><span class="lab-l">${icon('i-cake')} Edad</span></label>
+        <div class="stepper"><button type="button" onclick="wzBump('edad',-1)">−</button>
+          <div class="st-val"><span id="v-edad">${answers.edad}</span><small>años</small></div>
+          <button type="button" onclick="wzBump('edad',1)">+</button></div>
+        <input type="range" id="r-edad" min="18" max="75" value="${answers.edad}" oninput="wzSet('edad',+this.value)"/></div>
+      <div class="field"><label><span class="lab-l">${icon('i-banknote')} Ingresos mensuales</span><span class="val" id="v-ing">$${(+answers.ingresos_mensuales).toLocaleString()}</span></label>
+        <input type="range" id="r-ing" min="0" max="6000" step="50" value="${answers.ingresos_mensuales}" oninput="wzSet('ingresos_mensuales',+this.value)"/></div>
+      <div class="field"><label><span class="lab-l">${icon('i-users')} Cargas familiares</span></label>
+        <div class="stepper"><button type="button" onclick="wzBump('cargas_familiares',-1)">−</button>
+          <div class="st-val"><span id="v-car">${answers.cargas_familiares}</span><small>personas</small></div>
+          <button type="button" onclick="wzBump('cargas_familiares',1)">+</button></div>
+        <input type="range" id="r-car" min="0" max="8" value="${answers.cargas_familiares}" oninput="wzSet('cargas_familiares',+this.value)"/></div>
+      <div class="field"><label><span class="lab-l">${icon('i-wallet')} Créditos activos</span></label>
+        <div class="stepper"><button type="button" onclick="wzBump('creditos_activos',-1)">−</button>
+          <div class="st-val"><span id="v-cre">${answers.creditos_activos}</span><small>créditos</small></div>
+          <button type="button" onclick="wzBump('creditos_activos',1)">+</button></div>
+        <input type="range" id="r-cre" min="0" max="8" value="${answers.creditos_activos}" oninput="wzSet('creditos_activos',+this.value)"/></div>
       <div class="field"><label><span class="lab-l">${icon('i-user')} Sexo</span></label>
         <div class="seg">${OPTIONS.sex.map(s=>`<button class="${answers.sexo===s?'on':''}" onclick="pick('sexo','${s}')">${s}</button>`).join('')}</div></div>
       <div class="field"><label><span class="lab-l">${icon('i-graduation')} Nivel educativo</span></label>
@@ -682,6 +1200,8 @@ function renderStep(){
       <div class="card" id="review-box"></div>`;
     renderReview();
   }
+  // Pinta el relleno de los sliders del paso recién renderizado
+  document.querySelectorAll('#wiz-body input[type=range]').forEach(paintRange);
 }
 
 function renderReview(){
@@ -724,13 +1244,14 @@ async function runAnalysis(){
   const a=document.getElementById('analysis'); a.classList.add('open');
   document.querySelectorAll('.ai-step').forEach(s=>s.classList.remove('on','done'));
 
-  // payload con SOLO los campos que el modelo conoce (mapeados)
+  // payload con SOLO los campos que el modelo conoce (mapeados) + quién evalúa
   const payload={
     edad:answers.edad, sexo:answers.sexo, educacion:answers.educacion,
     cargas_familiares:answers.cargas_familiares, ingresos_mensuales:answers.ingresos_mensuales,
     creditos_activos:answers.creditos_activos, historial_pagos:answers.historial_pagos,
     institucion:answers.institucion, tipo_credito:answers.tipo_credito,
-    situacion_laboral:answers.situacion_laboral
+    situacion_laboral:answers.situacion_laboral,
+    _user:getUser()   // {id,name} para guardar la evaluación en la base de datos
   };
   const scoreP=fetch(API+'/api/score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     .then(r=>r.json()).catch(e=>({error:e.message}));
@@ -783,6 +1304,85 @@ function renderResult(d){
   const names={logit:'Regresión Logística',random_forest:'Random Forest',xgboost:'XGBoost',neural_net:'Red Neuronal'};
   document.getElementById('r-models').innerHTML=Object.entries(d.per_model||{}).map(([k,v])=>
     `<div class="mchip"><div class="nm">${names[k]||k}</div><div class="pc">${v}%</div></div>`).join('');
+}
+
+// ── PDF REPORT (informe imprimible → Guardar como PDF) ──
+function downloadReport(){
+  const d = lastResult;
+  if(!d){ toast('Realiza una evaluación primero','err'); return; }
+  const cat = CATEGORIES.find(c=>c.id===answers.catId);
+  const sub = cat ? cat.sub.find(s=>s.id===answers.subId) : null;
+  const fecha = new Date().toLocaleString('es-EC',{dateStyle:'long',timeStyle:'short'});
+  const names = {logit:'Regresión Logística',random_forest:'Random Forest',xgboost:'XGBoost',neural_net:'Red Neuronal'};
+
+  const row=(k,v)=>`<tr><td style="color:#64748B;padding:6px 0;border-bottom:1px solid #E5E9F0">${k}</td><td style="text-align:right;font-weight:700;color:#0F172A;padding:6px 0;border-bottom:1px solid #E5E9F0">${v||'—'}</td></tr>`;
+  const facList=(arr,color,sign)=>(arr||[]).map(f=>`<li style="margin:4px 0;color:#334155"><span style="color:${color};font-weight:800">${sign}</span> ${f.label}</li>`).join('')||'<li style="color:#94A3B8">—</li>';
+  const recList=(d.recommendations||[]).map(r=>{
+    const txt=(r.text||'').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();
+    return `<li style="margin:5px 0;color:#334155">${txt}${r.gain>0?` <b style="color:#16A34A">(+${r.gain}%)</b>`:''}</li>`;
+  }).join('');
+  const models=Object.entries(d.per_model||{}).map(([k,v])=>
+    `<span style="display:inline-block;background:#F4F6FA;border:1px solid #E5E9F0;border-radius:8px;padding:6px 12px;margin:3px;font-size:12px"><b>${names[k]||k}</b>: ${v}%</span>`).join('');
+
+  const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/>
+  <title>Informe JNUS AI · ${d.percent}%</title>
+  <style>
+    @page{margin:18mm}
+    *{box-sizing:border-box;margin:0;font-family:'Segoe UI',system-ui,sans-serif}
+    body{color:#0F172A;font-size:13px;line-height:1.5}
+    .hd{display:flex;align-items:center;gap:14px;border-bottom:3px solid #C8A24B;padding-bottom:14px;margin-bottom:18px}
+    .hd img{width:52px;height:52px;border-radius:12px}
+    .hd .t{font-size:22px;font-weight:800;letter-spacing:1px}
+    .hd .t span{color:#C8A24B;font-size:13px}
+    .hd .meta{margin-left:auto;text-align:right;color:#64748B;font-size:11px}
+    .score{display:flex;align-items:center;gap:20px;background:#0F172A;color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:18px}
+    .score .pct{font-size:46px;font-weight:800;line-height:1}
+    .score .lbl{font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:1px}
+    .pill{display:inline-block;padding:5px 14px;border-radius:20px;font-weight:800;font-size:13px}
+    h3{font-size:14px;margin:16px 0 8px;color:#0F172A;border-left:3px solid #C8A24B;padding-left:8px}
+    table{width:100%;border-collapse:collapse}
+    ul{margin:0;padding-left:18px}
+    .foot{margin-top:22px;padding-top:12px;border-top:1px solid #E5E9F0;color:#94A3B8;font-size:10px;text-align:center}
+    .cols{display:flex;gap:24px}.cols>div{flex:1}
+  </style></head><body>
+    <div class="hd">
+      <img src="/static/logo.png" onerror="this.style.display='none'"/>
+      <div class="t">JNUS<span> AI</span><div style="font-size:11px;color:#64748B;font-weight:600;letter-spacing:0">Informe de evaluación crediticia</div></div>
+      <div class="meta">Generado: ${fecha}<br/>Documento orientativo</div>
+    </div>
+    <div class="score">
+      <div><div class="pct">${d.percent}%</div><div class="lbl">Probabilidad de aprobación</div></div>
+      <div style="margin-left:auto"><span class="pill" style="background:${d.risk_color}22;color:${d.risk_color}">${d.risk_label}</span>
+        <div style="color:#CBD5E1;font-size:11px;margin-top:8px;max-width:280px">${d.verdict||''}</div></div>
+    </div>
+    <h3>Datos de la solicitud</h3>
+    <table>
+      ${row('Tipo de crédito',cat?cat.name:'')}
+      ${row('Destino',sub?sub.label:'')}
+      ${row('Institución',answers.institucion)}
+      ${row('Situación laboral',answers.situacion_laboral)}
+      ${row('Edad',answers.edad+' años')}
+      ${row('Ingresos mensuales','$'+(answers.ingresos_mensuales||0).toLocaleString())}
+      ${row('Cargas familiares',answers.cargas_familiares)}
+      ${row('Créditos activos',answers.creditos_activos)}
+      ${row('Nivel educativo',answers.educacion)}
+      ${row('Historial de pagos',answers.historial_pagos)}
+    </table>
+    <div class="cols">
+      <div><h3>Factores a favor</h3><ul>${facList(d.positive_factors,'#16A34A','▲')}</ul></div>
+      <div><h3>Factores a mejorar</h3><ul>${facList(d.negative_factors,'#DC2626','▼')}</ul></div>
+    </div>
+    <h3>Recomendaciones</h3><ul>${recList||'<li style="color:#94A3B8">—</li>'}</ul>
+    <h3>Análisis por modelo de IA</h3><div>${models}</div>
+    <div class="foot">JNUS AI · Advanced Financial System · SIAC · Machala, Ecuador<br/>
+      Esta evaluación es una estimación generada por inteligencia artificial con fines orientativos y no constituye una aprobación de crédito.</div>
+    <script>window.onload=function(){setTimeout(function(){window.print();},350);}<\/script>
+  </body></html>`;
+
+  const w=window.open('','_blank');
+  if(!w){ toast('Permite las ventanas emergentes para descargar el PDF','err'); return; }
+  w.document.write(html); w.document.close();
+  toast('Abriendo informe… elige "Guardar como PDF"','ok');
 }
 
 // ── HISTORY ──
@@ -840,14 +1440,738 @@ async function loadAdminPanel(){
   }catch(e){document.getElementById('admin-model-info').textContent='No se pudo cargar la info del modelo.';}
 }
 
+// ── CUENTA · estado + caché local (offline) ──
+let CURRENT_USER=null;      // {id,name,email,avatar,guest?}
+let _suAvatar=null;         // foto elegida al crear cuenta (data-URI)
+let _epAvatar=undefined;    // foto elegida al editar (undefined = sin cambio)
+function getUser(){ try{ return JSON.parse(localStorage.getItem('janus_user')||'null'); }catch{ return null; } }
+function cacheUser(u){ CURRENT_USER=u; try{ localStorage.setItem('janus_user',JSON.stringify(u||null)); }catch{} }
+function initials(name){ const n=(name||'').trim(); if(!n||n.toLowerCase()==='invitado') return '';
+  return n.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+
+// Pinta nombre + avatar (foto real o iniciales) en la cabecera del perfil
+function setProfileName(name, avatar){
+  const el=document.getElementById('prof-name'); if(el) el.textContent = name||'Invitado';
+  const av=document.getElementById('prof-av');
+  if(av){
+    if(avatar){ av.classList.add('has-img'); av.innerHTML=`<img src="${avatar}" alt=""/>`; }
+    else{ av.classList.remove('has-img'); const ini=initials(name);
+      av.innerHTML = ini || '<svg class="ic"><use href="#i-user"/></svg>'; }
+  }
+}
+
+// ── PERFIL DINÁMICO · estadísticas + datos de cuenta ──
+function renderProfile(){
+  const h=JSON.parse(localStorage.getItem('janus_hist')||'[]');
+  const u=CURRENT_USER||getUser();
+  setProfileName(u&&u.name, u&&u.avatar);
+  const sub=document.getElementById('prof-sub');
+  if(sub){
+    if(u&&u.email) sub.textContent=u.email;
+    else sub.textContent = h.length ? `${h.length} ${h.length===1?'evaluación':'evaluaciones'} · JNUS AI`
+                                    : (u&&u.guest?'Invitado · JNUS AI':'Usuario de JNUS AI');
+  }
+  // Acciones de cuenta: editar / cerrar sesión solo si hay cuenta real (con email)
+  const acc=document.getElementById('account-actions');
+  if(acc) acc.style.display = (u&&u.email)?'block':'none';
+  const guestCta=document.getElementById('guest-cta');
+  if(guestCta) guestCta.style.display = (u&&u.email)?'none':'block';
+  const cnt=document.getElementById('ps-count'), best=document.getElementById('ps-best'), last=document.getElementById('ps-last');
+  if(cnt) cnt.textContent=h.length;
+  if(h.length){
+    const mx=Math.max(...h.map(x=>x.pct));
+    if(best) best.textContent=mx+'%';
+    if(last) last.textContent=h[0].pct+'%';
+  }else{ if(best)best.textContent='—'; if(last)last.textContent='—'; }
+  const sp=document.getElementById('prof-spark');
+  if(sp){
+    const recent=h.slice(0,8).reverse();
+    if(!recent.length){ sp.innerHTML=''; }
+    else sp.innerHTML=recent.map((x,i)=>
+      `<div class="sb" style="height:${Math.max(8,x.pct)}%;background:linear-gradient(180deg,${x.color},${x.color}aa);animation-delay:${i*55}ms"
+        title="${x.tipo}: ${x.pct}%"></div>`).join('');
+  }
+}
+function closeWelcome(){ document.getElementById('welcome').classList.remove('open'); document.body.classList.remove('modal-bg'); playAppEntrance(); }
+
+// Entrada escalonada de las tarjetas del inicio (una sola vez, tras el splash/modal)
+let _appEntered=false;
+function playAppEntrance(){
+  if(_appEntered) return; _appEntered=true;
+  document.body.classList.add('app-in');
+  setTimeout(()=>document.body.classList.remove('app-in'), 1600);
+  initReveal();
+}
+
+// Reveal de secciones al hacer scroll (landing largo estilo btodigital)
+let _revealInit=false;
+function initReveal(){
+  if(_revealInit) return; _revealInit=true;
+  const screen=document.querySelector('.screen');
+  const els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('in')); return; }
+  const io=new IntersectionObserver(ents=>{
+    ents.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  },{root:screen, rootMargin:'0px 0px -6% 0px', threshold:0.06});
+  els.forEach(e=>io.observe(e));
+}
+function scrollToHow(){
+  const a=document.getElementById('how-anchor'), s=document.querySelector('.screen');
+  if(a&&s) s.scrollTo({top:a.offsetTop-14, behavior:'smooth'});
+}
+
+// ── Pestañas crear cuenta / iniciar sesión ──
+function authTab(which){
+  const su=which==='signup';
+  document.getElementById('tab-signup').classList.toggle('on',su);
+  document.getElementById('tab-login').classList.toggle('on',!su);
+  document.getElementById('auth-ind').classList.toggle('right',!su);
+  document.getElementById('form-signup').style.display=su?'flex':'none';
+  document.getElementById('form-login').style.display=su?'none':'flex';
+  document.getElementById('auth-title').textContent=su?'Crea tu cuenta':'Bienvenido de vuelta';
+  document.getElementById('auth-sub').textContent=su?'Guarda tu historial y evalúa tu crédito cuando quieras.':'Inicia sesión para continuar donde lo dejaste.';
+}
+
+// ── Foto de perfil: redimensiona en el cliente a 256px (data-URI ligero) ──
+function resizeImage(file, max=256){
+  return new Promise((resolve,reject)=>{
+    const img=new Image(); const url=URL.createObjectURL(file);
+    img.onload=()=>{ URL.revokeObjectURL(url);
+      let{width:w,height:h}=img; const s=Math.min(1,max/Math.max(w,h)); w=Math.round(w*s); h=Math.round(h*s);
+      const c=document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(c.toDataURL('image/jpeg',0.82)); };
+    img.onerror=reject; img.src=url;
+  });
+}
+async function pickAvatar(input, prevId, target){
+  const f=input.files&&input.files[0]; if(!f) return;
+  if(f.size>8*1024*1024){ toast('La imagen es muy grande (máx 8MB)','err'); return; }
+  try{
+    const data=await resizeImage(f);
+    if(target==='edit') _epAvatar=data; else _suAvatar=data;
+    const prev=document.getElementById(prevId);
+    if(prev){ prev.classList.add('has-img'); prev.innerHTML=`<img src="${data}" alt=""/>`; }
+  }catch(e){ toast('No se pudo procesar la imagen','err'); }
+}
+
+async function doSignup(e){
+  e.preventDefault();
+  const name=val('su-name'), email=val('su-email'), p1=val('su-pass'), p2=val('su-pass2');
+  if(!name){ toast('Escribe tu nombre','err'); return false; }
+  if(!email){ toast('Escribe tu email','err'); return false; }
+  if(p1.length<6){ toast('La contraseña debe tener al menos 6 caracteres','err'); return false; }
+  if(p1!==p2){ toast('Las contraseñas no coinciden','err'); return false; }
+  const remember=document.getElementById('su-remember').checked;
+  try{
+    const r=await fetch(API+'/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,email,password:p1,avatar:_suAvatar,remember})});
+    const d=await r.json();
+    if(d.error){ toast(d.error,'err'); return false; }
+    cacheUser(d.user); renderProfile(); closeWelcome(); toast('¡Cuenta creada! Hola, '+d.user.name,'ok');
+  }catch(e){ toast('Sin conexión. Intenta de nuevo.','err'); }
+  return false;
+}
+async function doLogin(e){
+  e.preventDefault();
+  const email=val('li-email'), p=val('li-pass');
+  if(!email||!p){ toast('Escribe tu email y contraseña','err'); return false; }
+  const remember=document.getElementById('li-remember').checked;
+  try{
+    const r=await fetch(API+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:p,remember})});
+    const d=await r.json();
+    if(d.error){ toast(d.error,'err'); return false; }
+    cacheUser(d.user); renderProfile(); closeWelcome(); toast('¡Hola de nuevo, '+d.user.name+'!','ok');
+  }catch(e){ toast('Sin conexión. Intenta de nuevo.','err'); }
+  return false;
+}
+function val(id){ return (document.getElementById(id)?.value||'').trim(); }
+
+function skipName(){ cacheUser({name:'Invitado',guest:true}); setProfileName('Invitado'); closeWelcome(); }
+
+async function logoutUser(){
+  if(!confirm('¿Cerrar tu sesión?')) return;
+  try{ await fetch(API+'/api/logout',{method:'POST'}); }catch(e){}
+  cacheUser(null); CURRENT_USER=null;
+  toast('Sesión cerrada','ok');
+  document.getElementById('welcome').classList.add('open'); document.body.classList.add('modal-bg');
+  authTab('login');
+}
+
+// ── Editar perfil (modal) ──
+function openEditProfile(){
+  const u=CURRENT_USER||getUser(); if(!u) return;
+  _epAvatar=undefined;
+  document.getElementById('ep-name').value=u.name||'';
+  document.getElementById('ep-pass').value='';
+  const prev=document.getElementById('ep-prev');
+  if(u.avatar){ prev.classList.add('has-img'); prev.innerHTML=`<img src="${u.avatar}" alt=""/>`; }
+  else{ prev.classList.remove('has-img'); prev.innerHTML='<svg class="ic"><use href="#i-camera"/></svg>'; }
+  document.getElementById('editp').classList.add('open'); document.body.classList.add('modal-bg');
+}
+function closeEditProfile(){ document.getElementById('editp').classList.remove('open'); document.body.classList.remove('modal-bg'); }
+async function saveEditProfile(e){
+  e&&e.preventDefault();
+  const name=val('ep-name'), pass=val('ep-pass');
+  const body={name}; if(pass) body.password=pass; if(_epAvatar!==undefined) body.avatar=_epAvatar;
+  try{
+    const r=await fetch(API+'/api/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.error){ toast(d.error,'err'); return false; }
+    cacheUser(d.user); renderProfile(); closeEditProfile(); toast('Perfil actualizado','ok');
+  }catch(e){ toast('No se pudo guardar','err'); }
+  return false;
+}
+
+// Al abrir la app (tras la intro): la pantalla de CUENTA es lo primero.
+// Solo se entra directo si hay una cuenta REAL con sesión activa; así el
+// usuario siempre puede crear su cuenta / iniciar sesión y guardar credenciales.
+async function maybeWelcome(){
+  let user=null;
+  try{
+    const r=await fetch(API+'/api/me'); const d=await r.json();
+    user = d.user || null;                       // cuenta real con sesión en el servidor
+  }catch(e){
+    const u=getUser();                           // sin red: solo cuentas reales cacheadas
+    if(u && u.email) user=u;
+  }
+  if(user){ cacheUser(user); setProfileName(user.name,user.avatar); playAppEntrance(); return; }
+  // Sin cuenta → mostrar Crear cuenta / Iniciar sesión PRIMERO (con opción invitado)
+  document.getElementById('welcome').classList.add('open'); document.body.classList.add('modal-bg');
+  if(typeof authTab==='function') authTab('signup');
+  setTimeout(()=>document.getElementById('su-name')?.focus(),450);
+}
+
+// ── SPLASH CINEMÁTICO ──
+// Narrativa (storyboard): red dorada de vida → energía que converge → cristal IA
+// → núcleo verde (decisión/aprobación) → revelado de marca JNUS.
+// Motor principal: 3D WebGL (Three.js + GSAP, ~7s). Fallback: 2D canvas (5s).
+const SPLASH_T0 = Date.now();
+const SPLASH_DUR = 5000;          // duración de la animación 2D (fallback)
+let splashAnimDone = false;       // animación terminó
+let appInitDone = false;          // datos de la app listos
+
+function startSplash2D(){
+  const cv = document.getElementById('splash-cv');
+  if(!cv){ splashAnimDone = true; return; }
+  const ctx = cv.getContext('2d');
+  let W,H,cx,cy,dpr,P=[],dot,orbR,iconDefs=[];
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const sstep = t => t<=0?0 : t>=1?1 : t*t*(3-2*t);
+  const seg = (t,a,b) => sstep((t-a)/(b-a));
+  const lerp = (a,b,t) => a+(b-a)*t;
+
+  // Sprite de punto suave dorado (se dibuja con drawImage = muy rápido)
+  function makeDot(){
+    dot=document.createElement('canvas'); dot.width=dot.height=26;
+    const d=dot.getContext('2d');
+    const g=d.createRadialGradient(13,13,0,13,13,13);
+    g.addColorStop(0,'rgba(228,190,112,0.98)');
+    g.addColorStop(0.4,'rgba(196,158,74,0.62)');
+    g.addColorStop(1,'rgba(196,158,74,0)');
+    d.fillStyle=g; d.beginPath(); d.arc(13,13,13,0,6.2832); d.fill();
+  }
+
+  // ── Siluetas (se dibujan en un canvas oculto y se MUESTREAN como puntos) ──
+  function famPath(c,s){
+    const fy=s*0.72, F=[[-0.80,0.92],[-0.30,1.50],[0.20,1.42],[0.66,0.80]];
+    for(const [dx,h0] of F){ const px=s*dx,h=s*h0,hr=h*0.16,sh=fy-h+2*hr,sw=h*0.17,bw=h*0.21;
+      c.beginPath(); c.arc(px,fy-h+hr,hr,0,6.2832); c.fill();
+      c.beginPath(); c.moveTo(px-bw,fy); c.lineTo(px-sw,sh); c.quadraticCurveTo(px,sh-hr*0.8,px+sw,sh); c.lineTo(px+bw,fy); c.quadraticCurveTo(px,fy+h*0.05,px-bw,fy); c.closePath(); c.fill(); }
+  }
+  function housePath(c,s){
+    const w=s*1.05,h=s*0.62,rh=s*0.5,bx=-w/2,by=-h*0.04;
+    c.beginPath(); c.moveTo(bx-s*0.14,by); c.lineTo(0,by-rh); c.lineTo(bx+w+s*0.14,by); c.closePath(); c.fill();
+    c.beginPath(); c.rect(bx,by,w,h); c.fill();
+    c.beginPath(); c.rect(bx+w*0.66,by-rh*0.74,s*0.13,rh*0.62); c.fill();
+  }
+  function cartPath(c,s){
+    const w=s*1.05;
+    c.beginPath(); c.moveTo(-w*0.38,-s*0.30); c.lineTo(w*0.52,-s*0.30); c.lineTo(w*0.34,s*0.16); c.lineTo(-w*0.24,s*0.16); c.closePath(); c.fill();
+    c.lineWidth=s*0.11; c.strokeStyle='#fff'; c.lineCap='round'; c.lineJoin='round';
+    c.beginPath(); c.moveTo(-w*0.38,-s*0.30); c.lineTo(-w*0.58,-s*0.46); c.lineTo(-w*0.74,-s*0.46); c.stroke();
+    c.beginPath(); c.arc(-w*0.10,s*0.36,s*0.12,0,6.2832); c.fill();
+    c.beginPath(); c.arc(w*0.28,s*0.36,s*0.12,0,6.2832); c.fill();
+  }
+  function storePath(c,s){
+    const w=s*1.1,h=s*0.6,top=-s*0.02;
+    c.beginPath(); c.rect(-w/2,top,w,h); c.fill();
+    c.beginPath(); c.moveTo(-w*0.6,top); c.lineTo(-w*0.44,top-s*0.28); c.lineTo(w*0.44,top-s*0.28); c.lineTo(w*0.6,top); c.closePath(); c.fill();
+    c.beginPath(); c.rect(-w*0.17,top-s*0.5,w*0.34,s*0.2); c.fill();
+  }
+  // Posiciones/escala de las 4 figuras (compartidas por silueta y puntos)
+  function computeDefs(){
+    const m=Math.min(W,H);
+    iconDefs=[
+      {fn:famPath,   type:'family', x:cx-W*0.21, y:cy+H*0.02, s:m*0.165},  // familia
+      {fn:housePath, type:'house',  x:cx+W*0.23, y:cy-H*0.15, s:m*0.135},  // inmobiliario
+      {fn:cartPath,  type:'cart',   x:cx-W*0.22, y:cy+H*0.22, s:m*0.110},  // consumo
+      {fn:storePath, type:'store',  x:cx+W*0.22, y:cy+H*0.19, s:m*0.128},  // negocio
+    ];
+  }
+  function sampleTargets(){
+    const off=document.createElement('canvas'); off.width=W; off.height=H;
+    const o=off.getContext('2d'); o.fillStyle='#fff';
+    for(const d of iconDefs){ o.save(); o.translate(d.x,d.y); d.fn(o,d.s); o.restore(); }
+    const data=o.getImageData(0,0,W,H).data, pts=[], st=5;
+    for(let y=0;y<H;y+=st) for(let x=0;x<W;x+=st){ if(data[((y*W+x)<<2)+3]>140) pts.push([x+(Math.random()-0.5)*st, y+(Math.random()-0.5)*st]); }
+    for(let i=pts.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0,tmp=pts[i]; pts[i]=pts[j]; pts[j]=tmp; }
+    return pts.slice(0,1100);
+  }
+  // Silueta suave con volumen 3D (para que las figuras SE VEAN claramente)
+  function drawBaseSil(d,alpha){
+    if(alpha<=0.012) return;
+    ctx.save(); ctx.globalAlpha=Math.min(1,alpha); ctx.translate(d.x,d.y);
+    ctx.shadowColor='rgba(40,55,85,0.16)'; ctx.shadowBlur=16; ctx.shadowOffsetY=9;
+    const g=ctx.createLinearGradient(-d.s*0.8,-d.s,d.s*0.8,d.s);
+    g.addColorStop(0,'#ffffff'); g.addColorStop(0.55,'#eef2f8'); g.addColorStop(1,'#dde4ee');
+    ctx.fillStyle=g; ctx.strokeStyle=g;
+    d.fn(ctx,d.s);
+    ctx.restore();
+  }
+
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,2);
+    W=cv.clientWidth; H=cv.clientHeight; cv.width=W*dpr; cv.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0); cx=W/2; cy=H*0.46; build();
+  }
+  function build(){
+    orbR=Math.min(W,H)*0.05; makeDot(); computeDefs(); P=[];
+    const mk=(tx,ty,amb)=>{ const a=Math.random()*6.2832, rad=Math.max(W,H)*(0.45+Math.random()*0.45);
+      P.push({sx:cx+Math.cos(a)*rad, sy:cy+Math.sin(a)*rad, tx, ty,
+        ox:(Math.random()-0.5)*orbR*2.2, oy:(Math.random()-0.5)*orbR*2.2,
+        z:Math.random(), seed:Math.random()*6.2832, delay:Math.random()*400, amb}); };
+    for(const [x,y] of sampleTargets()) mk(x,y,0);                       // puntos de las figuras
+    for(let i=0;i<36;i++){ const a=Math.random()*6.2832, r=(0.12+Math.random()*0.44)*Math.min(W,H); mk(cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.8, 1); }  // red de puntos (sutil)
+  }
+
+  function frame(){
+    const t = Date.now()-SPLASH_T0;
+    // Estela fluida: velo claro en vez de borrar → rastros suaves
+    ctx.globalCompositeOperation='source-over';
+    ctx.fillStyle='rgba(247,249,252,0.30)'; ctx.fillRect(0,0,W,H);
+
+    // Línea de tiempo: formar (0-1.2s) → MOSTRAR figuras (1.2-2.8s) → fluir al centro → núcleo verde → marca
+    const formP=sstep((t-100)/1100);
+    const convP=sstep((t-2800)/1050);
+    const orbP =sstep((t-3450)/800);
+    const greenP=sstep((t-3900)/650);
+    const fade=1-seg(t,4400,4950);
+    const figVis=Math.min(1,formP*1.15)*(1-convP)*fade;     // visibilidad de las figuras sólidas
+
+    // SILUETAS 3D (para que SE VEAN las figuras: familia · casa · carrito · negocio)
+    for(const d of iconDefs) drawBaseSil(d, 0.92*figVis);
+
+    // Halo dorado al converger
+    if(orbP>0){
+      const r=orbR*(1.2+orbP*3.4);
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'rgba(232,198,128,'+(0.30*orbP*(1-greenP)*fade)+')');
+      g.addColorStop(1,'rgba(232,198,128,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,6.2832); ctx.fill();
+    }
+
+    // PUNTOS dorados (brillo + red + flujo) sobre las figuras
+    for(const p of P){
+      const fp=sstep((t-p.delay)/1100);
+      let bx=lerp(p.sx,p.tx,fp), by=lerp(p.sy,p.ty,fp);
+      const j=(1-convP);
+      bx+=Math.sin(t*0.0015+p.seed)*2.6*j; by+=Math.cos(t*0.0015+p.seed*1.3)*2.6*j;
+      const x=lerp(bx,cx+p.ox,convP), y=lerp(by,cy+p.oy,convP);
+      const a=fp*fade*(p.amb?0.22:(0.42+p.z*0.4));
+      if(a<=0.012) continue;
+      const sz=(3.4+p.z*5.6)*(1+convP*0.3);
+      ctx.globalAlpha=a; ctx.drawImage(dot, x-sz/2, y-sz/2, sz, sz);
+    }
+    ctx.globalAlpha=1;
+
+    // NÚCLEO VERDE: la decisión / aprobación
+    if(greenP>0){
+      const r=orbR*(1.0+greenP*1.9);
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'rgba(150,245,205,'+(0.95*greenP*fade)+')');
+      g.addColorStop(0.45,'rgba(52,211,153,'+(0.55*greenP*fade)+')');
+      g.addColorStop(1,'rgba(16,185,129,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,6.2832); ctx.fill();
+    }
+
+    if(t>=4450){ const rev=document.getElementById('sp-reveal'); if(rev && !rev.classList.contains('show')) rev.classList.add('show'); }
+    if(t>=SPLASH_DUR){ splashAnimDone=true; maybeHideSplash(); return; }
+    requestAnimationFrame(frame);
+  }
+
+  resize(); window.addEventListener('resize',resize);
+  if(reduce){
+    const rev=document.getElementById('sp-reveal'); if(rev) rev.classList.add('show');
+    setTimeout(()=>{ splashAnimDone=true; maybeHideSplash(); }, 900);
+  } else { requestAnimationFrame(frame); }
+}
+
+// ── SPLASH 3D · "JNUS Cinematic" (Three.js + GSAP) ──
+// Esculturas blancas (familia·casa·negocio·finanzas·IA) unidas por una red
+// dorada de partículas que converge en un núcleo de luz. Compacto (~7s) y
+// optimizado para teléfonos: menos partículas, sin sombras, encuadre vertical.
+function startSplash3D(){
+  if(!(window.THREE && window.gsap)) return false;
+  const canvas=document.getElementById('splash-gl');
+  const splashEl=document.getElementById('splash');
+  if(!canvas||!splashEl) return false;
+
+  const MOBILE=Math.min(window.innerWidth,window.innerHeight)<560||window.innerWidth<768;
+  let renderer;
+  try{
+    renderer=new THREE.WebGLRenderer({canvas,antialias:!MOBILE,alpha:true,powerPreference:'high-performance'});
+  }catch(e){ return false; }
+  splashEl.classList.add('gl');
+
+  const W=()=>splashEl.clientWidth, H=()=>splashEl.clientHeight;
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, MOBILE?1.6:2));
+  renderer.setSize(W(),H());
+  renderer.shadowMap.enabled=!MOBILE;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.32;
+  renderer.setClearColor(0xffffff,0);   // deja ver el degradado claro del #splash
+
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0xf7f9fc,0.010);
+  const camera=new THREE.PerspectiveCamera(55,W()/H(),0.05,200);
+  const world=new THREE.Group(); scene.add(world);
+
+  // Composición según orientación: en retrato los nodos se ordenan en
+  // PROFUNDIDAD (corredor hacia el fondo) y la cámara recorre el pasillo.
+  const PORTRAIT=H()>W()*1.05;
+  const L=PORTRAIT?{
+    nodes:[[-3.2,2],[3.4,-1.5],[-3.4,-5.5],[3.2,-9],[-0.2,-13]],
+    fins:[[-2.6,-2],[2.6,-2],[-2.6,-6],[2.6,-6],[0,-9]],
+    core:[0,1.4,-4], look:[0,1.3,-3.5],
+    camStart:[0,2.6,12],
+    sweep:[[0,2.6,12],[-3.2,2.3,4],[3.2,2.1,0],[0,3.2,7]],
+    pull:[0,9.5,8], push:[0,2.7,3.2]
+  }:{
+    nodes:[[-9,-5],[9,-6],[-9,6],[9,5],[0,-11]],
+    fins:[[-4.5,0],[4.5,0],[-4.5,3.5],[4.5,3.5],[0,-4.5]],
+    core:[0,1.4,0], look:[0,1.2,0],
+    camStart:[0,2.4,20],
+    sweep:[[0,2.4,20],[-7,2.6,9],[6,2.2,5],[0,3.4,13]],
+    pull:[0,11,19], push:[0,3.4,10.5]
+  };
+  camera.position.set(L.camStart[0],L.camStart[1],L.camStart[2]);
+
+  // Hemisférica (cielo blanco / suelo cálido) modela el volumen sin sombras reales
+  scene.add(new THREE.HemisphereLight(0xffffff,0xb9b0a0,0.85));
+  const sun=new THREE.DirectionalLight(0xfff9f0,2.3);
+  sun.position.set(8,14,10);
+  if(!MOBILE){ sun.castShadow=true; sun.shadow.mapSize.set(1024,1024);
+    sun.shadow.camera.left=-22; sun.shadow.camera.right=22;
+    sun.shadow.camera.top=22; sun.shadow.camera.bottom=-22; sun.shadow.radius=4; }
+  scene.add(sun);
+  const fillL=new THREE.DirectionalLight(0xdde8ff,0.7); fillL.position.set(-10,4,6); scene.add(fillL);
+
+  const MAT={
+    scu:new THREE.MeshStandardMaterial({color:0xe7e1d6,roughness:0.72,metalness:0.05}),
+    acc:new THREE.MeshStandardMaterial({color:0xd9d2c5,roughness:0.82,metalness:0.02}),
+    gold:new THREE.MeshStandardMaterial({color:0xD4AF37,roughness:0.22,metalness:0.92,emissive:0xC9A227,emissiveIntensity:0.12}),
+    glass:new THREE.MeshStandardMaterial({color:0xe4e0d8,roughness:0.65,metalness:0.03,transparent:true,opacity:0.92}),
+    core:new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.05,metalness:0.3,emissive:0xD4AF37,emissiveIntensity:0,transparent:true,opacity:0})
+  };
+  function sh(m){ if(!MOBILE){m.castShadow=true;m.receiveShadow=true;} return m; }
+
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(160,160),
+    new THREE.MeshStandardMaterial({color:0xf4f2ec,roughness:1,transparent:true,opacity:0}));
+  ground.rotation.x=-Math.PI/2; ground.position.y=-0.06;
+  if(!MOBILE) ground.receiveShadow=true;
+  world.add(ground);
+
+  // Sombra "blob" bajo cada escultura (ancla visual barata; clave en móvil sin shadow-map)
+  const blobCv=document.createElement('canvas'); blobCv.width=blobCv.height=128;
+  const bctx=blobCv.getContext('2d');
+  const bgr=bctx.createRadialGradient(64,64,0,64,64,64);
+  bgr.addColorStop(0,'rgba(35,45,65,0.30)'); bgr.addColorStop(1,'rgba(35,45,65,0)');
+  bctx.fillStyle=bgr; bctx.fillRect(0,0,128,128);
+  const blobTex=new THREE.CanvasTexture(blobCv);
+  function addBlob(parent,r){
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(r*2,r*2),
+      new THREE.MeshBasicMaterial({map:blobTex,transparent:true,depthWrite:false}));
+    m.rotation.x=-Math.PI/2; m.position.y=0.02; parent.add(m);
+  }
+
+  // ── Esculturas ──
+  function makeFigure(h,rH,rT){
+    const g=new THREE.Group();
+    const head=sh(new THREE.Mesh(new THREE.SphereGeometry(rH,16,16),MAT.scu)); head.position.y=h-rH; g.add(head);
+    const torso=sh(new THREE.Mesh(new THREE.CylinderGeometry(rT*.9,rT*1.1,h*.44,12),MAT.scu)); torso.position.y=h*.4; g.add(torso);
+    [-.28,.28].forEach(ox=>{
+      const leg=sh(new THREE.Mesh(new THREE.CylinderGeometry(rT*.42,rT*.36,h*.38,8),MAT.scu));
+      leg.position.set(ox*rT*4,h*.06,0); g.add(leg);
+    });
+    return g;
+  }
+  function buildFamily(){
+    const g=new THREE.Group();
+    [[2.0,.28,.21,-.5],[1.8,.25,.19,.45],[1.25,.18,.14,-1.1],[1.15,.17,.13,1.05]].forEach(([h,rh,rt,x])=>{
+      const f=makeFigure(h,rh,rt); f.position.x=x; g.add(f);
+    });
+    return g;
+  }
+  function buildHouse(){
+    const g=new THREE.Group();
+    const base=sh(new THREE.Mesh(new THREE.BoxGeometry(2.8,1.8,2.0),MAT.scu)); base.position.y=.9; g.add(base);
+    const roof=sh(new THREE.Mesh(new THREE.ConeGeometry(2.15,1.1,4),MAT.scu)); roof.position.y=2.35; roof.rotation.y=Math.PI/4; g.add(roof);
+    const door=sh(new THREE.Mesh(new THREE.BoxGeometry(.4,.85,.06),MAT.acc)); door.position.set(0,.42,1.02); g.add(door);
+    [[.6,1.1],[-.6,1.1]].forEach(([x,y])=>{
+      const w=sh(new THREE.Mesh(new THREE.BoxGeometry(.6,.5,.06),MAT.glass)); w.position.set(x,y,1.02); g.add(w);
+    });
+    return g;
+  }
+  function buildMarket(){
+    const g=new THREE.Group();
+    const dome=sh(new THREE.Mesh(new THREE.SphereGeometry(1.4,22,12,0,Math.PI*2,0,Math.PI*.5),MAT.scu)); g.add(dome);
+    const base2=sh(new THREE.Mesh(new THREE.CylinderGeometry(1.45,1.45,.22,22),MAT.acc)); base2.position.y=-.1; g.add(base2);
+    for(let i=0;i<6;i++){
+      const a=i/6*Math.PI*2;
+      const col=sh(new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,1.15,6),MAT.scu));
+      col.position.set(Math.cos(a)*1.25,.45,Math.sin(a)*1.25); g.add(col);
+    }
+    return g;
+  }
+  function buildFinance(){
+    const g=new THREE.Group();
+    [.85,.65,.45].forEach((r,i)=>{
+      const coin=sh(new THREE.Mesh(new THREE.CylinderGeometry(r,r,.17,24),MAT.scu)); coin.position.y=i*.21; g.add(coin);
+    });
+    [2.1,1.4,2.7,1.0].forEach((h,i)=>{
+      const bar=sh(new THREE.Mesh(new THREE.BoxGeometry(.32,h,.32),MAT.scu)); bar.position.set(-1.1+i*.6,h*.5+.65,0); g.add(bar);
+    });
+    return g;
+  }
+  function buildTech(){
+    const g=new THREE.Group();
+    const body=sh(new THREE.Mesh(new THREE.BoxGeometry(2.1,2.8,.9),MAT.scu)); body.position.y=1.4; g.add(body);
+    for(let i=0;i<5;i++){
+      const rack=sh(new THREE.Mesh(new THREE.BoxGeometry(1.7,.24,.06),MAT.acc)); rack.position.set(0,.4+i*.44,.47); g.add(rack);
+      const led=new THREE.Mesh(new THREE.SphereGeometry(.05,8,8),MAT.gold); led.position.set(-.75,.4+i*.44,.5); g.add(led);
+    }
+    return g;
+  }
+
+  // 5 nodos: familia · casa · negocio · finanzas · IA (tipos de crédito JNUS)
+  const builders=[buildFamily,buildHouse,buildMarket,buildFinance,buildTech];
+  const rots=[.4,-.3,.5,-.4,0];
+  const NODES=builders.map((b,i)=>({build:b,rot:rots[i],
+    pos:new THREE.Vector3(L.nodes[i][0],0,L.nodes[i][1]),
+    fin:new THREE.Vector3(L.fins[i][0],0,L.fins[i][1])}));
+  NODES.forEach(n=>{
+    n.group=n.build();
+    if(MOBILE) addBlob(n.group,2.3);
+    n.group.position.copy(n.pos); n.group.rotation.y=n.rot; n.group.scale.setScalar(0);
+    world.add(n.group);
+  });
+
+  // Uniones doradas + líneas curvas
+  const junMat=new THREE.MeshStandardMaterial({color:0xD4AF37,roughness:.18,metalness:.95,emissive:0xC9A227,emissiveIntensity:.3});
+  const junctions=NODES.map(n=>{
+    const j=new THREE.Mesh(new THREE.SphereGeometry(.09,12,12),junMat.clone());
+    j.position.copy(n.pos).add(new THREE.Vector3(0,1.4,0)); j.scale.setScalar(0);
+    world.add(j); return j;
+  });
+  const pairs=[]; for(let a=0;a<5;a++) for(let b=a+1;b<5;b++) pairs.push([a,b]);
+  const connections=pairs.map(([a,b])=>{
+    const from=NODES[a].pos.clone().add(new THREE.Vector3(0,1.4,0));
+    const to  =NODES[b].pos.clone().add(new THREE.Vector3(0,1.4,0));
+    const pts=[];
+    for(let i=0;i<=20;i++){
+      const t=i/20, p=new THREE.Vector3().lerpVectors(from,to,t);
+      p.y+=Math.sin(t*Math.PI)*0.7; pts.push(p);
+    }
+    const mat=new THREE.LineBasicMaterial({color:0xD4AF37,transparent:true,opacity:0});
+    const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mat);
+    line.visible=false; world.add(line);
+    return {line,mat,pts};
+  });
+
+  // Partículas doradas que recorren la red
+  const NPART=MOBILE?520:1400;
+  const pPos=new Float32Array(NPART*3), pData=[];
+  const pcv=document.createElement('canvas'); pcv.width=pcv.height=32;
+  const px=pcv.getContext('2d'), pg=px.createRadialGradient(16,16,0,16,16,16);
+  pg.addColorStop(0,'rgba(255,230,120,1)'); pg.addColorStop(.5,'rgba(212,175,55,.7)'); pg.addColorStop(1,'rgba(212,175,55,0)');
+  px.fillStyle=pg; px.beginPath(); px.arc(16,16,16,0,Math.PI*2); px.fill();
+  const pGeo=new THREE.BufferGeometry();
+  pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+  const pMat=new THREE.PointsMaterial({size:.14,map:new THREE.CanvasTexture(pcv),transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
+  const ptSystem=new THREE.Points(pGeo,pMat); ptSystem.visible=false; world.add(ptSystem);
+  for(let i=0;i<NPART;i++){
+    pData.push({conn:(Math.random()*pairs.length)|0,t:Math.random(),speed:.005+Math.random()*.011});
+    pPos[i*3+2]=-200;
+  }
+
+  // Núcleo IA central
+  const coreGroup=new THREE.Group(); coreGroup.position.set(L.core[0],L.core[1],L.core[2]); world.add(coreGroup);
+  coreGroup.add(new THREE.Mesh(new THREE.SphereGeometry(.75,MOBILE?32:48,MOBILE?32:48),MAT.core));
+  const icoMat=new THREE.MeshBasicMaterial({color:0xD4AF37,wireframe:true,transparent:true,opacity:0});
+  const icoWire=new THREE.Mesh(new THREE.IcosahedronGeometry(1.1,2),icoMat); coreGroup.add(icoWire);
+  const ringMat=new THREE.MeshStandardMaterial({color:0xD4AF37,roughness:.2,metalness:.9,transparent:true,opacity:0,emissive:0xC9A227,emissiveIntensity:.2});
+  const rings=[0,1,2].map(i=>{
+    const r=new THREE.Mesh(new THREE.TorusGeometry(1.3,.013,6,64),i?ringMat.clone():ringMat);
+    if(i===0) r.rotation.x=Math.PI/2;
+    if(i===1){ r.rotation.set(Math.PI/4,0,Math.PI/3); r.scale.setScalar(1.15); }
+    if(i===2){ r.rotation.set(0,Math.PI/3,Math.PI/5); r.scale.setScalar(.85); }
+    coreGroup.add(r); return r;
+  });
+
+  // Recorrido de cámara breve (barrido único, no tour completo)
+  const camCurve=new THREE.CatmullRomCurve3(
+    L.sweep.map(p=>new THREE.Vector3(p[0],p[1],p[2])),false,'catmullrom',.4);
+
+  let camT=0,camFollow=false,assembling=false,coreActive=false;
+  const clock=new THREE.Clock(); let elapsed=0;
+
+  function tick(){
+    if(!canvas.isConnected){ try{renderer.dispose();}catch(e){} return; }
+    requestAnimationFrame(tick);
+    const dt=clock.getDelta(); elapsed+=dt;
+
+    if(camFollow){
+      const pos=camCurve.getPoint(Math.min(camT,.999));
+      camera.position.lerp(pos,.07);
+    }
+    camera.lookAt(L.look[0],L.look[1],L.look[2]);
+
+    NODES.forEach((n,i)=>{
+      if(!assembling){
+        n.group.position.y=n.pos.y+Math.sin(elapsed*.5+i*1.1)*.1;
+        n.group.rotation.y=n.rot+Math.sin(elapsed*.25+i*.7)*.04;
+      }
+    });
+
+    if(ptSystem.visible){
+      const arr=pGeo.attributes.position.array;
+      const conv=assembling?.6:0;
+      for(let i=0;i<NPART;i++){
+        const d=pData[i];
+        d.t+=d.speed;
+        if(d.t>1){ d.t=0; d.conn=(Math.random()*pairs.length)|0; }
+        const pts=connections[d.conn].pts;
+        const idx=Math.min((d.t*(pts.length-1))|0,pts.length-2);
+        const frac=d.t*(pts.length-1)-idx;
+        let x=pts[idx].x+(pts[idx+1].x-pts[idx].x)*frac,
+            y=pts[idx].y+(pts[idx+1].y-pts[idx].y)*frac,
+            z=pts[idx].z+(pts[idx+1].z-pts[idx].z)*frac;
+        if(conv>0){ const k=conv*(d.t*.5+.25); x+=(L.core[0]-x)*k; y+=(L.core[1]-y)*k; z+=(L.core[2]-z)*k; }
+        arr[i*3]=x; arr[i*3+1]=y; arr[i*3+2]=z;
+      }
+      pGeo.attributes.position.needsUpdate=true;
+    }
+
+    if(coreActive){
+      coreGroup.rotation.y=elapsed*.18;
+      icoWire.rotation.y=-elapsed*.26;
+      rings[0].rotation.y=elapsed*.4; rings[1].rotation.z=elapsed*.3; rings[2].rotation.x+=.006;
+      const pulse=.05*Math.sin(elapsed*2.4);
+      coreGroup.scale.setScalar(1+pulse);
+      MAT.core.emissiveIntensity=.4+Math.abs(Math.sin(elapsed*2))*.25;
+    }
+    renderer.render(scene,camera);
+  }
+
+  function onResize(){
+    camera.aspect=W()/H(); camera.updateProjectionMatrix();
+    renderer.setSize(W(),H());
+  }
+  window.addEventListener('resize',onResize);
+  window.__s3d={r:renderer,s:scene,c:camera,gl:canvas};   // handle de QA/depuración
+  tick();
+
+  // ── Línea de tiempo compacta (~7s, GSAP) ──
+  gsap.to(ground.material,{opacity:.95,duration:.9,ease:'power2.out'});
+  NODES.forEach((n,i)=>{
+    gsap.to(n.group.scale,{x:1,y:1,z:1,duration:.85,delay:.12+i*.09,ease:'elastic.out(1,.75)'});
+  });
+  junctions.forEach((j,i)=>{
+    gsap.to(j.scale,{x:1,y:1,z:1,duration:.4,delay:.3+i*.08,ease:'back.out(2.5)'});
+  });
+  gsap.delayedCall(.7,()=>{
+    camFollow=true;
+    gsap.to({t:0},{t:1,duration:2.8,ease:'power1.inOut',onUpdate:function(){camT=this.targets()[0].t;}});
+    connections.forEach(({line,mat},i)=>{
+      line.visible=true;
+      gsap.to(mat,{opacity:.5,duration:.5,delay:i*.04,ease:'power1.out'});
+    });
+  });
+  gsap.delayedCall(1.2,()=>{
+    ptSystem.visible=true;
+    gsap.to(pMat,{opacity:.9,duration:.9,ease:'power2.out'});
+  });
+  gsap.delayedCall(3.4,()=>{                              // ensamblaje: todo converge
+    assembling=true; camFollow=false;
+    gsap.to(camera.position,{x:L.pull[0],y:L.pull[1],z:L.pull[2],duration:1.7,ease:'power3.inOut'});
+    NODES.forEach((n,i)=>{
+      gsap.to(n.group.position,{x:n.fin.x,y:n.fin.y,z:n.fin.z,duration:1.3,delay:i*.05,ease:'power4.inOut'});
+      gsap.to(n.group.rotation,{y:0,duration:1.1,delay:i*.05,ease:'power3.out'});
+    });
+    junctions.forEach((j,i)=>{
+      const f=NODES[i].fin;
+      gsap.to(j.position,{x:f.x,y:1.4,z:f.z,duration:1.2,delay:i*.04,ease:'power4.inOut'});
+    });
+    connections.forEach(({mat})=>gsap.to(mat,{opacity:.22,duration:1,ease:'power2.out'}));
+  });
+  gsap.delayedCall(4.5,()=>{                              // núcleo IA se enciende
+    coreActive=true;
+    gsap.to(MAT.core,{opacity:1,emissiveIntensity:.4,duration:1.3,ease:'power2.out'});
+    gsap.to(icoMat,{opacity:.18,duration:1.5,ease:'power2.out'});
+    rings.forEach((r,i)=>gsap.to(r.material,{opacity:.7-i*.15,duration:1.1,delay:i*.12,ease:'power2.out'}));
+    gsap.to(camera.position,{x:L.push[0],y:L.push[1],z:L.push[2],duration:2.0,delay:.2,ease:'power3.inOut'});
+    connections.forEach(({mat})=>gsap.to(mat,{opacity:.07,duration:1.6,delay:.8,ease:'power2.in'}));
+    gsap.to(pMat,{opacity:.32,duration:1.6,delay:.8,ease:'power2.in'});
+    junctions.forEach(j=>gsap.to(j.scale,{x:0,y:0,z:0,duration:.9,delay:.6,ease:'power2.in'}));
+  });
+  gsap.delayedCall(5.7,()=>{                              // marca JNUS
+    const rev=document.getElementById('sp-reveal'); if(rev) rev.classList.add('show');
+  });
+  gsap.delayedCall(7.0,()=>{ splashAnimDone=true; maybeHideSplash(); });
+  return true;
+}
+
+// Selector de motor: 3D si hay WebGL y movimiento permitido; si no, 2D.
+(function(){
+  const reduce=window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let ok=false;
+  if(!reduce){ try{ ok=startSplash3D(); }catch(e){ ok=false; } }
+  if(!ok) startSplash2D();
+})();
+
+// Halo dorado del input de bienvenida sigue al puntero (sign-in animado)
+(function(){
+  const g=document.getElementById('wc-glow'); if(!g) return;
+  g.addEventListener('pointermove',e=>{
+    const r=g.getBoundingClientRect();
+    g.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    g.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+})();
+
+function maybeHideSplash(){
+  if(!(splashAnimDone && appInitDone)) return;
+  const el=document.getElementById('splash'); if(!el){ maybeWelcome(); return; }
+  if(el.dataset.hiding) return; el.dataset.hiding='1';
+  el.classList.add('hide'); maybeWelcome(); setTimeout(()=>el.remove(),750);
+}
+function hideSplash(){ appInitDone=true; maybeHideSplash(); }
+
 // ── init ──
 async function init(){
   await loadOptions();
   try{const h=await (await fetch(API+'/api/health')).json();document.getElementById('status').textContent=h.ok?'IA lista':'Sin conexión';}
   catch{document.getElementById('status').textContent='Sin conexión';}
   loadAdminPanel();
+  hideSplash();
 }
 init();
+// Failsafe: nunca dejar el splash bloqueado (3D dura ~7s)
+setTimeout(()=>{ splashAnimDone=true; appInitDone=true; maybeHideSplash(); }, 9000);
 </script>
 </body>
 </html>

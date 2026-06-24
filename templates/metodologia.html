@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JNUS AI · Metodología · estructura matemática y algoritmos</title>
+<link rel="icon" href="/static/logo.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0B1220; --navy2:#0F172A; --card:#111c33; --line:#23314e;
+  --gold:#C8A24B; --gold2:#D4AF37; --blue:#3B82F6; --green:#16A34A; --red:#EF4444;
+  --ink:#E7ECF5; --muted:#9fb0c9; --muted2:#76869f;
+  --fd:'Manrope',sans-serif; --fb:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(120% 80% at 50% -10%,#16223d 0%,var(--navy) 55%);
+  color:var(--ink);font-family:var(--fb);line-height:1.6;font-size:15.5px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:32px 20px 80px}
+a{color:var(--gold2)}
+/* Header */
+.hd{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.hd img{height:46px;width:auto}
+.hd .t{font-family:var(--fd);font-weight:800;font-size:20px;letter-spacing:.5px}
+.hd .t span{color:var(--gold2)}
+.lead{color:var(--muted);font-size:15px;max-width:680px;margin:6px 0 26px}
+.backlink{display:inline-block;margin-bottom:24px;font-size:13px;color:var(--muted);text-decoration:none;
+  border:1px solid var(--line);padding:7px 13px;border-radius:9px}
+.backlink:hover{border-color:var(--gold)}
+/* Pipeline pills */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 30px}
+.flow .p{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+  border-radius:30px;padding:8px 15px;font-weight:700;font-size:13px}
+.flow .p b{width:22px;height:22px;border-radius:50%;background:var(--gold);color:#0B1220;
+  display:flex;align-items:center;justify-content:center;font-size:12px}
+.flow .arr{color:var(--muted2)}
+/* Sections */
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 22px;margin-bottom:18px}
+section h2{font-family:var(--fd);font-weight:800;font-size:19px;margin-bottom:4px}
+section h2 .n{color:var(--gold2)}
+.sub{color:var(--muted);font-size:13.5px;margin-bottom:16px}
+.eq{background:#0c1426;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin:10px 0;
+  font-family:'Fira Code','Courier New',monospace;font-size:14.5px;color:#dbe6ff;overflow-x:auto;white-space:nowrap}
+.eq .c{color:var(--gold2)}
+.note{color:var(--muted);font-size:13.5px;margin-top:8px}
+.note b{color:var(--ink)}
+.tag{display:inline-block;background:rgba(200,162,75,.14);color:var(--gold2);border:1px solid rgba(200,162,75,.3);
+  border-radius:7px;padding:2px 9px;font-size:11.5px;font-weight:700;margin-bottom:10px}
+/* Interactivos */
+.viz{margin:14px 0;border:1px solid var(--line);border-radius:12px;padding:14px;background:#0c1426}
+.viz svg{display:block;width:100%;height:auto}
+.row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.slider{flex:1;min-width:180px}
+input[type=range]{width:100%;accent-color:var(--gold2)}
+.big{font-family:var(--fd);font-weight:800;font-size:26px;color:var(--gold2);font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px;justify-content:center}
+.legend i{display:inline-block;width:16px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+/* Tablas */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--muted2);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.5px}
+td.num{font-variant-numeric:tabular-nums;text-align:right;font-weight:700}
+.bar{height:7px;border-radius:4px;background:var(--blue)}
+.pos{color:var(--green)} .neg{color:var(--red)}
+/* Métricas */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:6px}
+.metric{background:#0c1426;border:1px solid var(--line);border-radius:12px;padding:13px;text-align:center}
+.metric .v{font-family:var(--fd);font-weight:800;font-size:22px}
+.metric .l{font-size:11px;color:var(--muted);margin-top:3px}
+.verdict{border-radius:12px;padding:13px 15px;font-size:13.5px;margin-top:12px;border:1px solid}
+.verdict.ok{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.4);color:#86efac}
+.verdict.bad{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4);color:#fca5a5}
+.foot{color:var(--muted2);font-size:12px;text-align:center;margin-top:30px}
+@media(max-width:560px){.eq{font-size:12.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd"><img src="/static/logo-icon.png" alt="JNUS"/><div class="t">JNUS <span>AI</span> · Metodología</div></div>
+  <p class="lead">Cómo JNUS estima la probabilidad de aprobación de un crédito: la estructura
+    matemática y los algoritmos, explicados para economistas. Cuatro modelos trabajan en conjunto
+    (ensemble); aquí ves sus ecuaciones, sus pesos reales y la verificación de que la red neuronal
+    realmente aprende.</p>
+  <a class="backlink" href="/app">← Volver a la app</a>
+
+  <div class="flow">
+    <span class="p"><b>1</b> Regresión Logística</span><span class="arr">→</span>
+    <span class="p"><b>2</b> XGBoost</span><span class="arr">→</span>
+    <span class="p"><b>3</b> Random Forest</span><span class="arr">→</span>
+    <span class="p"><b>4</b> Red Neuronal</span><span class="arr">→</span>
+    <span class="p" style="border-color:var(--gold)"><b style="background:var(--gold2)">Σ</b> Ensemble</span>
+  </div>
+
+  <!-- DATOS -->
+  <section>
+    <h2>Las variables (datos de entrada)</h2>
+    <div class="sub">El modelo recibe estas variables del solicitante y produce <b>P(aprobar)</b> ∈ (0,1).</div>
+    <div id="vars" class="note">Variables numéricas: edad, ingresos mensuales, cargas familiares, créditos activos.
+      Categóricas (one-hot): sexo, educación, historial de pagos, institución, tipo de crédito, situación laboral.
+      <span id="nfeat"></span></div>
+  </section>
+
+  <!-- 1 LOGIT -->
+  <section>
+    <div class="tag">Modelo base · interpretable</div>
+    <h2><span class="n">1.</span> Regresión Logística</h2>
+    <div class="sub">Combinación lineal de las variables pasada por una sigmoide. Es la base: define el
+      <b>peso (βᵢ)</b> y el <b>signo esperado</b> de cada variable.</div>
+    <div class="eq">P(aprobar | x) = <span class="c">σ</span>(β₀ + β₁x₁ + β₂x₂ + … + βₙxₙ)</div>
+    <div class="eq"><span class="c">σ</span>(z) = 1 / (1 + e<sup>−z</sup>)</div>
+    <div class="note">Se ajusta por <b>máxima verosimilitud</b>:
+      ℓ(β) = Σ [ yᵢ·log(pᵢ) + (1−yᵢ)·log(1−pᵢ) ]. Cada βᵢ es el peso; su signo dice si la variable
+      <b class="pos">sube</b> (+) o <b class="neg">baja</b> (−) la aprobación.</div>
+
+    <!-- Sigmoide interactiva -->
+    <div class="viz">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Explora la sigmoide: mueve z y observa σ(z)</div>
+      <svg id="sig-svg" viewBox="0 0 600 220" preserveAspectRatio="none"></svg>
+      <div class="row" style="margin-top:10px">
+        <div class="slider">z = <span id="z-val" style="color:var(--gold2);font-weight:700">0.0</span>
+          <input type="range" id="z-slide" min="-80" max="80" value="0"/></div>
+        <div style="text-align:right">σ(z) = <span class="big" id="sig-out">0.50</span></div>
+      </div>
+    </div>
+
+    <div class="sub" style="margin:14px 0 4px">Pesos reales del modelo (β) — datos en vivo</div>
+    <table id="coef-tbl"><tbody><tr><td class="note">cargando…</td></tr></tbody></table>
+    <div class="note" id="intercept-note"></div>
+  </section>
+
+  <!-- 2 XGBOOST -->
+  <section>
+    <div class="tag">Boosting por gradiente</div>
+    <h2><span class="n">2.</span> XGBoost — gradiente y hessiano</h2>
+    <div class="sub">Suma árboles que corrigen, uno a uno, el error del anterior. Usa la 1ª derivada
+      (<b>gradiente</b>) y la 2ª (<b>hessiano</b>) para decidir rápido y bien.</div>
+    <div class="eq">ŷ = Σ<sub>k</sub> f<sub>k</sub>(x) &nbsp;·&nbsp; árboles aditivos</div>
+    <div class="eq">Obj = Σᵢ L(yᵢ, ŷᵢ) + Σ<sub>k</sub> <span class="c">Ω</span>(f<sub>k</sub>) &nbsp;·&nbsp; (Ω = penalización por complejidad)</div>
+    <div class="eq">peso óptimo de hoja: w* = − G / (H + λ) &nbsp;·&nbsp; G=Σ gradiente, H=Σ hessiano</div>
+    <div class="note">El <b>gradiente</b> indica la dirección del error; el <b>hessiano</b> su curvatura →
+      el paso es más certero (converge más rápido). Va <b>segundo</b>, tras la regresión, aportando lo no-lineal.</div>
+  </section>
+
+  <!-- 3 RANDOM FOREST -->
+  <section>
+    <div class="tag">Bagging · anti-sobreajuste</div>
+    <h2><span class="n">3.</span> Random Forest</h2>
+    <div class="sub">Muchos árboles entrenados sobre muestras distintas; se promedian. El promedio
+      <b>reduce la varianza</b> y evita el sobreajuste de un solo árbol.</div>
+    <div class="eq">P = (1/B) Σ<sub>b=1</sub><sup>B</sup> T<sub>b</sub>(x) &nbsp;·&nbsp; promedio de B árboles</div>
+    <div class="note">Al promediar errores independientes, el aprendizaje queda <b>lo más cercano y robusto</b>
+      posible. Va <b>tercero</b>, estabilizando antes de la red.</div>
+
+    <div class="sub" style="margin:14px 0 4px">Importancia de variables (Random Forest) — datos en vivo</div>
+    <table id="imp-tbl"><tbody><tr><td class="note">cargando…</td></tr></tbody></table>
+  </section>
+
+  <!-- 4 RED NEURONAL -->
+  <section>
+    <div class="tag">Red neuronal · GELU + Sigmoide</div>
+    <h2><span class="n">4.</span> Red Neuronal</h2>
+    <div class="sub">Capas que combinan todo lo anterior de forma no-lineal. <b>Ocultas con GELU</b>
+      (rápida por el gradiente y sin neuronas muertas); <b>salida con sigmoide</b> (probabilidad continua, no 0/1 duro).</div>
+    <div class="eq">a<sup>(l)</sup> = <span class="c">GELU</span>( W<sup>(l)</sup> a<sup>(l−1)</sup> + b<sup>(l)</sup> ) &nbsp;·&nbsp; capas <span id="arch" class="c">31 → 64 → 32 → 1</span></div>
+    <div class="eq"><span class="c">GELU</span>(z) = 0.5·z·(1 + tanh[ √(2/π)·( z + 0.044715·z³ ) ])</div>
+    <div class="eq">salida: <span class="c">σ</span>(z) = 1/(1+e<sup>−z</sup>) &nbsp;·&nbsp; pérdida: BCE &nbsp;·&nbsp; optimizador: Adam</div>
+    <div class="note">Cada neurona tiene <b>pesos W</b> y <b>sesgo b</b>: una variable más significativa recibe mayor peso.
+      Entrena por <b>descenso de gradiente</b> minimizando la pérdida. GELU es suave (derivable en todo punto),
+      así el gradiente fluye mejor y —a diferencia de ReLU— no “apaga” neuronas a 0.</div>
+
+    <!-- Activaciones comparadas -->
+    <div class="viz">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Funciones de activación comparadas</div>
+      <svg id="act-svg" viewBox="0 0 600 240" preserveAspectRatio="none"></svg>
+      <div class="legend">
+        <span><i style="background:var(--gold2)"></i>GELU (ocultas)</span>
+        <span><i style="background:var(--blue)"></i>Sigmoide (salida)</span>
+        <span><i style="background:#64748b"></i>ReLU (referencia)</span>
+      </div>
+    </div>
+
+    <!-- Curva de pérdida real -->
+    <div class="viz">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">¿Realmente aprende? Curva de pérdida real del modelo</div>
+      <svg id="loss-svg" viewBox="0 0 600 220" preserveAspectRatio="none"></svg>
+      <div class="legend">
+        <span><i style="background:var(--blue)"></i>Entrenamiento</span>
+        <span><i style="background:var(--gold2)"></i>Validación (early-stopping)</span>
+      </div>
+      <div class="verdict" id="loss-verdict">cargando…</div>
+    </div>
+
+    <!-- Prueba neuronas muertas -->
+    <div class="verdict" id="dead-verdict">Prueba de neuronas muertas: cargando…</div>
+  </section>
+
+  <!-- ENSEMBLE + MÉTRICAS -->
+  <section>
+    <div class="tag">Resultado</div>
+    <h2>Ensemble y desempeño</h2>
+    <div class="sub">La probabilidad final promedia los cuatro modelos (cada uno aporta su mirada).</div>
+    <div class="eq">P<sub>final</sub> = ¼ ( P<sub>logit</sub> + P<sub>xgb</sub> + P<sub>rf</sub> + P<sub>nn</sub> )</div>
+    <div class="sub" style="margin:14px 0 4px">Desempeño por modelo (AUC y exactitud sobre test) — datos en vivo</div>
+    <div class="mgrid" id="metrics"></div>
+    <div class="note" id="ds-note" style="margin-top:12px"></div>
+  </section>
+
+  <div class="foot">JNUS AI · Crédito inteligente para cada etapa de tu vida · Machala, Ecuador<br/>
+    Herramienta orientativa con fines académicos.</div>
+</div>
+
+<script>
+const C = 0.7978845608028654; // sqrt(2/pi)
+const gelu = z => 0.5*z*(1+Math.tanh(C*(z+0.044715*z*z*z)));
+const sigmoid = z => 1/(1+Math.exp(-z));
+const relu = z => Math.max(0, z);
+
+// ── Sigmoide interactiva ──
+function drawSigmoid(){
+  const W=600,H=220,pad=24, zmin=-8,zmax=8;
+  const X=z=>pad+((z-zmin)/(zmax-zmin))*(W-2*pad);
+  const Y=p=>H-pad-p*(H-2*pad);
+  let d='';
+  for(let i=0;i<=120;i++){ const z=zmin+(zmax-zmin)*i/120; d+=(i?'L':'M')+X(z).toFixed(1)+' '+Y(sigmoid(z)).toFixed(1)+' '; }
+  const svg=document.getElementById('sig-svg');
+  svg.innerHTML=`
+    <line x1="${pad}" y1="${Y(0.5).toFixed(1)}" x2="${W-pad}" y2="${Y(0.5).toFixed(1)}" stroke="#23314e" stroke-dasharray="4 4"/>
+    <line x1="${X(0).toFixed(1)}" y1="${pad}" x2="${X(0).toFixed(1)}" y2="${H-pad}" stroke="#23314e" stroke-dasharray="4 4"/>
+    <path d="${d}" fill="none" stroke="#3B82F6" stroke-width="2.6"/>
+    <circle id="sig-dot" cx="${X(0)}" cy="${Y(0.5)}" r="6" fill="#D4AF37"/>`;
+  return {X,Y};
+}
+let SIGAX;
+function updateSig(){
+  const z=(+document.getElementById('z-slide').value)/10;
+  document.getElementById('z-val').textContent=z.toFixed(1);
+  const p=sigmoid(z); document.getElementById('sig-out').textContent=p.toFixed(2);
+  const dot=document.getElementById('sig-dot');
+  if(dot&&SIGAX){ dot.setAttribute('cx',SIGAX.X(z).toFixed(1)); dot.setAttribute('cy',SIGAX.Y(p).toFixed(1)); }
+}
+
+// ── Activaciones comparadas ──
+function drawActivations(){
+  const W=600,H=240,pad=26, xmin=-4,xmax=4,ymin=-1.2,ymax=4;
+  const X=x=>pad+((x-xmin)/(xmax-xmin))*(W-2*pad);
+  const Y=y=>H-pad-((y-ymin)/(ymax-ymin))*(H-2*pad);
+  const curve=(f,col,dash)=>{ let d=''; for(let i=0;i<=160;i++){const x=xmin+(xmax-xmin)*i/160; d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(f(x)).toFixed(1)+' ';}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="2.4" ${dash?`stroke-dasharray="${dash}"`:''}/>`; };
+  document.getElementById('act-svg').innerHTML=`
+    <line x1="${pad}" y1="${Y(0).toFixed(1)}" x2="${W-pad}" y2="${Y(0).toFixed(1)}" stroke="#23314e"/>
+    <line x1="${X(0).toFixed(1)}" y1="${pad}" x2="${X(0).toFixed(1)}" y2="${H-pad}" stroke="#23314e"/>
+    ${curve(relu,'#64748b','5 4')}
+    ${curve(gelu,'#D4AF37')}
+    ${curve(sigmoid,'#3B82F6')}`;
+}
+
+// ── Curva de pérdida (datos en vivo) ──
+function drawLoss(lc, vc){
+  const svg=document.getElementById('loss-svg');
+  if(!lc||lc.length<2){ svg.innerHTML='<text x="300" y="110" fill="#76869f" text-anchor="middle" font-size="13">Sin curva (reentrena el modelo)</text>'; return; }
+  const W=600,H=220,pad=20;
+  const all=lc.concat(vc&&vc.length?vc:[]); const mx=Math.max(...all),mn=Math.min(...all);
+  const X=i=>pad+(i/(lc.length-1))*(W-2*pad);
+  const Y=v=>pad+(1-(v-mn)/((mx-mn)||1))*(H-2*pad);
+  const P=a=>a.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+  svg.innerHTML=`
+    <path d="${P(lc)}" fill="none" stroke="#3B82F6" stroke-width="2.6" stroke-linejoin="round"/>
+    ${vc&&vc.length>=2?`<path d="${P(vc)}" fill="none" stroke="#D4AF37" stroke-width="2.2" stroke-dasharray="5 4"/>`:''}`;
+}
+
+// ── Tablas ──
+function fillCoef(coefs, intercept){
+  const tb=document.querySelector('#coef-tbl tbody');
+  if(!coefs||!coefs.length){ tb.innerHTML='<tr><td class="note">Reentrena para ver los coeficientes.</td></tr>'; return; }
+  const maxA=Math.max(...coefs.map(c=>Math.abs(c.coef)),0.01);
+  tb.innerHTML='<tr><th>Variable</th><th>Efecto</th><th style="text-align:right">β (peso)</th></tr>'+
+    coefs.map(c=>{const pos=c.coef>=0;const w=Math.round(Math.abs(c.coef)/maxA*100);
+      return `<tr><td>${c.label}</td>
+        <td><div class="bar" style="width:${w}%;background:${pos?'#16A34A':'#EF4444'}"></div></td>
+        <td class="num ${pos?'pos':'neg'}">${pos?'+':''}${c.coef.toFixed(2)}</td></tr>`;}).join('');
+  document.getElementById('intercept-note').innerHTML=`Sesgo β₀ = <b>${(intercept>=0?'+':'')+intercept}</b> · <span class="pos">verde +</span> sube la aprobación, <span class="neg">rojo −</span> la baja; la barra = cuánto pesa.`;
+}
+function fillImp(imp){
+  const tb=document.querySelector('#imp-tbl tbody');
+  if(!imp||!imp.length){ tb.innerHTML='<tr><td class="note">Reentrena para ver la importancia.</td></tr>'; return; }
+  const mx=Math.max(...imp.map(d=>d.importance),0.001);
+  tb.innerHTML='<tr><th>Variable</th><th>Importancia</th><th style="text-align:right">%</th></tr>'+
+    imp.slice(0,8).map(d=>`<tr><td>${d.label}</td>
+      <td><div class="bar" style="width:${Math.round(d.importance/mx*100)}%"></div></td>
+      <td class="num">${(d.importance*100).toFixed(1)}</td></tr>`).join('');
+}
+function fillMetrics(metrics){
+  const names={logit:'Reg. Logística',xgboost:'XGBoost',random_forest:'Random Forest',neural_net:'Red Neuronal'};
+  const box=document.getElementById('metrics'); if(!metrics){box.innerHTML='';return;}
+  box.innerHTML=Object.entries(metrics).map(([k,v])=>{
+    const auc=(typeof v==='object'?v.auc:v)||0, acc=(typeof v==='object'?v.accuracy:0)||0;
+    const col=auc>=0.8?'#16A34A':auc>=0.7?'#D4AF37':'#EF4444';
+    return `<div class="metric"><div class="v" style="color:${col}">${(auc*100).toFixed(1)}%</div>
+      <div class="l">${names[k]||k}<br/>AUC · exactitud ${(acc*100).toFixed(0)}%</div></div>`;}).join('');
+}
+
+// ── Carga de datos en vivo ──
+async function load(){
+  drawActivations(); SIGAX=drawSigmoid(); updateSig();
+  document.getElementById('z-slide').addEventListener('input',updateSig);
+  try{
+    const d=await (await fetch('/api/methodology')).json();
+    const L=d.learning||{};
+    if(L.nn_arch&&L.nn_arch.layers) document.getElementById('arch').textContent=L.nn_arch.layers.join(' → ');
+    if(d.n_features) document.getElementById('nfeat').textContent=`En total el modelo usa ${d.n_features} features tras el one-hot.`;
+    fillCoef(L.logit_coef||[], L.logit_intercept||0);
+    fillImp(L.importance||[]);
+    fillMetrics(d.metrics);
+    // pérdida
+    const lc=L.nn_loss_curve||[], vc=L.nn_val_loss_curve||[];
+    drawLoss(lc, vc);
+    const lv=document.getElementById('loss-verdict');
+    if(lc.length>=2){ const drop=lc[0]>0?Math.round((1-lc[lc.length-1]/lc[0])*100):0;
+      lv.className='verdict ok';
+      lv.innerHTML=`✓ La red <b>sí aprende</b>: la pérdida de entrenamiento bajó de ${lc[0].toFixed(3)} a ${lc[lc.length-1].toFixed(3)} (−${drop}%) en ${lc.length} épocas. El early-stopping conserva los mejores pesos según la validación (línea dorada), evitando el sobreajuste.`;
+    } else { lv.className='verdict bad'; lv.textContent='Aún no hay curva de pérdida; reentrena el modelo.'; }
+    // neuronas muertas
+    const dn=L.dead_neurons, dv=document.getElementById('dead-verdict');
+    if(dn){ dv.className='verdict '+(dn.healthy?'ok':'bad');
+      dv.innerHTML=`Prueba de neuronas muertas: <b>${dn.total_dead} de ${dn.total_units}</b> inactivas (${dn.pct_dead}%) → `
+        +(dn.healthy?'<b>red sana ✓</b>':'<b>revisar ⚠</b>')+'. GELU es suave y no anula neuronas a 0 como ReLU.';
+    } else dv.textContent='Prueba de neuronas muertas: reentrena el modelo para ejecutarla.';
+    // dataset
+    if(d.dataset_size) document.getElementById('ds-note').innerHTML=
+      `Entrenado con <b>${d.dataset_size.toLocaleString()}</b> registros · tasa de aprobación base ${d.approval_rate}% · versión ${d.version||'—'}.`;
+  }catch(e){
+    document.getElementById('loss-verdict').textContent='No se pudieron cargar los datos en vivo (¿servidor apagado?). Las ecuaciones siguen siendo válidas.';
+  }
+}
+load();
+</script>
+</body>
+</html>

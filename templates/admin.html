@@ -4,19 +4,19 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta name="theme-color" content="#0F172A"/>
-<title>JNUS AI · Administración</title>
+<title>JNUS AI · Administracion</title>
 <link rel="icon" href="/static/logo.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --navy:#0F172A; --slate:#1E293B; --bg:#F4F6FA; --card:#FFFFFF;
-  --gold:#C8A24B; --gold-2:#D4AF37; --gold-soft:#F7F0DC;
-  --blue:#2563EB; --blue-soft:#E7EEFE; --green:#16A34A; --green-soft:#E6F6ED;
-  --red:#DC2626; --red-soft:#FCEAEA; --ink:#0F172A; --muted:#64748B; --line:#E5E9F0;
-  --shadow:0 6px 24px rgba(15,23,42,.07); --shadow-lg:0 18px 48px rgba(15,23,42,.16);
-  --fd:'Manrope',sans-serif; --fb:'Plus Jakarta Sans',system-ui,sans-serif; --r:16px;
+  --navy:#0F172A;--slate:#1E293B;--bg:#F4F6FA;--card:#FFFFFF;
+  --gold:#C8A24B;--gold-2:#D4AF37;--gold-soft:#F7F0DC;
+  --blue:#2563EB;--blue-soft:#E7EEFE;--green:#16A34A;--green-soft:#E6F6ED;
+  --red:#DC2626;--red-soft:#FCEAEA;--ink:#0F172A;--muted:#64748B;--line:#E5E9F0;
+  --shadow:0 6px 24px rgba(15,23,42,.07);--shadow-lg:0 18px 48px rgba(15,23,42,.16);
+  --fd:'Manrope',sans-serif;--fb:'Plus Jakarta Sans',system-ui,sans-serif;--r:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -66,7 +66,12 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:26px 24px 60px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:820px){.grid{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s}
+.card:hover{box-shadow:0 12px 32px rgba(15,23,42,.10)}
+.metric{transition:transform .2s,box-shadow .2s}
+.metric:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}
+.eval-card{transition:transform .2s,box-shadow .2s}
+.eval-card:hover{transform:translateY(-2px)}
 .card h2{font-family:var(--fd);font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .card h2 .ic{color:var(--gold)}
 .card .desc{color:var(--muted);font-size:13px;margin-bottom:18px}
@@ -87,9 +92,6 @@ a{color:inherit;text-decoration:none}
 #file{display:none}
 .cols{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
 .cols span{background:var(--blue-soft);color:var(--blue);border:1px solid #C7D9FB;border-radius:6px;padding:4px 9px;font-size:11px;font-family:monospace}
-.log{margin-top:16px;background:var(--navy);color:#cbd5e1;border-radius:10px;padding:14px;font-family:monospace;font-size:12px;line-height:1.7;max-height:230px;overflow:auto;display:none}
-.log.show{display:block}
-.log .ok{color:#4ade80}.log .er{color:#f87171}.log .gd{color:#e8c275}
 .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(200,162,75,.3);border-top-color:var(--gold-2);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .mtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
@@ -99,66 +101,265 @@ a{color:inherit;text-decoration:none}
 .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px;font-size:12px}
 .flow .node{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 13px;font-weight:600;color:var(--navy)}
 .flow .ar{color:var(--gold)}
+
+/* TQDM PROGRESS BAR */
+.tqdm{display:none;margin-top:18px}
+.tqdm.show{display:block}
+.tqdm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tqdm-header .label{font-family:var(--fd);font-weight:700;font-size:14px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.tqdm-header .pct{font-family:var(--fd);font-weight:800;font-size:18px;color:var(--gold)}
+.tqdm-track{height:10px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative}
+.tqdm-fill{height:100%;background:linear-gradient(90deg,var(--gold-2),var(--gold),#e8c275);border-radius:6px;transition:width .4s ease;position:relative}
+.tqdm-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4));animation:tqdm-shine 1.2s ease infinite}
+@keyframes tqdm-shine{0%,100%{opacity:.3}50%{opacity:1}}
+.tqdm-eta{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--muted);font-family:monospace}
+.tqdm-steps{margin-top:14px;display:flex;flex-direction:column;gap:4px}
+.tqdm-step{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:8px;font-size:12.5px;transition:.3s}
+.tqdm-step .st-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:800}
+.tqdm-step.pending .st-icon{background:var(--bg);border:1.5px solid var(--line);color:var(--muted)}
+.tqdm-step.active{background:var(--gold-soft);border:1px solid rgba(200,162,75,.3)}
+.tqdm-step.active .st-icon{background:var(--gold-2);color:var(--navy);border:none}
+.tqdm-step.done .st-icon{background:var(--green);color:#fff;border:none}
+.tqdm-step.done{color:var(--muted)}
+.tqdm-step .st-label{font-weight:600;color:var(--navy)}
+.tqdm-step.done .st-label{color:var(--muted)}
+.tqdm-step .st-detail{margin-left:auto;font-size:11px;color:var(--muted);font-family:monospace}
+
+/* EVALUATION SECTION */
+.eval-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:600px){.eval-grid{grid-template-columns:1fr}}
+.eval-bar{margin-bottom:12px}
+.eval-bar .bar-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.eval-bar .bar-name{font-size:12.5px;font-weight:700;color:var(--navy)}
+.eval-bar .bar-val{font-family:var(--fd);font-weight:800;font-size:14px}
+.eval-bar .bar-track{height:8px;background:var(--bg);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.eval-bar .bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.eval-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:18px;text-align:center}
+.eval-card .ec-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700}
+.eval-card .ec-value{font-family:var(--fd);font-weight:800;font-size:28px;color:var(--navy);margin-top:4px}
+.eval-card .ec-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.eval-ring{width:80px;height:80px;margin:0 auto 8px}
+.log{margin-top:16px;background:var(--navy);color:#cbd5e1;border-radius:10px;padding:14px;font-family:monospace;font-size:12px;line-height:1.7;max-height:180px;overflow:auto;display:none}
+.log.show{display:block}
+.log .ok{color:#4ade80}.log .er{color:#f87171}.log .gd{color:#e8c275}
+
+/* BRAIN / NEURAL NETWORK LIVE */
+.brain-card{background:linear-gradient(160deg,#0B1220,#0F172A 55%,#131e35);border-color:#1e2b45;color:#fff}
+.brain-card h2{color:#fff}
+.brain-card h2 .ic{color:var(--gold-2)}
+.brain-card .desc{color:#94a3b8}
+.brain-wrap{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(120% 120% at 50% 0%,rgba(37,99,235,.10),transparent 60%);border:1px solid rgba(255,255,255,.06)}
+#brain-canvas{display:block;width:100%;height:320px}
+@media(max-width:600px){ #brain-canvas{height:240px} }
+.brain-overlay{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:14px 16px}
+.brain-stat{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.10);border-radius:30px;padding:6px 13px;font-size:12px;font-weight:700;color:#e2e8f0}
+.brain-stat .bs-dot{width:8px;height:8px;border-radius:50%;background:#64748b;transition:.3s}
+.brain-card.firing .brain-stat .bs-dot{background:var(--gold-2);box-shadow:0 0 10px var(--gold-2);animation:bs-pulse 1s ease-in-out infinite}
+@keyframes bs-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.brain-layers{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#64748b;font-weight:700}
+.brain-meter{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.06)}
+.brain-meter-fill{height:100%;width:8%;background:linear-gradient(90deg,var(--blue),var(--gold-2));transition:width .5s ease;box-shadow:0 0 10px rgba(212,175,55,.6)}
+/* Layout: campo + panel de métricas honestas (estilo imagen 1) */
+.brain-grid{display:grid;grid-template-columns:1fr 230px;gap:14px;align-items:stretch}
+@media(max-width:760px){.brain-grid{grid-template-columns:1fr}}
+.brain-metrics{display:flex;flex-direction:column;gap:12px;justify-content:center}
+.bmetric{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:11px 13px}
+.bm-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.bm-l{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#8ca0bd;font-weight:700}
+.bm-v{font-family:var(--fd,'Manrope');font-weight:800;font-size:18px;color:#fff;font-variant-numeric:tabular-nums}
+.bm-track{height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.bm-fill{height:100%;width:0;border-radius:4px;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.bm-fill.ok{background:linear-gradient(90deg,#16A34A,#4ade80)}
+.bm-fill.bad{background:linear-gradient(90deg,#DC2626,#f87171)}
+.bm-fill.blue{background:linear-gradient(90deg,#2563EB,#60a5fa)}
+.bm-fill.gold{background:linear-gradient(90deg,var(--gold,#C8A24B),var(--gold-2,#D4AF37))}
+.bm-sub{font-size:10.5px;color:#7c8ba6;margin-top:6px;line-height:1.35}
+@media(prefers-reduced-motion:reduce){.bm-fill{transition:none}}
 </style>
 </head>
 <body>
 
 {% if login %}
-<!-- ══════════ LOGIN ══════════ -->
 <div class="login-wrap">
   <div class="login">
     <div class="logo"><img src="/static/logo.png" alt="JNUS"/></div>
     <h1>JNUS<span class="ai">AI</span></h1>
-    <div class="sub">Plataforma de Administración</div>
+    <div class="sub">Plataforma de Administracion</div>
     <div class="badge"><svg class="ic"><use href="#i-shield"/></svg> Acceso restringido</div>
     {% if error %}<div class="err">{{ error }}</div>{% endif %}
     <form method="POST" action="/admin/login">
       <div class="field"><label>Usuario</label><input name="user" type="text" autocomplete="username" required autofocus/></div>
-      <div class="field"><label>Contraseña</label><input name="password" type="password" autocomplete="current-password" required/></div>
+      <div class="field"><label>Contrasena</label><input name="password" type="password" autocomplete="current-password" required/></div>
       <button class="btn btn-gold" type="submit"><svg class="ic"><use href="#i-lock"/></svg> Ingresar</button>
     </form>
-    <div class="hint">Solo personal autorizado. La app pública está en <a href="/app" style="color:var(--gold)">/app</a></div>
+    <div class="hint">Solo personal autorizado. La app publica esta en <a href="/app" style="color:var(--gold)">/app</a></div>
   </div>
 </div>
 
 {% else %}
-<!-- ══════════ DASHBOARD ══════════ -->
 <div class="topbar">
   <div class="logo"><img src="/static/logo.png" alt="JNUS"/></div>
   <div class="ttl">JNUS<span class="ai">AI</span></div>
   <div class="pill">Admin</div>
   <div class="right">
-    <a class="view-app" href="/app" target="_blank"><svg class="ic" style="width:15px;height:15px"><use href="#i-external"/></svg> Ver app pública</a>
+    <a class="view-app" href="/app" target="_blank"><svg class="ic" style="width:15px;height:15px"><use href="#i-external"/></svg> Ver app publica</a>
     <a class="logout" href="/admin/logout"><svg class="ic" style="width:15px;height:15px"><use href="#i-logout"/></svg> Salir</a>
   </div>
 </div>
 
 <div class="wrap">
 
-  <!-- MODELO ACTIVO -->
+  <!-- MODELO EN PRODUCCION -->
   <div class="card">
-    <h2><svg class="ic"><use href="#i-cpu"/></svg> Modelo en producción</h2>
-    <div class="desc">Este es el modelo que la app pública (<b>/app</b>) está usando ahora mismo.</div>
+    <h2><svg class="ic"><use href="#i-cpu"/></svg> Modelo en produccion</h2>
+    <div class="desc">Este es el modelo que la app publica (<b>/app</b>) esta usando ahora mismo.</div>
     <div class="metrics" id="model-metrics">
-      <div class="metric"><div class="l">Versión</div><div class="v sm" id="m-version">…</div></div>
-      <div class="metric"><div class="l">Entrenado</div><div class="v sm" id="m-date">…</div></div>
-      <div class="metric"><div class="l">Dataset</div><div class="v" id="m-size">…</div></div>
-      <div class="metric"><div class="l">Mejor modelo</div><div class="v sm" id="m-best">…</div></div>
-      <div class="metric"><div class="l">Accuracy</div><div class="v" id="m-acc">…</div></div>
-      <div class="metric"><div class="l">AUC</div><div class="v" id="m-auc">…</div></div>
+      <div class="metric"><div class="l">Version</div><div class="v sm" id="m-version">...</div></div>
+      <div class="metric"><div class="l">Entrenado</div><div class="v sm" id="m-date">...</div></div>
+      <div class="metric"><div class="l">Dataset</div><div class="v" id="m-size">...</div></div>
+      <div class="metric"><div class="l">Mejor modelo</div><div class="v sm" id="m-best">...</div></div>
+      <div class="metric"><div class="l">Accuracy</div><div class="v" id="m-acc">...</div></div>
+      <div class="metric"><div class="l">AUC</div><div class="v" id="m-auc">...</div></div>
     </div>
     <table class="mtable" id="m-table"></table>
+  </div>
+
+  <!-- EVALUACION DEL MODELO -->
+  <div class="card" id="eval-card" style="display:none">
+    <h2><svg class="ic"><use href="#i-shield"/></svg> Evaluacion del modelo</h2>
+    <div class="desc">Comparacion visual de rendimiento por algoritmo y metricas detalladas del modelo en produccion.</div>
+    <div class="eval-grid" id="eval-summary">
+      <div class="eval-card"><div class="ec-label">Features</div><div class="ec-value" id="ev-feats">-</div><div class="ec-sub">variables de entrada</div></div>
+      <div class="eval-card"><div class="ec-label">Tasa aprobacion</div><div class="ec-value" id="ev-approval">-</div><div class="ec-sub">del dataset de entrenamiento</div></div>
+      <div class="eval-card"><div class="ec-label">Aprobados</div><div class="ec-value" id="ev-pos" style="color:var(--green)">-</div><div class="ec-sub">clase positiva</div></div>
+      <div class="eval-card"><div class="ec-label">Rechazados</div><div class="ec-value" id="ev-neg" style="color:var(--red)">-</div><div class="ec-sub">clase negativa</div></div>
+    </div>
+    <div style="margin-top:20px">
+      <div style="font-family:var(--fd);font-weight:700;font-size:14px;color:var(--navy);margin-bottom:12px">AUC por modelo</div>
+      <div id="eval-auc-bars"></div>
+    </div>
+    <div style="margin-top:20px">
+      <div style="font-family:var(--fd);font-weight:700;font-size:14px;color:var(--navy);margin-bottom:12px">Accuracy por modelo</div>
+      <div id="eval-acc-bars"></div>
+    </div>
+  </div>
+
+  <!-- CEREBRO DE APRENDIZAJE EN VIVO -->
+  <div class="card brain-card">
+    <h2><svg class="ic"><use href="#i-cpu"/></svg> Cerebro de aprendizaje en vivo</h2>
+    <div class="desc">El modelo aprende con cada dato real que recolectas. Aquí ves su estado honesto:
+      qué tan preciso es, cuánto se equivoca y cuánto le falta para la meta. Se intensifica al reentrenar.</div>
+    <div class="brain-grid">
+      <div class="brain-wrap">
+        <canvas id="brain-canvas"></canvas>
+        <div class="brain-overlay">
+          <div class="brain-stat"><span class="bs-dot"></span><span id="brain-state">Aprendiendo en vivo</span></div>
+        </div>
+        <div class="brain-meter"><div class="brain-meter-fill" id="brain-activity"></div></div>
+      </div>
+      <div class="brain-metrics" id="brain-metrics">
+        <div class="bmetric"><div class="bm-top"><span class="bm-l">Precisión</span><span class="bm-v" id="bm-acc">—</span></div>
+          <div class="bm-track"><div class="bm-fill ok" id="bm-acc-bar"></div></div></div>
+        <div class="bmetric"><div class="bm-top"><span class="bm-l">Equivocación</span><span class="bm-v" id="bm-err">—</span></div>
+          <div class="bm-track"><div class="bm-fill bad" id="bm-err-bar"></div></div></div>
+        <div class="bmetric"><div class="bm-top"><span class="bm-l">Datos reales</span><span class="bm-v" id="bm-data">—</span></div>
+          <div class="bm-track"><div class="bm-fill blue" id="bm-data-bar"></div></div>
+          <div class="bm-sub" id="bm-data-sub"></div></div>
+        <div class="bmetric"><div class="bm-top"><span class="bm-l">Le falta</span><span class="bm-v" id="bm-gap">—</span></div>
+          <div class="bm-track"><div class="bm-fill gold" id="bm-gap-bar"></div></div>
+          <div class="bm-sub" id="bm-gap-sub"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ¿REALMENTE APRENDE? · CURVA DE PÉRDIDA REAL -->
+  <div class="card learn-card">
+    <h2><svg class="ic"><use href="#i-trending-down"/></svg> ¿Realmente aprende? · Curva de pérdida</h2>
+    <div class="desc">Pérdida (error) de la red neuronal en cada iteración del entrenamiento real.
+      Si <b>baja</b>, la red está aprendiendo. Es la misma curva <code>loss vs época</code> de un notebook.</div>
+    <div class="loss-head">
+      <div class="lh-item"><span class="lh-l">Iteraciones</span><span class="lh-v" id="ls-iters">—</span></div>
+      <div class="lh-item"><span class="lh-l">Pérdida inicial</span><span class="lh-v" id="ls-first">—</span></div>
+      <div class="lh-item"><span class="lh-l">Pérdida final</span><span class="lh-v" id="ls-last" style="color:#16A34A">—</span></div>
+      <div class="lh-item"><span class="lh-l">Reducción</span><span class="lh-v" id="ls-drop" style="color:#16A34A">—</span></div>
+    </div>
+    <div class="chart-body" id="loss-chart" style="min-height:200px"></div>
+    <div class="loss-foot" id="loss-verdict"></div>
+  </div>
+
+  <div class="grid">
+    <!-- PESOS Y SIGNOS · REGRESIÓN LOGÍSTICA -->
+    <div class="card">
+      <h2><svg class="ic"><use href="#i-chart"/></svg> Pesos y signos · Regresión Logística</h2>
+      <div class="desc">Coeficiente β de cada variable: <b style="color:#16A34A">+</b> sube la aprobación,
+        <b style="color:#DC2626">−</b> la baja. La magnitud = cuánto pesa. β₀ (sesgo) = <span id="lc-intercept">—</span>.</div>
+      <div class="chart-body" id="coef-chart"></div>
+    </div>
+    <!-- IMPORTANCIA DE VARIABLES · RANDOM FOREST -->
+    <div class="card">
+      <h2><svg class="ic"><use href="#i-network"/></svg> Importancia de variables · Random Forest</h2>
+      <div class="desc">Cuánto usa cada variable el bosque para decidir (reduce sobreajuste promediando árboles).</div>
+      <div class="chart-body" id="imp-chart"></div>
+    </div>
+  </div>
+
+  <!-- METODOLOGÍA · ECUACIONES Y CÓMO SE RELACIONAN LOS MODELOS -->
+  <div class="card eq-card">
+    <h2><svg class="ic"><use href="#i-flask"/></svg> Metodología · ecuaciones y orden de los modelos</h2>
+    <div class="desc">El resultado final es el <b>promedio (ensemble)</b> de 4 modelos que se complementan, en este orden:</div>
+    <a href="/metodologia" target="_blank" class="btn-mini gold" style="display:inline-flex;margin-bottom:14px;text-decoration:none">
+      <svg class="ic"><use href="#i-external"/></svg> Abrir página interactiva (para compartir con el tutor)</a>
+    <div class="eq-flow">
+      <span class="eq-pill">1 · Logit</span><span class="eq-arr">→</span>
+      <span class="eq-pill">2 · XGBoost</span><span class="eq-arr">→</span>
+      <span class="eq-pill">3 · Random Forest</span><span class="eq-arr">→</span>
+      <span class="eq-pill">4 · Red Neuronal</span><span class="eq-arr">→</span>
+      <span class="eq-pill gold">Ensemble</span>
+    </div>
+    <div class="eq-block">
+      <div class="eq-h">1 · Regresión Logística — base probabilística (peso + signo)</div>
+      <div class="eq-math">P(aprobar | x) = σ(β₀ + β₁x₁ + β₂x₂ + … + βₙxₙ)</div>
+      <div class="eq-math">σ(z) = 1 / (1 + e<sup>−z</sup>)  ·  función sigmoide (0→1, nunca colapsa a solo 0/1)</div>
+      <div class="eq-note">Se ajusta por <b>máxima verosimilitud</b>: ℓ(β) = Σ [ yᵢ·log(pᵢ) + (1−yᵢ)·log(1−pᵢ) ]. Cada βᵢ es el <b>peso</b> y su signo el <b>signo esperado</b> de la variable.</div>
+    </div>
+    <div class="eq-block">
+      <div class="eq-h">2 · XGBoost — predicción total con gradiente y hessiano</div>
+      <div class="eq-math">ŷ = Σ<sub>k</sub> f<sub>k</sub>(x)  ·  árboles aditivos</div>
+      <div class="eq-math">Obj = Σᵢ L(yᵢ, ŷᵢ) + Σ<sub>k</sub> Ω(f<sub>k</sub>)  ·  peso óptimo de hoja: w* = −G / (H + λ)</div>
+      <div class="eq-note">Usa el <b>gradiente</b> g (1ª derivada) y el <b>hessiano</b> h (2ª derivada) de la función objetivo → aprende rápido y preciso, con regularización Ω contra el sobreajuste.</div>
+    </div>
+    <div class="eq-block">
+      <div class="eq-h">3 · Random Forest — estabiliza y evita sobreajuste</div>
+      <div class="eq-math">P = (1/B) Σ<sub>b=1</sub><sup>B</sup> T<sub>b</sub>(x)  ·  promedio de B árboles (bagging)</div>
+      <div class="eq-note">Promediar muchos árboles distintos reduce la varianza → el aprendizaje queda lo más cercano y robusto posible.</div>
+    </div>
+    <div class="eq-block">
+      <div class="eq-h">4 · Red Neuronal — GELU en ocultas, Sigmoide en salida</div>
+      <div class="eq-math">a<sup>(l)</sup> = GELU( W<sup>(l)</sup> a<sup>(l−1)</sup> + b<sup>(l)</sup> )  ·  capas <span id="eq-arch">31 → 64 → 32 → 1</span></div>
+      <div class="eq-math">GELU(z) = 0.5·z·(1 + tanh[ √(2/π) ( z + 0.044715 z³ ) ])  ·  salida: σ(z)</div>
+      <div class="eq-note">Las capas ocultas usan <b>GELU</b> (suave y derivable): acelera el descenso por
+        <b>gradiente</b> y —a diferencia de ReLU— <b>no anula neuronas a 0</b>. La <b>sigmoide</b> solo en la
+        salida da una probabilidad continua (no colapsa a 0/1 duro). Si una variable es más significativa, su
+        <b>peso W</b> es mayor. Entrena por gradiente con early-stopping; abajo verificamos que aprende y que
+        ninguna neurona queda muerta.</div>
+      <div class="eq-note" id="nn-dead-note" style="margin-top:6px">Prueba de neuronas muertas: <span id="nn-dead-val">cargando…</span></div>
+    </div>
+    <div class="eq-block gold">
+      <div class="eq-h">Resultado final — Ensemble</div>
+      <div class="eq-math">P<sub>final</sub> = ¼ ( P<sub>logit</sub> + P<sub>xgb</sub> + P<sub>rf</sub> + P<sub>nn</sub> )</div>
+    </div>
   </div>
 
   <div class="grid">
     <!-- SUBIR + REENTRENAR -->
     <div class="card">
       <h2><svg class="ic"><use href="#i-upload"/></svg> Subir dataset y reentrenar</h2>
-      <div class="desc">CSV, Excel o SPSS (.SAV). Se entrenan los 4 modelos, se elige el mejor y se publica automáticamente.</div>
+      <div class="desc">CSV, Excel o SPSS (.SAV). Se entrenan los 4 modelos, se elige el mejor y se publica automaticamente.</div>
       <div class="drop" id="drop" onclick="document.getElementById('file').click()">
         <svg class="ic"><use href="#i-upload"/></svg>
         <b>Haz clic para seleccionar</b>
-        <p id="drop-name">o arrastra tu archivo aquí</p>
+        <p id="drop-name">o arrastra tu archivo aqui</p>
         <div class="fmt"><span>.CSV</span><span>.XLSX</span><span>.XLS</span><span>.SAV</span></div>
       </div>
       <input type="file" id="file" accept=".csv,.xlsx,.xls,.sav" onchange="onFile(this.files[0])"/>
@@ -166,9 +367,23 @@ a{color:inherit;text-decoration:none}
         <button class="btn btn-gold" id="btn-train" onclick="doRetrain()" disabled style="flex:1"><svg class="ic"><use href="#i-cpu"/></svg> Entrenar y publicar</button>
         <button class="btn btn-light" onclick="doSeed()" style="flex:1"><svg class="ic"><use href="#i-refresh"/></svg> Modelo demo</button>
       </div>
+
+      <!-- TQDM PROGRESS BAR -->
+      <div class="tqdm" id="tqdm">
+        <div class="tqdm-header">
+          <div class="label"><span class="spin"></span> Entrenando pipeline...</div>
+          <div class="pct" id="tqdm-pct">0%</div>
+        </div>
+        <div class="tqdm-track"><div class="tqdm-fill" id="tqdm-fill" style="width:0%"></div></div>
+        <div class="tqdm-eta">
+          <span id="tqdm-step-label">Preparando...</span>
+          <span id="tqdm-counter">0/11</span>
+        </div>
+        <div class="tqdm-steps" id="tqdm-steps"></div>
+      </div>
+
       <div class="cols">
         <span style="background:var(--gold-soft);color:var(--slate);border-color:#EBDFBC;width:100%;text-align:center">Columnas requeridas:</span>
-        {% for c in [] %}{% endfor %}
       </div>
       <div class="cols" id="req-cols"></div>
       <div class="log" id="log"></div>
@@ -176,20 +391,94 @@ a{color:inherit;text-decoration:none}
 
     <!-- ARQUITECTURA -->
     <div class="card">
-      <h2><svg class="ic"><use href="#i-network"/></svg> Arquitectura</h2>
-      <div class="desc">Un solo backend alimenta ambos frontends.</div>
-      <div class="flow">
-        <span class="node">Subir dataset</span><span class="ar">→</span>
-        <span class="node">Entrenar 4 modelos</span><span class="ar">→</span>
-        <span class="node">Elegir mejor</span><span class="ar">→</span>
-        <span class="node">jnus_bundle.pkl</span><span class="ar">→</span>
-        <span class="node" style="background:var(--gold-soft)">App pública usa el nuevo modelo</span>
+      <h2><svg class="ic"><use href="#i-network"/></svg> Pipeline de produccion</h2>
+      <div class="desc">Flujo completo desde la ingesta hasta la prediccion en la app publica.</div>
+      <div style="display:flex;flex-direction:column;gap:6px" id="pipeline-visual">
+        <div class="pipe-step"><div class="pipe-num">1</div><div class="pipe-info"><div class="pipe-title">Ingesta de datos</div><div class="pipe-desc">Admin sube CSV / Excel / SAV</div></div></div>
+        <div class="pipe-step"><div class="pipe-num">2</div><div class="pipe-info"><div class="pipe-title">Limpieza</div><div class="pipe-desc">Validacion de columnas y tipos</div></div></div>
+        <div class="pipe-step"><div class="pipe-num">3</div><div class="pipe-info"><div class="pipe-title">Feature Engineering</div><div class="pipe-desc">One-hot encoding de categoricas</div></div></div>
+        <div class="pipe-step"><div class="pipe-num">4</div><div class="pipe-info"><div class="pipe-title">Train / Test Split</div><div class="pipe-desc">80% entrenamiento, 20% evaluacion</div></div></div>
+        <div class="pipe-step"><div class="pipe-num">5</div><div class="pipe-info"><div class="pipe-title">Escalado</div><div class="pipe-desc">StandardScaler sobre features</div></div></div>
+        <div class="pipe-step" style="border-left:3px solid var(--blue)"><div class="pipe-num" style="background:var(--blue)">6</div><div class="pipe-info"><div class="pipe-title">Entrenamiento de 4 modelos</div><div class="pipe-desc">Logistica, Random Forest, XGBoost, MLP</div></div></div>
+        <div class="pipe-step"><div class="pipe-num">7</div><div class="pipe-info"><div class="pipe-title">Evaluacion</div><div class="pipe-desc">AUC + Accuracy sobre test set</div></div></div>
+        <div class="pipe-step"><div class="pipe-num">8</div><div class="pipe-info"><div class="pipe-title">Seleccion del mejor</div><div class="pipe-desc">Mayor AUC se elige como principal</div></div></div>
+        <div class="pipe-step" style="border-left:3px solid var(--green)"><div class="pipe-num" style="background:var(--green)">9</div><div class="pipe-info"><div class="pipe-title">Publicacion</div><div class="pipe-desc">jnus_bundle.pkl -> /app usa el modelo</div></div></div>
       </div>
       <div style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.7">
-        <b style="color:var(--navy)">/admin</b> — privado, requiere login. Subida de datos y entrenamiento.<br/>
-        <b style="color:var(--navy)">/app</b> — público. Solo evaluación crediticia (inferencia). Sin acceso a herramientas admin.<br/><br/>
-        El reentrenamiento <b>no requiere redeploy</b>: la app recoge el nuevo modelo automáticamente.
+        <b style="color:var(--navy)">/admin</b> -- privado, requiere login.<br/>
+        <b style="color:var(--navy)">/app</b> -- publico, solo inferencia.<br/>
+        El reentrenamiento <b>no requiere redeploy</b>.
       </div>
+    </div>
+  </div>
+
+  <!-- USUARIOS REGISTRADOS -->
+  <div class="card">
+    <h2><svg class="ic"><use href="#i-users"/></svg> Usuarios registrados</h2>
+    <div class="desc">Personas que se registraron con su nombre o apodo en la app pública.</div>
+    <div class="metrics" style="grid-template-columns:1fr 1fr;margin-bottom:16px">
+      <div class="metric"><div class="l">Total usuarios</div><div class="v" id="u-count">0</div></div>
+      <div class="metric"><div class="l">Visitas totales</div><div class="v" id="u-visits">0</div></div>
+    </div>
+    <table class="mtable" id="u-table"></table>
+    <div id="u-empty" style="display:none;color:var(--muted);font-size:13px;text-align:center;padding:18px">
+      Aún no hay usuarios registrados.
+    </div>
+  </div>
+
+  <!-- BASE DE DATOS · EVALUACIONES RECOPILADAS -->
+  <div class="card">
+    <h2><svg class="ic"><use href="#i-database"/></svg> Base de datos · Evaluaciones</h2>
+    <div class="desc">Cada encuesta y resultado que realizan los usuarios se guarda aquí.
+      Con estos datos puedes reentrenar el modelo para que aprenda con más casos reales.</div>
+    <div class="metrics" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:16px">
+      <div class="metric"><div class="l">Evaluaciones</div><div class="v" id="db-total">0</div></div>
+      <div class="metric"><div class="l">Aprobados</div><div class="v" id="db-appr" style="color:#16A34A">0</div></div>
+      <div class="metric"><div class="l">Rechazados</div><div class="v" id="db-rej" style="color:#DC2626">0</div></div>
+      <div class="metric"><div class="l">Prob. media</div><div class="v" id="db-avg">—</div></div>
+    </div>
+    <div class="db-charts" id="db-charts" style="display:none">
+      <div class="chartbox">
+        <div class="chart-title"><svg class="ic"><use href="#i-shield"/></svg> Distribución de riesgo</div>
+        <div class="chart-body" id="chart-risk"></div>
+      </div>
+      <div class="chartbox">
+        <div class="chart-title"><svg class="ic"><use href="#i-network"/></svg> Aprobación por tipo de crédito</div>
+        <div class="chart-body" id="chart-types"></div>
+      </div>
+      <div class="chartbox chartbox-wide">
+        <div class="chart-title"><svg class="ic"><use href="#i-cpu"/></svg> Tendencia de evaluaciones</div>
+        <div class="chart-body" id="chart-trend"></div>
+      </div>
+    </div>
+    <div class="db-actions">
+      <a class="btn-mini" id="db-export" href="/api/admin/export_dataset">
+        <svg class="ic"><use href="#i-download"/></svg> Exportar CSV</a>
+      <a class="btn-mini" id="db-download" href="/api/admin/download_db">
+        <svg class="ic"><use href="#i-database"/></svg> Descargar base SQL (.db)</a>
+      <button class="btn-mini gold" id="db-retrain" onclick="retrainFromDb()">
+        <svg class="ic"><use href="#i-refresh"/></svg> Reentrenar con estos datos</button>
+    </div>
+    <div id="db-msg" style="display:none;margin:12px 0;padding:11px 14px;border-radius:10px;font-size:13px"></div>
+
+    <!-- Esquema SQL (vista web) + cómo cambiar a una base real -->
+    <div class="db-schema" id="db-schema"></div>
+    <details class="db-swap">
+      <summary>¿Cómo poner mi base de datos real?</summary>
+      <ol>
+        <li><b>Inspeccionar:</b> descarga <code>janus.db</code> (botón de arriba) y ábrela con
+          <a href="https://sqlitebrowser.org" target="_blank" rel="noopener">DB Browser for SQLite</a>.</li>
+        <li><b>Opción A (recomendada):</b> sube tu dataset real en <i>Subir dataset y reentrenar</i>
+          (CSV/Excel con las columnas del modelo) → reentrena con datos reales.</li>
+        <li><b>Opción B (reemplazar la base):</b> cierra la app y reemplaza el archivo
+          <code id="db-path">data/janus.db</code> por tu SQLite (mismo esquema), o define la
+          variable <code>JNUS_DB_PATH</code> apuntando a tu archivo.</li>
+      </ol>
+    </details>
+
+    <table class="mtable" id="db-table"></table>
+    <div id="db-empty" style="display:none;color:var(--muted);font-size:13px;text-align:center;padding:18px">
+      Aún no hay evaluaciones. Cuando los usuarios usen la app, aparecerán aquí.
     </div>
   </div>
 
@@ -198,42 +487,308 @@ a{color:inherit;text-decoration:none}
 
 <!-- icon sprite -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <g id="i-shield"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></g>
-  <g id="i-lock"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g>
-  <g id="i-cpu"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></g>
-  <g id="i-upload"><path d="M12 19V7"/><path d="M7 12l5-5 5 5"/><path d="M5 21h14"/></g>
-  <g id="i-refresh"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></g>
-  <g id="i-network"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12l-5 5M12 12l5 5"/></g>
-  <g id="i-logout"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></g>
-  <g id="i-external"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></g>
+  <symbol viewBox="0 0 24 24" id="i-shield"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-lock"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-cpu"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-upload"><path d="M12 19V7"/><path d="M7 12l5-5 5 5"/><path d="M5 21h14"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-refresh"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-network"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12l-5 5M12 12l5 5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-logout"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-external"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-check"><path d="M20 6L9 17l-5-5"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-users"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 21a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.8M22 21a6.5 6.5 0 0 0-5-6.3"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-database"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-download"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-trending-down"><path d="M3 7l6 6 4-4 7 7"/><path d="M14 16h6v-6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-chart"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></symbol>
+  <symbol viewBox="0 0 24 24" id="i-flask"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/></symbol>
 </defs></svg>
 
+<style>
+/* Gráficos del dashboard (data-dense, SVG nativo) */
+.db-charts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:4px 0 18px}
+.chartbox{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--card)}
+.chartbox-wide{grid-column:1/-1}
+.chart-title{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:700;
+  font-size:13px;color:var(--navy);margin-bottom:12px}
+.chart-title .ic{width:16px;height:16px;color:var(--gold)}
+.chart-body{min-height:60px}
+.cbar-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:12px}
+.cbar-row .lbl{width:96px;flex-shrink:0;color:var(--slate);font-weight:600;text-align:right;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbar-track{flex:1;height:18px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative}
+.cbar-fill{height:100%;border-radius:6px;width:0;transition:width .7s cubic-bezier(.16,1,.3,1)}
+.cbar-row .num{width:64px;flex-shrink:0;font-variant-numeric:tabular-nums;color:var(--navy);font-weight:700}
+.donut-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.donut-legend{display:flex;flex-direction:column;gap:7px;font-size:12px}
+.donut-legend .li{display:flex;align-items:center;gap:8px;color:var(--slate)}
+.donut-legend .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.donut-legend b{color:var(--navy);font-variant-numeric:tabular-nums}
+.spark-svg{width:100%;height:70px;overflow:visible}
+.spark-svg .pt{transition:r .15s}
+.chart-empty{color:var(--muted);font-size:12.5px;text-align:center;padding:16px}
+@media(max-width:640px){.db-charts{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.cbar-fill{transition:none}}
+
+/* ── ¿Aprende? · curva de pérdida ── */
+.learn-card .desc code{background:var(--bg);padding:1px 6px;border-radius:5px;font-size:11.5px}
+.loss-head{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0 14px}
+.lh-item{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-align:center}
+.lh-l{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.lh-v{display:block;font-family:var(--fd);font-weight:800;font-size:20px;color:var(--navy);margin-top:4px}
+.loss-svg{width:100%;height:210px;overflow:visible}
+.loss-foot{margin-top:10px;font-size:12.5px;color:var(--slate);background:var(--green-soft);
+  border:1px solid #C7EAD4;border-radius:10px;padding:10px 13px;display:none}
+.loss-foot.show{display:block}
+.loss-foot.bad{background:#FCEAEA;border-color:#F3C9C9;color:#9B1C1C}
+/* ── Coeficientes logit (signo + peso) ── */
+.coef-row{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:12px}
+.coef-row .cl{width:120px;flex-shrink:0;text-align:right;color:var(--slate);font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coef-mid{flex:1;position:relative;height:18px;background:var(--bg);border-radius:5px}
+.coef-mid .zero{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line)}
+.coef-bar{position:absolute;top:3px;height:12px;border-radius:4px;width:0;transition:width .7s cubic-bezier(.16,1,.3,1)}
+.coef-row .cv{width:48px;flex-shrink:0;font-variant-numeric:tabular-nums;font-weight:700}
+/* ── Ecuaciones / metodología ── */
+.eq-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:4px 0 16px}
+.eq-pill{background:var(--navy);color:#fff;font-family:var(--fd);font-weight:700;font-size:12px;
+  padding:7px 12px;border-radius:30px}
+.eq-pill.gold{background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#1a1407}
+.eq-arr{color:var(--muted-2);font-weight:800}
+.eq-block{background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--blue);
+  border-radius:12px;padding:13px 15px;margin-bottom:11px}
+.eq-block.gold{border-left-color:var(--gold-2);background:var(--gold-soft)}
+.eq-h{font-family:var(--fd);font-weight:800;font-size:14px;color:var(--navy);margin-bottom:8px}
+.eq-math{font-family:'Fira Code','Consolas',monospace;font-size:13px;color:var(--slate);
+  background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 11px;margin:5px 0;overflow-x:auto}
+.eq-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:6px}
+/* ── Esquema SQL + swap ── */
+.db-schema{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.dbs-tbl{border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:var(--bg)}
+.dbs-tbl .dbs-h{display:flex;justify-content:space-between;font-family:var(--fd);font-weight:700;
+  font-size:13px;color:var(--navy);margin-bottom:4px}
+.dbs-tbl .dbs-c{font-size:11px;color:var(--muted);line-height:1.6}
+.dbs-tbl .dbs-c span{display:inline-block;background:var(--card);border:1px solid var(--line);
+  border-radius:5px;padding:1px 6px;margin:2px 3px 0 0}
+.db-swap{margin:8px 0 4px;font-size:12.5px;color:var(--slate)}
+.db-swap summary{cursor:pointer;font-weight:700;color:var(--navy)}
+.db-swap ol{margin:10px 0 0 18px;line-height:1.7}
+.db-swap code{background:var(--bg);padding:1px 6px;border-radius:5px;font-size:11.5px}
+@media(max-width:640px){.loss-head{grid-template-columns:repeat(2,1fr)}}
+/* Acciones de la tarjeta Base de datos */
+.db-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.btn-mini{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:10px;
+  border:1px solid var(--line);background:var(--card);color:var(--navy);font-family:var(--fd);
+  font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;transition:.2s}
+.btn-mini:hover{border-color:var(--gold);background:var(--gold-soft)}
+.btn-mini .ic{width:17px;height:17px}
+.btn-mini.gold{background:linear-gradient(135deg,var(--gold),var(--gold-2));border-color:var(--gold);color:#1a1407}
+.btn-mini.gold:hover{filter:brightness(1.05)}
+.btn-mini:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.mini-spin{width:14px;height:14px;border:2px solid rgba(0,0,0,.25);border-top-color:#1a1407;
+  border-radius:50%;display:inline-block;animation:mspin .7s linear infinite}
+@keyframes mspin{to{transform:rotate(360deg)}}
+.pipe-step{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);transition:.2s}
+.pipe-step:hover{border-color:var(--gold);background:var(--gold-soft)}
+.pipe-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:800;font-size:12px;flex-shrink:0}
+.pipe-info{flex:1}
+.pipe-title{font-family:var(--fd);font-weight:700;font-size:13px;color:var(--navy)}
+.pipe-desc{font-size:11.5px;color:var(--muted)}
+</style>
+
 {% if not login %}
+<script src="/static/vendor/three.min.js"></script>
 <script>
 const REQUIRED = {{ required|tojson }};
+const PIPELINE = [
+  {id:'ingest',label:'Ingesta de datos'},
+  {id:'clean',label:'Limpieza de datos'},
+  {id:'engineer',label:'Feature engineering'},
+  {id:'split',label:'Train / Test split'},
+  {id:'scale',label:'Escalado'},
+  {id:'train_lr',label:'Regresion Logistica'},
+  {id:'train_rf',label:'Random Forest'},
+  {id:'train_xgb',label:'XGBoost'},
+  {id:'train_nn',label:'Red Neuronal (MLP)'},
+  {id:'evaluate',label:'Evaluacion'},
+  {id:'persist',label:'Persistir modelo'}
+];
 let picked = null;
+let trainStart = 0;
 
 document.getElementById('req-cols').innerHTML = REQUIRED.map(c=>`<span>${c}</span>`).join('');
+
+function barColor(val){ return val>=0.85?'var(--green)':val>=0.7?'var(--gold-2)':'var(--red)'; }
 
 async function loadInfo(){
   try{
     const d = await (await fetch('/api/model_info')).json();
-    document.getElementById('m-version').textContent = d.version || '—';
-    document.getElementById('m-date').textContent = d.training_date || '—';
+    document.getElementById('m-version').textContent = d.version || '-';
+    document.getElementById('m-date').textContent = d.training_date || '-';
     document.getElementById('m-size').textContent = (d.dataset_size||0).toLocaleString();
-    document.getElementById('m-best').textContent = d.best_algorithm || '—';
-    document.getElementById('m-acc').textContent = d.best_accuracy!=null ? (d.best_accuracy*100).toFixed(1)+'%' : '—';
-    document.getElementById('m-auc').textContent = d.best_auc!=null ? d.best_auc.toFixed(3) : '—';
+    document.getElementById('m-best').textContent = d.best_algorithm || '-';
+    document.getElementById('m-acc').textContent = d.best_accuracy!=null ? (d.best_accuracy*100).toFixed(1)+'%' : '-';
+    document.getElementById('m-auc').textContent = d.best_auc!=null ? d.best_auc.toFixed(3) : '-';
+
     const mt = d.metrics||{};
     let rows = '<tr><th>Modelo</th><th>AUC</th><th>Accuracy</th></tr>';
     const bestName = d.best_algorithm;
     for(const [k,v] of Object.entries(mt)){
       const auc = (typeof v==='object'? v.auc : v);
       const acc = (typeof v==='object'? v.accuracy : null);
-      rows += `<tr class="${k===bestName?'best':''}"><td>${k}</td><td>${auc!=null?Number(auc).toFixed(3):'—'}</td><td>${acc!=null?(acc*100).toFixed(1)+'%':'—'}</td></tr>`;
+      rows += `<tr class="${k===bestName?'best':''}"><td>${k}</td><td>${auc!=null?Number(auc).toFixed(3):'-'}</td><td>${acc!=null?(acc*100).toFixed(1)+'%':'-'}</td></tr>`;
     }
     document.getElementById('m-table').innerHTML = rows;
-  }catch(e){}
+
+    // Evaluation section
+    const evalCard = document.getElementById('eval-card');
+    if(Object.keys(mt).length > 0){
+      evalCard.style.display = 'block';
+      document.getElementById('ev-feats').textContent = d.n_features || '-';
+      document.getElementById('ev-approval').textContent = d.approval_rate != null ? d.approval_rate+'%' : '-';
+      const cd = d.class_distribution || {};
+      document.getElementById('ev-pos').textContent = cd.aprobado != null ? cd.aprobado.toLocaleString() : '-';
+      document.getElementById('ev-neg').textContent = cd.rechazado != null ? cd.rechazado.toLocaleString() : '-';
+
+      // AUC bars
+      let aucHtml = '';
+      let accHtml = '';
+      for(const [k,v] of Object.entries(mt)){
+        const auc = typeof v==='object'? v.auc : v;
+        const acc = typeof v==='object'? v.accuracy : 0;
+        const isBest = k === bestName;
+        aucHtml += `<div class="eval-bar"><div class="bar-header"><span class="bar-name">${isBest?'<b style="color:var(--gold)">&#9733;</b> ':''}${k}</span><span class="bar-val" style="color:${barColor(auc)}">${(auc*100).toFixed(1)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${auc*100}%;background:${barColor(auc)}"></div></div></div>`;
+        accHtml += `<div class="eval-bar"><div class="bar-header"><span class="bar-name">${isBest?'<b style="color:var(--gold)">&#9733;</b> ':''}${k}</span><span class="bar-val" style="color:${barColor(acc)}">${(acc*100).toFixed(1)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${acc*100}%;background:${barColor(acc)}"></div></div></div>`;
+      }
+      document.getElementById('eval-auc-bars').innerHTML = aucHtml;
+      document.getElementById('eval-acc-bars').innerHTML = accHtml;
+    }
+  }catch(e){ console.error(e); }
+}
+
+async function loadUsers(){
+  try{
+    const d = await (await fetch('/api/admin/users')).json();
+    document.getElementById('u-count').textContent = (d.count||0).toLocaleString();
+    document.getElementById('u-visits').textContent = (d.total_visits||0).toLocaleString();
+    const tbl = document.getElementById('u-table');
+    const empty = document.getElementById('u-empty');
+    if(!d.users || !d.users.length){ tbl.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    const fmt = s => { try{ return new Date(s).toLocaleString('es',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch{ return s||'-'; } };
+    let rows = '<tr><th>Nombre / Apodo</th><th>Registrado</th><th>Última visita</th><th>Visitas</th></tr>';
+    for(const u of d.users){
+      rows += `<tr><td><b>${(u.name||'-').replace(/</g,'&lt;')}</b></td><td>${fmt(u.created_at)}</td><td>${fmt(u.last_seen)}</td><td>${u.visits||1}</td></tr>`;
+    }
+    tbl.innerHTML = rows;
+  }catch(e){ console.error(e); }
+}
+
+// ── BASE DE DATOS · evaluaciones recopiladas ──
+async function loadDb(){
+  try{
+    const s = await (await fetch('/api/admin/db_stats')).json();
+    document.getElementById('db-total').textContent = (s.total_evaluaciones||0).toLocaleString();
+    document.getElementById('db-appr').textContent  = (s.aprobados||0).toLocaleString();
+    document.getElementById('db-rej').textContent   = (s.rechazados||0).toLocaleString();
+    document.getElementById('db-avg').textContent   = s.total_evaluaciones ? Math.round((s.avg_probability||0)*100)+'%' : '—';
+    document.getElementById('db-retrain').disabled = (s.total_evaluaciones||0) < 50;
+
+    // Gráficos (solo si hay datos)
+    const charts = document.getElementById('db-charts');
+    if(s.total_evaluaciones > 0){ charts.style.display='grid'; renderCharts(s); }
+    else { charts.style.display='none'; }
+
+    const d = await (await fetch('/api/admin/evaluations?limit=40')).json();
+    const tbl = document.getElementById('db-table');
+    const empty = document.getElementById('db-empty');
+    if(!d.evaluations || !d.evaluations.length){ tbl.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    const fmt = s => { try{ return new Date(s).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }catch{ return s||'-'; } };
+    let rows = '<tr><th>Fecha</th><th>Usuario</th><th>Crédito</th><th>Ingresos</th><th>Prob.</th><th>Decisión</th></tr>';
+    for(const e of d.evaluations){
+      const col = e.aprobado ? 'var(--ok,#16A34A)' : '#DC2626';
+      rows += `<tr><td>${fmt(e.created_at)}</td><td>${(e.user_name||'—').replace(/</g,'&lt;')}</td>`+
+        `<td>${(e.tipo_credito||'—')}</td><td>$${Math.round(e.ingresos_mensuales||0).toLocaleString()}</td>`+
+        `<td style="font-weight:800;color:${col}">${Math.round((e.probability||0)*100)}%</td>`+
+        `<td><span style="font-size:11px;font-weight:700;color:${col}">${e.decision||'—'}</span></td></tr>`;
+    }
+    tbl.innerHTML = rows;
+  }catch(e){ console.error(e); }
+}
+
+// ── GRÁFICOS SVG nativos (sin librería · data-dense dashboard) ──
+function renderCharts(s){
+  // 1) Donut de distribución de riesgo (verde/ámbar/rojo)
+  const RISK = {alta:{c:'#16A34A',n:'Riesgo bajo (apto)'}, media:{c:'#D97706',n:'Riesgo medio'}, baja:{c:'#DC2626',n:'Riesgo alto'}};
+  let risk = (s.por_riesgo||[]).filter(r=>RISK[r.riesgo]);
+  if(!risk.length){ // fallback: aprobados/rechazados
+    risk = [{riesgo:'alta',count:s.aprobados||0},{riesgo:'baja',count:s.rechazados||0}].filter(r=>r.count);
+  }
+  const totalR = risk.reduce((a,r)=>a+r.count,0) || 1;
+  const R=52, C=2*Math.PI*R; let off=0;
+  const segs = risk.map(r=>{
+    const frac=r.count/totalR, len=C*frac;
+    const seg=`<circle cx="70" cy="70" r="${R}" fill="none" stroke="${RISK[r.riesgo].c}" stroke-width="20"
+      stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;
+    off+=len; return seg;
+  }).join('');
+  const legend = risk.map(r=>`<div class="li"><span class="dot" style="background:${RISK[r.riesgo].c}"></span>
+    ${RISK[r.riesgo].n} <b>${r.count}</b> (${Math.round(r.count/totalR*100)}%)</div>`).join('');
+  document.getElementById('chart-risk').innerHTML = `<div class="donut-wrap">
+    <svg width="140" height="140" viewBox="0 0 140 140" role="img" aria-label="Distribución de riesgo">
+      ${segs}<text x="70" y="66" text-anchor="middle" font-size="26" font-weight="800" fill="#0F172A" font-family="Fira Code,monospace">${totalR}</text>
+      <text x="70" y="84" text-anchor="middle" font-size="10" fill="#64748B">total</text></svg>
+    <div class="donut-legend">${legend}</div></div>`;
+
+  // 2) Barras de aprobación por tipo de crédito
+  const types = (s.por_tipo_credito||[]).slice(0,6);
+  const maxT = Math.max(...types.map(t=>t.count), 1);
+  document.getElementById('chart-types').innerHTML = types.length ? types.map(t=>{
+    const rate = t.count ? Math.round((t.aprobados/t.count)*100) : 0;
+    const col = rate>=66?'#16A34A':rate>=40?'#D97706':'#DC2626';
+    return `<div class="cbar-row"><span class="lbl" title="${t.tipo}">${t.tipo||'—'}</span>
+      <div class="cbar-track"><div class="cbar-fill" style="background:${col}"></div></div>
+      <span class="num">${t.aprobados}/${t.count} · ${rate}%</span></div>`;
+  }).join('') : '<div class="chart-empty">Sin datos por tipo.</div>';
+  // animar el ancho tras pintar
+  requestAnimationFrame(()=>{ document.querySelectorAll('#chart-types .cbar-fill').forEach((el,i)=>{
+    el.style.width = Math.max(6,(types[i].count/maxT)*100)+'%'; }); });
+
+  // 3) Sparkline de tendencia (evaluaciones por día)
+  const tr = s.tendencia||[];
+  const box=document.getElementById('chart-trend');
+  if(tr.length<2){ box.innerHTML='<div class="chart-empty">La tendencia aparecerá con más días de uso.</div>'; return; }
+  const W=560,H=70,maxC=Math.max(...tr.map(d=>d.count),1);
+  const X=i=>(i/(tr.length-1))*W, Y=v=>H-(v/maxC)*(H-10)-4;
+  const path=tr.map((d,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(d.count).toFixed(1)}`).join(' ');
+  const area=`M0 ${H} L${path.slice(1)} L${W} ${H} Z`;
+  const dots=tr.map((d,i)=>`<circle class="pt" cx="${X(i).toFixed(1)}" cy="${Y(d.count).toFixed(1)}" r="3" fill="#1E40AF"><title>${d.dia}: ${d.count} eval · ${Math.round(d.prob*100)}% prob</title></circle>`).join('');
+  box.innerHTML = `<svg class="spark-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Tendencia de evaluaciones por día">
+    <defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E40AF" stop-opacity="0.22"/><stop offset="1" stop-color="#1E40AF" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#spg)"/><path d="${path}" fill="none" stroke="#1E40AF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
+}
+
+async function retrainFromDb(){
+  const btn = document.getElementById('db-retrain');
+  const msg = document.getElementById('db-msg');
+  btn.disabled = true; btn.innerHTML = '<span class="mini-spin"></span> Reentrenando…';
+  msg.style.display='block'; msg.style.background='var(--gold-soft)'; msg.style.color='var(--slate)';
+  msg.textContent = 'Entrenando los 4 modelos con las evaluaciones recopiladas…';
+  try{
+    const r = await fetch('/api/admin/retrain_from_db',{method:'POST'});
+    const d = await r.json();
+    if(d.error){ msg.style.background='#FCEAEA'; msg.style.color='#B91C1C'; msg.textContent='⚠ '+d.error; }
+    else{
+      msg.style.background='#E6F6ED'; msg.style.color='#15803D';
+      msg.innerHTML = `✓ ${d.message} <b>Mejor modelo:</b> ${d.best_algorithm} (AUC ${d.best_auc}) · <b>Versión:</b> ${d.version}`;
+      if(typeof loadInfo==='function') loadInfo();
+      if(typeof loadBrainMetrics==='function') loadBrainMetrics();
+    }
+  }catch(e){ msg.style.background='#FCEAEA'; msg.style.color='#B91C1C'; msg.textContent='⚠ Error de red: '+e.message; }
+  btn.innerHTML = '<svg class="ic"><use href="#i-refresh"/></svg> Reentrenar con estos datos';
+  loadDb();
 }
 
 function onFile(f){
@@ -248,50 +803,437 @@ function logLine(html){
   el.innerHTML += html + '<br/>'; el.scrollTop = el.scrollHeight;
 }
 
+// TQDM progress
+function tqdmInit(){
+  const tqdm = document.getElementById('tqdm');
+  tqdm.classList.add('show');
+  const stepsEl = document.getElementById('tqdm-steps');
+  stepsEl.innerHTML = PIPELINE.map(s =>
+    `<div class="tqdm-step pending" id="ts-${s.id}"><div class="st-icon">-</div><span class="st-label">${s.label}</span><span class="st-detail"></span></div>`
+  ).join('');
+  document.getElementById('tqdm-pct').textContent = '0%';
+  document.getElementById('tqdm-fill').style.width = '0%';
+  document.getElementById('tqdm-counter').textContent = '0/' + PIPELINE.length;
+  document.getElementById('tqdm-step-label').textContent = 'Iniciando...';
+  trainStart = Date.now();
+  Brain.firing(true); Brain.setActivity(1); Brain.burst();
+}
+
+function tqdmUpdate(stepId, idx, total, detail){
+  const pct = Math.round(((idx+1)/total)*100);
+  document.getElementById('tqdm-pct').textContent = pct + '%';
+  document.getElementById('tqdm-fill').style.width = pct + '%';
+  document.getElementById('tqdm-counter').textContent = (idx+1) + '/' + total;
+  const bm = document.getElementById('brain-activity'); if(bm) bm.style.width = pct + '%';
+  Brain.burst();
+  const label = PIPELINE.find(s=>s.id===stepId);
+  document.getElementById('tqdm-step-label').textContent = label ? label.label : stepId;
+
+  // Elapsed time
+  const elapsed = ((Date.now() - trainStart) / 1000).toFixed(1);
+  const eta = idx > 0 ? (((Date.now() - trainStart) / (idx+1)) * (total - idx - 1) / 1000).toFixed(0) : '?';
+
+  // Update step visuals
+  PIPELINE.forEach((s, i) => {
+    const el = document.getElementById('ts-' + s.id);
+    if(!el) return;
+    if(i < idx){ el.className = 'tqdm-step done'; el.querySelector('.st-icon').innerHTML = '✓'; }
+    else if(i === idx){ el.className = 'tqdm-step active'; el.querySelector('.st-icon').innerHTML = '<span class="spin" style="width:12px;height:12px;border-width:1.5px"></span>'; }
+    else { el.className = 'tqdm-step pending'; el.querySelector('.st-icon').textContent = '-'; }
+  });
+
+  const activeEl = document.getElementById('ts-' + stepId);
+  if(activeEl){
+    const detailEl = activeEl.querySelector('.st-detail');
+    if(detailEl) detailEl.textContent = detail || '';
+  }
+}
+
+function tqdmDone(success){
+  if(success){
+    document.getElementById('tqdm-pct').textContent = '100%';
+    document.getElementById('tqdm-fill').style.width = '100%';
+    document.getElementById('tqdm-fill').style.background = 'linear-gradient(90deg,var(--green),#4ade80)';
+    document.getElementById('tqdm-step-label').textContent = 'Completado';
+    document.getElementById('tqdm-counter').textContent = PIPELINE.length + '/' + PIPELINE.length;
+    PIPELINE.forEach(s => {
+      const el = document.getElementById('ts-' + s.id);
+      if(el){ el.className = 'tqdm-step done'; el.querySelector('.st-icon').innerHTML = '✓'; }
+    });
+    document.querySelector('.tqdm-header .label').innerHTML = '<svg class="ic" style="width:16px;height:16px;color:var(--green)"><use href="#i-check"/></svg> Pipeline completado';
+    const bm = document.getElementById('brain-activity'); if(bm) bm.style.width = '100%';
+    Brain.burst();
+  } else {
+    document.getElementById('tqdm-fill').style.background = 'var(--red)';
+    document.querySelector('.tqdm-header .label').innerHTML = 'Error en el pipeline';
+  }
+  Brain.firing(false); Brain.setActivity(0.16);
+  loadBrainMetrics();   // refrescar precisión/error/datos tras entrenar
+}
+
 async function doRetrain(){
-  if(!picked){return;}
-  const btn=document.getElementById('btn-train'); btn.disabled=true;
-  btn.innerHTML='<span class="spin"></span> Entrenando…';
-  document.getElementById('log').innerHTML='';
-  logLine('<span class="gd">▸ Subiendo '+picked.name+'…</span>');
-  const fd=new FormData(); fd.append('file',picked);
+  if(!picked) return;
+  const btn = document.getElementById('btn-train');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Entrenando...';
+  document.getElementById('log').innerHTML = '';
+
+  tqdmInit();
+  logLine('<span class="gd">▸ Subiendo ' + picked.name + '...</span>');
+
+  const fd = new FormData();
+  fd.append('file', picked);
+
   try{
-    const r=await fetch('/api/admin/retrain',{method:'POST',body:fd});
-    const d=await r.json();
-    if(!r.ok||d.error){
-      logLine('<span class="er">✗ '+(d.error||'Error')+'</span>');
-      if(d.received) logLine('<span class="er">  Recibidas: '+d.received.join(', ')+'</span>');
-    }else{
-      logLine('<span class="ok">✓ '+d.message+'</span>');
-      logLine('<span class="gd">  Versión: '+d.version+' · '+d.dataset_size+' registros</span>');
-      logLine('<span class="gd">  Mejor: '+d.best_algorithm+' · AUC '+d.best_auc+' · Acc '+(d.best_accuracy*100).toFixed(1)+'%</span>');
-      for(const [k,v] of Object.entries(d.metrics||{})){
-        logLine('  '+k+': AUC '+v.auc+' / Acc '+(v.accuracy*100).toFixed(1)+'%');
+    const response = await fetch('/api/admin/retrain_sse', {method:'POST', body:fd});
+
+    if(response.headers.get('content-type')?.includes('text/event-stream')){
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while(true){
+        const {done, value} = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value, {stream:true});
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for(const line of lines){
+          if(!line.startsWith('data: ')) continue;
+          try{
+            const msg = JSON.parse(line.substring(6));
+            if(msg.error){
+              logLine('<span class="er">✗ ' + msg.error + '</span>');
+              tqdmDone(false);
+            } else if(msg.done){
+              const b = msg.bundle;
+              const mt = b.metrics || {};
+              const best = Object.entries(mt).sort((a,b)=>b[1].auc-a[1].auc)[0];
+              const names = {logit:'Regresion Logistica',random_forest:'Random Forest',xgboost:'XGBoost',neural_net:'Red Neuronal'};
+              logLine('<span class="ok">✓ Modelo reentrenado y publicado</span>');
+              logLine('<span class="gd">  Version: ' + b.version + ' · ' + b.dataset_size + ' registros</span>');
+              if(best) logLine('<span class="gd">  Mejor: ' + (names[best[0]]||best[0]) + ' · AUC ' + best[1].auc + ' · Acc ' + (best[1].accuracy*100).toFixed(1) + '%</span>');
+              tqdmDone(true);
+              loadInfo();
+            } else if(msg.step != null){
+              tqdmUpdate(msg.step, msg.idx, msg.total, msg.detail);
+              logLine('<span class="gd">▸ [' + (msg.idx+1) + '/' + msg.total + '] ' + (msg.detail || msg.step) + '</span>');
+            }
+          }catch(pe){}
+        }
       }
-      loadInfo();
+    } else {
+      const d = await response.json();
+      if(d.error){
+        logLine('<span class="er">✗ ' + d.error + '</span>');
+        if(d.received) logLine('<span class="er">  Recibidas: ' + d.received.join(', ') + '</span>');
+        tqdmDone(false);
+      }
     }
-  }catch(e){ logLine('<span class="er">✗ '+e.message+'</span>'); }
-  finally{ btn.disabled=false; btn.innerHTML='<svg class="ic"><use href="#i-cpu"/></svg> Entrenar y publicar'; }
+  }catch(e){
+    logLine('<span class="er">✗ ' + e.message + '</span>');
+    tqdmDone(false);
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="ic"><use href="#i-cpu"/></svg> Entrenar y publicar';
+  }
 }
 
 async function doSeed(){
-  document.getElementById('log').innerHTML='';
-  logLine('<span class="gd">▸ Regenerando modelo demo…</span>');
+  document.getElementById('log').innerHTML = '';
+  tqdmInit();
+  logLine('<span class="gd">▸ Regenerando modelo demo...</span>');
   try{
-    const r=await fetch('/api/admin/retrain_seed',{method:'POST'});
-    const d=await r.json();
-    if(d.error){logLine('<span class="er">✗ '+d.error+'</span>');}
-    else{logLine('<span class="ok">✓ '+d.message+' ('+d.version+')</span>');loadInfo();}
-  }catch(e){logLine('<span class="er">✗ '+e.message+'</span>');}
+    const r = await fetch('/api/admin/retrain_seed',{method:'POST'});
+    const d = await r.json();
+    if(d.error){ logLine('<span class="er">✗ '+d.error+'</span>'); tqdmDone(false); }
+    else{ logLine('<span class="ok">✓ '+d.message+' ('+d.version+')</span>'); tqdmDone(true); loadInfo(); }
+  }catch(e){ logLine('<span class="er">✗ '+e.message+'</span>'); tqdmDone(false); }
+}
+
+/* ════ BRAIN · red neuronal 3D real (Three.js / WebGL) ════
+   Capas de neuronas en 3D (entrada → ocultas → salida) con señales que viajan
+   por las conexiones (forward pass). Cámara orbital. Se intensifica al reentrenar.
+   El color de las señales refleja la confianza (verde=acierta, ámbar=duda, rojo=falla).
+   Fallback a un canvas 2D simple si el navegador no tiene WebGL/Three.js. */
+const Brain = (function(){
+  const cv = document.getElementById('brain-canvas');
+  if(!cv) return {setActivity(){},burst(){},firing(){},setMix(){},setState(){}};
+  let restState='Aprendiendo en vivo';
+  function setStateText(s){ const card=document.querySelector('.brain-card');
+    if(card && !card.classList.contains('firing')){ const el=document.getElementById('brain-state'); if(el) el.textContent=s; } }
+
+  // ── Fallback 2D si no hay Three.js/WebGL ──
+  if(!window.THREE){
+    const ctx=cv.getContext('2d'); let w,h,t=0,act=.4;
+    function rs(){ w=cv.clientWidth; h=cv.clientHeight; cv.width=w; cv.height=h; }
+    const ns=[]; for(let i=0;i<28;i++) ns.push({x:Math.random(),y:Math.random(),s:Math.random()*6});
+    function fr(){ t+=.016; ctx.clearRect(0,0,w,h);
+      for(const n of ns){ const x=n.x*w,y=(n.y+0.03*Math.sin(t+n.s))*h, r=2+2*Math.sin(t*2+n.s);
+        ctx.fillStyle='rgba(212,175,55,'+(.4+.3*act)+')'; ctx.beginPath(); ctx.arc(x,y,r,0,6.28); ctx.fill(); }
+      requestAnimationFrame(fr); }
+    rs(); window.addEventListener('resize',rs); requestAnimationFrame(fr);
+    return { setActivity(v){act=v;}, burst(){act=1;}, setMix(){}, setState(s){restState=s;setStateText(s);},
+      firing(on){ const c=document.querySelector('.brain-card'); if(c)c.classList.toggle('firing',!!on);
+        const st=document.getElementById('brain-state'); if(st) st.textContent=on?'Reentrenando · ajustando pesos':restState; } };
+  }
+
+  // ── Three.js 3D ──
+  const THREE=window.THREE;
+  const renderer=new THREE.WebGLRenderer({canvas:cv, alpha:true, antialias:true});
+  renderer.setClearColor(0x000000,0);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(46,1,0.1,100);
+  const group=new THREE.Group(); scene.add(group);
+  let W=600,H=320;
+  function size(){ W=cv.clientWidth||600; H=cv.clientHeight||320;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    renderer.setSize(W,H,false); camera.aspect=W/H; camera.updateProjectionMatrix(); }
+
+  // textura circular suave (para nodos y señales)
+  function disc(){ const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d');
+    const gr=g.createRadialGradient(32,32,0,32,32,32);
+    gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.35,'rgba(255,255,255,.85)'); gr.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=gr; g.beginPath(); g.arc(32,32,32,0,7); g.fill();
+    const tx=new THREE.Texture(c); tx.needsUpdate=true; return tx; }
+  const TEX=disc();
+
+  // capas (conteos VISUALES; la arquitectura real 31→64→32→1 se muestra en Metodología)
+  const LAYERS=[{n:8,c:0x3B82F6},{n:16,c:0xC8A24B},{n:10,c:0xD4AF37},{n:1,c:0x16A34A}];
+  const GAPX=2.4, x0=-(LAYERS.length-1)*GAPX/2, ySpan=3.4;
+  const nodes=[];                                  // {v:Vector3, layer}
+  LAYERS.forEach((L,li)=>{
+    const x=x0+li*GAPX;
+    for(let i=0;i<L.n;i++){
+      const y = L.n>1 ? (-ySpan/2 + ySpan*i/(L.n-1)) : 0;
+      const z = (Math.random()-0.5)*1.1;
+      nodes.push({v:new THREE.Vector3(x,y,z), layer:li});
+    }
+  });
+  // Puntos-nodo con color por capa
+  const npos=new Float32Array(nodes.length*3), ncol=new Float32Array(nodes.length*3);
+  nodes.forEach((nd,i)=>{ npos[i*3]=nd.v.x; npos[i*3+1]=nd.v.y; npos[i*3+2]=nd.v.z;
+    const col=new THREE.Color(LAYERS[nd.layer].c); ncol[i*3]=col.r; ncol[i*3+1]=col.g; ncol[i*3+2]=col.b; });
+  const ngeo=new THREE.BufferGeometry();
+  ngeo.setAttribute('position',new THREE.BufferAttribute(npos,3));
+  ngeo.setAttribute('color',new THREE.BufferAttribute(ncol,3));
+  const nmat=new THREE.PointsMaterial({size:0.55,map:TEX,vertexColors:true,transparent:true,
+    depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
+  group.add(new THREE.Points(ngeo,nmat));
+
+  // Conexiones entre capas consecutivas (subset) + lista para señales
+  const conns=[]; const lp=[];
+  for(let li=0; li<LAYERS.length-1; li++){
+    const A=nodes.filter(n=>n.layer===li), B=nodes.filter(n=>n.layer===li+1);
+    for(const a of A){ const k=Math.min(B.length, 4);
+      for(let j=0;j<k;j++){ const b=B[(Math.floor(Math.random()*B.length))];
+        conns.push([a.v,b.v]); lp.push(a.v.x,a.v.y,a.v.z, b.v.x,b.v.y,b.v.z); } }
+  }
+  const lgeo=new THREE.BufferGeometry();
+  lgeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(lp),3));
+  const lmat=new THREE.LineBasicMaterial({color:0x4a6090,transparent:true,opacity:0.16,
+    blending:THREE.AdditiveBlending,depthWrite:false});
+  group.add(new THREE.LineSegments(lgeo,lmat));
+
+  // Señales que viajan por las conexiones (forward pass)
+  const MIXC={ok:new THREE.Color(0x4ade80), med:new THREE.Color(0xfbbf24), bad:new THREE.Color(0xf87171)};
+  let mix={ok:0.62,med:0.26,bad:0.12};
+  function sigColor(){ const r=Math.random(); return r<mix.ok?MIXC.ok:(r<mix.ok+mix.med?MIXC.med:MIXC.bad); }
+  const S=150, sig=[];
+  const spos=new Float32Array(S*3), scol=new Float32Array(S*3);
+  function spawn(i){ const ci=Math.floor(Math.random()*conns.length); const c=sigColor();
+    sig[i]={ci, t:Math.random(), sp:0.006+Math.random()*0.012};
+    scol[i*3]=c.r; scol[i*3+1]=c.g; scol[i*3+2]=c.b; }
+  for(let i=0;i<S;i++) spawn(i);
+  const sgeo=new THREE.BufferGeometry();
+  sgeo.setAttribute('position',new THREE.BufferAttribute(spos,3));
+  sgeo.setAttribute('color',new THREE.BufferAttribute(scol,3));
+  const smat=new THREE.PointsMaterial({size:0.42,map:TEX,vertexColors:true,transparent:true,
+    opacity:0.95,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true});
+  const sigPts=new THREE.Points(sgeo,smat); group.add(sigPts);
+
+  let activity=0.34, targetAct=0.34, theta=0, t=0;
+  function frame(){
+    t+=0.016; activity+=(targetAct-activity)*0.05;
+    // cámara orbital suave
+    theta+=0.0016+activity*0.0026;
+    const R=9.2 - activity*0.8;
+    camera.position.set(Math.sin(theta)*2.6, 1.1+Math.sin(t*0.4)*0.4, R);
+    camera.lookAt(0,0,0);
+    // pulso de nodos + glow de conexiones con la actividad
+    nmat.size=0.5+0.12*Math.sin(t*2.2)+activity*0.18;
+    nmat.opacity=0.85;
+    lmat.opacity=0.10+activity*0.16;
+    smat.size=0.34+activity*0.30;
+    // avanzar señales por sus conexiones
+    for(let i=0;i<S;i++){ const s=sig[i]; s.t+=s.sp*(0.4+activity*2.2);
+      if(s.t>=1){ spawn(i); continue; }
+      const c=conns[s.ci]; const a=c[0], b=c[1];
+      spos[i*3]  =a.x+(b.x-a.x)*s.t;
+      spos[i*3+1]=a.y+(b.y-a.y)*s.t;
+      spos[i*3+2]=a.z+(b.z-a.z)*s.t;
+    }
+    sgeo.attributes.position.needsUpdate=true;
+    sgeo.attributes.color.needsUpdate=true;
+    renderer.render(scene,camera);
+    requestAnimationFrame(frame);
+  }
+  size(); window.addEventListener('resize',size); requestAnimationFrame(frame);
+
+  return {
+    setActivity(v){ targetAct=Math.max(0.2,Math.min(1,v)); },
+    burst(){ targetAct=1; setTimeout(()=>{ targetAct=Math.max(0.34,targetAct*0.6); },1400); },
+    setMix(m){ if(m) mix=m; },
+    setState(s){ if(s) restState=s; setStateText(s); },
+    firing(on){
+      const card=document.querySelector('.brain-card');
+      if(card) card.classList.toggle('firing',!!on);
+      const st=document.getElementById('brain-state');
+      if(st) st.textContent = on ? 'Reentrenando · ajustando pesos' : restState;
+    }
+  };
+})();
+
+/* ── Métricas honestas del cerebro (precisión / error / datos / le falta) ── */
+async function loadBrainMetrics(){
+  try{
+    const [mi, ds] = await Promise.all([
+      fetch('/api/model_info').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/admin/db_stats').then(r=>r.json()).catch(()=>({}))
+    ]);
+    const TARGET=0.90, THRESH=50;
+    const acc = +(mi.best_accuracy||0);                 // 0..1
+    const err = Math.max(0,1-acc);
+    const real = +(ds.total_evaluaciones||0);
+    const labeled = +(ds.etiquetados_real||0);
+    const setBar=(id,pct)=>{ const el=document.getElementById(id); if(el) el.style.width=Math.max(0,Math.min(100,pct))+'%'; };
+    const setTxt=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+    // Precisión / Equivocación
+    setTxt('bm-acc', acc?Math.round(acc*100)+'%':'—'); setBar('bm-acc-bar', acc*100);
+    setTxt('bm-err', acc?Math.round(err*100)+'%':'—'); setBar('bm-err-bar', err*100);
+    // Datos reales recolectados (progreso hacia el umbral de reentrenamiento)
+    setTxt('bm-data', real.toLocaleString());
+    setBar('bm-data-bar', (real/THRESH)*100);
+    setTxt('bm-data-sub', labeled+' etiquetados con resultado real · meta '+THRESH+' para reentrenar');
+    // "Le falta": brecha de precisión a la meta + datos que faltan
+    const accGap=Math.max(0,TARGET-acc);
+    setTxt('bm-gap', acc>=TARGET?'meta lograda':Math.round(accGap*100)+'%');
+    setBar('bm-gap-bar', acc>=TARGET?100:(accGap/0.40)*100);
+    const dataFalta=Math.max(0,THRESH-labeled);
+    setTxt('bm-gap-sub', acc>=TARGET? 'Precisión en la meta del '+(TARGET*100)+'%' :
+      'Para llegar al '+(TARGET*100)+'%: faltan ~'+dataFalta+' datos etiquetados reales');
+    // Mezcla de colores del campo según la distribución real de riesgo (si hay datos)
+    const pr=ds.por_riesgo||[]; const tot=pr.reduce((a,r)=>a+r.count,0);
+    if(tot){ const g={alta:0,media:0,baja:0}; pr.forEach(r=>{ if(g[r.riesgo]!=null) g[r.riesgo]=r.count; });
+      Brain.setMix({ok:g.alta/tot, med:g.media/tot, bad:g.baja/tot}); }
+    // Estado en reposo: menos preciso → más "esfuerzo" visual
+    Brain.setActivity(0.3+err*0.55);
+    Brain.setState(acc? ('Aprendiendo en vivo · le falta '+(acc>=TARGET?'0':Math.round(accGap*100))+'% para la meta') : 'Aprendiendo en vivo');
+  }catch(e){ /* silencioso */ }
 }
 
 // drag&drop
-const drop=document.getElementById('drop');
+const drop = document.getElementById('drop');
 ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='var(--gold)';}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='';}));
 drop.addEventListener('drop',e=>{if(e.dataTransfer.files.length)onFile(e.dataTransfer.files[0]);});
 
+// ── ¿Realmente aprende? · curva de pérdida + pesos/signos + importancia ──
+function renderLoss(lc, vc){
+  const box=document.getElementById('loss-chart');
+  if(!lc || lc.length<2){ box.innerHTML='<div class="chart-empty">Reentrena el modelo para generar la curva de pérdida.</div>'; return; }
+  const W=620,H=200,pl=8,pr=8,pt=12,pb=16;
+  const all=lc.concat(vc&&vc.length?vc:[]);
+  const mx=Math.max(...all),mn=Math.min(...all);
+  const X=i=> pl + (i/(lc.length-1))*(W-pl-pr);
+  const Y=v=> pt + (1-(v-mn)/((mx-mn)||1))*(H-pt-pb);
+  const toPath=a=>a.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+  const path=toPath(lc);
+  const area=`M${X(0).toFixed(1)} ${H-pb} L${path.slice(1)} L${X(lc.length-1).toFixed(1)} ${H-pb} Z`;
+  const valPath = (vc&&vc.length>=2)? `<path d="${toPath(vc)}" fill="none" stroke="#D4AF37" stroke-width="2.2" stroke-dasharray="5 4" stroke-linejoin="round"/>`:'';
+  box.innerHTML=`<svg class="loss-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="lossg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E40AF" stop-opacity=".22"/><stop offset="1" stop-color="#1E40AF" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#lossg)"/>
+    <path d="${path}" fill="none" stroke="#1E40AF" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+    ${valPath}
+  </svg>
+  <div style="display:flex;gap:16px;justify-content:center;font-size:11px;color:var(--muted);margin-top:6px">
+    <span><b style="color:#1E40AF">━</b> Entrenamiento</span>${vc&&vc.length?'<span><b style="color:#D4AF37">┅</b> Validación (early-stopping)</span>':''}</div>`;
+}
+function renderCoef(coefs,intercept){
+  const ic=document.getElementById('lc-intercept'); if(ic) ic.textContent=(intercept>=0?'+':'')+intercept;
+  const box=document.getElementById('coef-chart');
+  if(!coefs||!coefs.length){ box.innerHTML='<div class="chart-empty">Reentrena para ver los coeficientes.</div>'; return; }
+  const maxA=Math.max(...coefs.map(c=>Math.abs(c.coef)),0.01);
+  box.innerHTML=coefs.map(c=>{
+    const pos=c.coef>=0, col=pos?'#16A34A':'#DC2626', w=Math.abs(c.coef)/maxA*50;
+    return `<div class="coef-row"><span class="cl" title="${c.label}">${c.label}</span>
+      <div class="coef-mid"><div class="zero"></div>
+        <div class="coef-bar" data-w="${w.toFixed(1)}" style="${pos?'left:50%':'right:50%'};background:${col}"></div></div>
+      <span class="cv" style="color:${col}">${pos?'+':''}${c.coef}</span></div>`;
+  }).join('');
+  requestAnimationFrame(()=>box.querySelectorAll('.coef-bar').forEach(el=>el.style.width=el.dataset.w+'%'));
+}
+function renderImp(imp){
+  const box=document.getElementById('imp-chart');
+  if(!imp||!imp.length){ box.innerHTML='<div class="chart-empty">Reentrena para ver la importancia.</div>'; return; }
+  const max=Math.max(...imp.map(i=>i.importance),0.01);
+  box.innerHTML=imp.slice(0,10).map(i=>
+    `<div class="cbar-row"><span class="lbl" title="${i.label}">${i.label}</span>
+      <div class="cbar-track"><div class="cbar-fill" data-w="${(i.importance/max*100).toFixed(1)}" style="background:#1E40AF"></div></div>
+      <span class="num">${Math.round(i.importance*100)}%</span></div>`).join('');
+  requestAnimationFrame(()=>box.querySelectorAll('#imp-chart .cbar-fill').forEach(el=>el.style.width=Math.max(5,+el.dataset.w)+'%'));
+}
+async function loadLearning(){
+  try{
+    const d=await (await fetch('/api/admin/learning')).json();
+    const L=d.learning||{};
+    if(L.nn_arch&&L.nn_arch.layers){ const e=document.getElementById('eq-arch'); if(e) e.textContent=L.nn_arch.layers.join(' → '); }
+    const lc=L.nn_loss_curve||[];
+    renderLoss(lc, L.nn_val_loss_curve||[]);
+    // Prueba de neuronas muertas
+    const dn=L.dead_neurons, dv=document.getElementById('nn-dead-val');
+    if(dv){
+      if(dn) dv.innerHTML = `${dn.total_dead} de ${dn.total_units} neuronas inactivas (${dn.pct_dead}%) → `
+        + (dn.healthy?'<b style="color:#16A34A">red sana ✓</b>':'<b style="color:#DC2626">revisar ⚠</b>')
+        + ' — GELU evita que las neuronas mueran a 0.';
+      else dv.textContent='reentrena el modelo para ejecutar la prueba.';
+    }
+    if(lc.length>=2){
+      document.getElementById('ls-iters').textContent=L.nn_iters||lc.length;
+      document.getElementById('ls-first').textContent=lc[0].toFixed(3);
+      document.getElementById('ls-last').textContent=lc[lc.length-1].toFixed(3);
+      const drop=lc[0]>0?Math.round((1-lc[lc.length-1]/lc[0])*100):0;
+      document.getElementById('ls-drop').textContent='−'+drop+'%';
+      const v=document.getElementById('loss-verdict');
+      if(lc[lc.length-1]<lc[0]){ v.className='loss-foot show';
+        v.innerHTML=`✓ La red <b>sí aprende</b>: la pérdida bajó de ${lc[0].toFixed(3)} a ${lc[lc.length-1].toFixed(3)} (−${drop}%) en ${lc.length} iteraciones. La sigmoide mantiene la salida como probabilidad continua.`; }
+      else { v.className='loss-foot show bad'; v.textContent='La pérdida no descendió; revisa los datos de entrenamiento.'; }
+    }
+    renderCoef(L.logit_coef||[], L.logit_intercept||0);
+    renderImp(L.importance||[]);
+  }catch(e){ console.error(e); }
+}
+async function loadSchema(){
+  try{
+    const d=await (await fetch('/api/admin/db_schema')).json();
+    const box=document.getElementById('db-schema'); if(!box) return;
+    if(d.db_path){ const p=document.getElementById('db-path'); if(p) p.textContent=d.db_path; }
+    if(!d.tables){ box.innerHTML=''; return; }
+    box.innerHTML=`<div style="font-size:12px;color:var(--muted)">Archivo SQL: <code>${d.db_path}</code> · ${d.size_kb} KB</div>`+
+      d.tables.filter(t=>t.table!=='sqlite_sequence').map(t=>
+      `<div class="dbs-tbl"><div class="dbs-h"><span>${t.table}</span><span>${t.rows} filas</span></div>
+       <div class="dbs-c">${t.columns.map(c=>`<span>${c.name}</span>`).join('')}</div></div>`).join('');
+  }catch(e){ console.error(e); }
+}
+
 loadInfo();
+loadUsers();
+loadDb();
+loadLearning();
+loadSchema();
+loadBrainMetrics();
+setInterval(loadBrainMetrics, 25000);   // refresco periódico del estado de aprendizaje
 </script>
 {% endif %}
 
